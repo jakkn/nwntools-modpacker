@@ -488,7 +488,7 @@ public class GffWriter
         // Offset in the field index data block
         int type;
         int elementCount;
-        List elementIndex = new ArrayList();
+        List elementIndex;
 
         public StructStub( int type, int elementCount, Stub previous )
         {
@@ -500,6 +500,7 @@ public class GffWriter
             // offset calculations even though it doesn't have all
             // of its sub-items yet.
             this.elementCount = elementCount;
+            this.elementIndex = new ArrayList( elementCount );
         }
 
         public int getSize()
@@ -542,7 +543,7 @@ public class GffWriter
     {
         int indexSize = 0;
         int offset = -1;
-        List indices = new ArrayList();
+        List indices;
 
         public ListStub( int indexSize, Stub previous )
         {
@@ -553,6 +554,7 @@ public class GffWriter
             // offset calculations even though it doesn't have all
             // of its list items yet.
             this.indexSize = indexSize;
+            this.indices = new ArrayList( indexSize );
         }
 
         public int getSize()
