@@ -112,32 +112,31 @@ public class ScriptReader
                         {
                         if( st.sval.startsWith( "/*" ) ) // */ Working around a bug in my editor
                             {
-                            block.setType( ScriptBlock.COMMENT );
+                            block = block.getBlockForType( ScriptBlock.MULTICOMMENT );
                             closeAtEol = false;
                             }
                         else if( st.sval.startsWith( "//" ) )
                             {
-                            block.setType( ScriptBlock.COMMENT );
+                            block = block.getBlockForType( ScriptBlock.COMMENT );
                             closeAtEol = true;
                             }
                         else if( st.sval.equals( "#include" ) )
                             {
-                            block.setType( ScriptBlock.INCLUDE );
+                            block = block.getBlockForType( ScriptBlock.INCLUDE );
                             closeAtEol = true;
                             }
                         else if( st.sval.equals( "const" ) )
                             {
-                            //block.setType( ScriptBlock.CONSTANT );
-                            block = new ConstantBlock( block.getBlockText() );
+                            block = block.getBlockForType( ScriptBlock.CONSTANT );
                             closeAtEol = false;
                             }
                         else
                             {
-                            block.setType( ScriptBlock.CODE );
+                            block = block.getBlockForType( ScriptBlock.DECLARATION );
                             closeAtEol = false;
                             }
                         }
-                    else if( block.getType() == ScriptBlock.COMMENT )
+                    else if( block.getType() == ScriptBlock.MULTICOMMENT )
                         {
                         if( st.sval.endsWith( "*/" ) )
                             {
@@ -166,12 +165,12 @@ public class ScriptReader
                         case ScriptBlock.WHITESPACE:
                             if( token != ' ' && token != '\t' )
                                 {
-                                block.setType( ScriptBlock.CODE );
+                                block = block.getBlockForType( ScriptBlock.DECLARATION );
                                 closeAtEol = false;
                                 }
                             break;
-                        case ScriptBlock.CODE:
                         case ScriptBlock.CONSTANT:
+                        case ScriptBlock.DECLARATION:
                             if( token == ';' && blockDepth == 0 )
                                 {
                                 closeAtEol = true;

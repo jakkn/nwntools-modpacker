@@ -42,10 +42,11 @@ package org.progeeks.nwn.io.nss;
 public class ScriptBlock
 {
     public static final int WHITESPACE = 0;
-    public static final int COMMENT = 1;
-    public static final int INCLUDE = 2;
-    public static final int CONSTANT = 3;
-    public static final int CODE = 4;
+    public static final int MULTICOMMENT = 1;
+    public static final int COMMENT = 2;
+    public static final int INCLUDE = 3;
+    public static final int CONSTANT = 4;
+    public static final int DECLARATION = 5;
 
     private int startLine;
     private int endLine;
@@ -80,7 +81,40 @@ public class ScriptBlock
         append( String.valueOf(num) );
     }
 
-    public void setType( int type )
+    /**
+     *  Returns a ScriptBlock subclass for the specified type.  It
+     *  may return this block instance if compatible.
+     */
+    public ScriptBlock getBlockForType( int type )
+    {
+        ScriptBlock result = null;
+
+        switch( type )
+            {
+            default:
+            case WHITESPACE:
+            case COMMENT:
+            case MULTICOMMENT:
+                setType( type );
+                return( this );
+            case DECLARATION:
+                result = new DeclarationBlock( blockText );
+                break;
+            case INCLUDE:
+                result = new IncludeBlock( blockText );
+                break;
+            case CONSTANT:
+                result = new ConstantBlock( blockText );
+                break;
+            }
+
+        result.setStartLine( startLine );
+        result.setEndLine( endLine );
+
+        return( result );
+    }
+
+    protected void setType( int type )
     {
         this.type = type;
     }
@@ -138,6 +172,9 @@ public class ScriptBlock
             case WHITESPACE:
                 sb.append( "Whitespace" );
                 break;
+            case MULTICOMMENT:
+                sb.append( "MultiComment" );
+                break;
             case COMMENT:
                 sb.append( "Comment" );
                 break;
@@ -147,7 +184,7 @@ public class ScriptBlock
             case CONSTANT:
                 sb.append( "Const" );
                 break;
-            case CODE:
+            case DECLARATION:
                 sb.append( "Code" );
                 break;
             default:
