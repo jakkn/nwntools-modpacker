@@ -124,7 +124,7 @@ System.out.println( "Res:" + res );
 
         System.out.println( "Size:" + width + " x " + height );
 
-        image = new BufferedImage( (width * 16), (height * 16), BufferedImage.TYPE_INT_ARGB );
+        image = new BufferedImage( (width * 16) * 2, (height * 16) * 2, BufferedImage.TYPE_INT_ARGB );
 
         String tilesetName = areaStruct.getString( "Tileset" );
         System.out.println( "Tileset:" + tilesetName );
@@ -135,7 +135,7 @@ System.out.println( "Res:" + res );
         Iterator i = tileList.iterator();
         Graphics g = image.getGraphics();
         Graphics2D g2 = (Graphics2D)g;
-        g2.scale( 1, -1 );
+        g2.scale( 2, -2 );
         for( int y = 0; y < height; y++ )
             {
             for( int x = 0; x < width; x++ )
