@@ -50,11 +50,11 @@ import org.progeeks.nwn.io.gff.*;
 public class GffXmlWriter
 {
     private String name;
-    private int type;
+    private String type;
     private String version;
     private XmlPrintWriter out;
 
-    public GffXmlWriter( String resourceName, int type, String version, Writer out )
+    public GffXmlWriter( String resourceName, String type, String version, Writer out )
     {
         this.name = resourceName;
         this.type = type;
@@ -68,7 +68,7 @@ public class GffXmlWriter
     {
         out.pushTag( "gff" );
         out.printAttribute( "name", name );
-        out.printAttribute( "type", String.valueOf( type ) );
+        out.printAttribute( "type", type );
         out.printAttribute( "version", version );
     }
 

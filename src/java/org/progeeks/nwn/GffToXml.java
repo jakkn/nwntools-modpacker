@@ -40,6 +40,7 @@ import org.progeeks.meta.xml.*;
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.gff.*;
+import org.progeeks.nwn.io.xml.*;
 import org.progeeks.util.thread.*;
 
 
@@ -53,7 +54,6 @@ import org.progeeks.util.thread.*;
 public class GffToXml
 {
     private File outDir;
-    private XmlPrintWriter writer;
     private byte[] transferBuff = new byte[65536];
 
     public GffToXml( File outDir )
@@ -119,75 +119,6 @@ public class GffToXml
 
     }
 
-    protected void writeElements( List elements )
-    {
-        for( Iterator it = elements.iterator(); it.hasNext(); )
-            {
-            Object obj = it.next();
-            if( obj instanceof Element )
-                writeElement( (Element)obj );
-            else if( obj instanceof Struct )
-                writeStruct( (Struct)obj );
-            else
-                System.out.println( "Unknown object type: " + obj );
-            }
-    }
-
-    protected void writeElement( Element el )
-    {
-        writer.pushTag( "element" );
-        writer.printAttribute( "name", el.getName() );
-        writer.printAttribute( "type", String.valueOf( el.getType() ) );
-
-        if( el instanceof StructElement )
-            {
-            StructElement se = (StructElement)el;
-            writeStruct( se.getStruct() );
-            }
-        else if( el instanceof ListElement )
-            {
-            ListElement ll = (ListElement)el;
-            writeElements( ll.getValue() );
-            }
-        else if( el instanceof StringElement )
-            {
-            StringElement se = (StringElement)el;
-            String val = se.getValue();
-            // no attribute means no value
-            if( val != null )
-                {
-                if( val.indexOf( '\r' ) < 0 && val.indexOf( '\n' ) < 0 )
-                    {
-                    writer.printAttribute( "value", val );
-                    }
-                else
-                    {
-                    writer.pushTag( "value" );
-                    writer.startDataBlock();
-                    writer.print( val );
-                    writer.closeDataBlock();
-                    writer.popTag();
-                    }
-                }
-            }
-        else
-            {
-            writer.printAttribute( "value", el.getStringValue() );
-            }
-
-        writer.popTag();
-    }
-
-    protected void writeStruct( Struct s )
-    {
-        writer.pushTag( "struct" );
-        writer.printAttribute( "id", String.valueOf( s.getId() ) );
-
-        writeElements( s.getValues() );
-
-        writer.popTag();
-    }
-
     public void writeFile( String name, InputStream in, int type ) throws IOException
     {
         File f = getOutputFile( name, type );
@@ -201,21 +132,16 @@ public class GffToXml
 
         // Process the GFF file using the GffReader
         GffReader reader = new GffReader( in );
-
-        this.writer = new XmlPrintWriter( new FileWriter( f ) );
-
+        GffXmlWriter out = new GffXmlWriter( name, reader.getHeader().getType(),
+                                             reader.getHeader().getVersion(),
+                                             new FileWriter( f ) );
         try
             {
-            writer.pushTag( "gff" );
-            writer.printAttribute( "name", name );
-            writer.printAttribute( "type", reader.getHeader().getType() );
-            writer.printAttribute( "version", reader.getHeader().getVersion() );
-            writeStruct( reader.getRootStruct() );
-            writer.popTag();
+            out.writeStruct( reader.getRootStruct() );
             }
         finally
             {
-            writer.close();
+            out.close();
             }
     }
 
