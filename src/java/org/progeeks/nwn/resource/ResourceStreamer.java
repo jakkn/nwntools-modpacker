@@ -64,6 +64,8 @@ public class ResourceStreamer
         try
             {
             ResourceIndex index = (ResourceIndex)resources.get( key );
+            if( index == null )
+                return( null );
             return( index.getResourceStream() );
             }
         catch( IOException e )
@@ -178,7 +180,7 @@ public class ResourceStreamer
         // Check for the default location of standard NWN key files
         if( nwn.exists() && nwn.isDirectory() )
             {
-            System.out.println( "Indexing Neverwinter Nights key files..." );
+            log.info( "Indexing Neverwinter Nights key files..." );
             File[] keys = nwn.listFiles( new FileFilter()
                             {
                                 public boolean accept( File f )
@@ -198,7 +200,7 @@ public class ResourceStreamer
             if( log.isInfoEnabled() )
                 {
                 log.info( "Indexed default keys files in: " + (endTime - startTime) + " ms" );
-System.out.println( "Indexed default keys files in: " + (endTime - startTime) + " ms" );
+//System.out.println( "Indexed default keys files in: " + (endTime - startTime) + " ms" );
                 }
             }
     }
@@ -317,7 +319,7 @@ System.out.println( "Indexed default keys files in: " + (endTime - startTime) + 
          */
         public InputStream getResourceStream() throws IOException
         {
-System.out.println( "Opening BIF file:" + file + "   index:" + (id & 0x3fff) );
+            log.info( "Opening BIF file:" + file + "   index:" + (id & 0x3fff) );
             FileInputStream fIn = new FileInputStream( file );
             BifReader reader = new BifReader( new BufferedInputStream( fIn, 32768 ) );
             InputStream resIn = reader.getResource( id );

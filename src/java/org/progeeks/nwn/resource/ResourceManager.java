@@ -182,6 +182,11 @@ public class ResourceManager
         streamer.addResourceFile( resource, type );
     }
 
+    public void loadDefaultKeys( File nwn ) throws IOException
+    {
+        streamer.loadDefaultKeys( nwn );
+    }
+
     public void loadDefaultKeys() throws IOException
     {
         streamer.loadDefaultKeys();
