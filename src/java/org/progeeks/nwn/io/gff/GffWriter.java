@@ -89,7 +89,10 @@ public class GffWriter
     {
         int i = labels.indexOf( label );
         if( i >= 0 )
+            {
+            //System.out.println( "Reusing label index:" + i );
             return( i );
+            }
 
         i = labels.size();
         labels.add( label );
@@ -118,9 +121,15 @@ public class GffWriter
 
     protected int addElement( Element el )
     {
-        int i = elements.indexOf( el );
-        if( i >= 0 )
-            return( i );
+        int i;
+        // Uncomment the lines below if it ever turns out elements are
+        // actually reused within a file.
+        //i = elements.indexOf( el );
+        //if( i >= 0 )
+        //    {
+        //    System.out.println( "******** Reusing Element index:" + i );
+        //    return( i );
+        //    }
 
         i = elements.size();
         elements.add( el );
@@ -168,9 +177,15 @@ public class GffWriter
 
     protected int addStruct( Struct struct )
     {
-        int i = structs.indexOf( struct );
-        if( i >= 0 )
-            return( i );
+        int i;
+        // Uncomment the lines below if it ever turns out structs are
+        // actually reused within a file.
+        //i = structs.indexOf( struct );
+        //if( i >= 0 )
+        //    {
+        //    System.out.println( "******* Reusing struct index:" + i );
+        //    return( i );
+        //    }
 
         StructStub lastStub = (StructStub)getLastItem( structStubs );
 
