@@ -132,6 +132,7 @@
         <copy file="lib/meta-jb-xml.jar" toDir="${dist}/lib" />
         <copy file="lib/meta-jb-util.jar" toDir="${dist}/lib" />
         <copy file="lib/log4j.jar" toDir="${dist}/lib" />
+        <copy file="lib/log4j.properties" toDir="${dist}/lib" />
     </target>
 
     <target name="nwn-tools.jar" description="Create NWN Tools distribution" depends="dist" >
@@ -140,7 +141,6 @@
         <jar jarFile="${dist}/nwn-tools.jar" basedir="${build.classes}" >
             <include name="org/progeeks/**" />
             <include name="LICENSE" />
-            <include name="log4j.properties" />
             <exclude name="org/progeeks/util/thread/**" />
             <exclude name="org/progeeks/nwn/io/bif/**" />
             <exclude name="org/progeeks/nwn/io/image/**" />
@@ -152,6 +152,11 @@
             <manifest>
                 <attribute name="Class-Path" value="lib/meta-jb-xml.jar lib/meta-jb-util.jar lib/log4j.jar" />
             </manifest>
+        </jar>
+
+        <!-- make sure it has a log4j.properties file. -->
+        <jar jarFile="${dist}/nwn-tools.jar" basedir="lib" update="true" >
+            <include name="log4j.properties" />
         </jar>
     </target>
 
@@ -166,6 +171,7 @@
         <copy file="${dist}/lib/meta-jb-xml.jar" toDir="${dist}/modpacker/lib" />
         <copy file="${dist}/lib/meta-jb-util.jar" toDir="${dist}/modpacker/lib" />
         <copy file="${dist}/lib/log4j.jar" toDir="${dist}/modpacker/lib" />
+        <copy file="${dist}/lib/log4j.properties" toDir="${dist}/modpacker/lib" />
         <copy file="${src.cmd}/modpacker-setup.cmd" toFile="${dist}/modpacker/setup.cmd" />
 
         <zip destfile="${dist}/modpacker.zip"
