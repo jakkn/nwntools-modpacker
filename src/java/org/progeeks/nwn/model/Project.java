@@ -59,6 +59,11 @@ public class Project
         root = new ProjectRoot();
     }
 
+    public ProjectRoot getProjectRoot()
+    {
+        return( root );
+    }
+
     /**
      *  Sets the name of this project.  This can be different
      *  than the project file name.
@@ -86,6 +91,7 @@ public class Project
         if( this.graph != null )
             throw new RuntimeException( "The project graph can only be set once." );
         this.graph = graph;
+        root = graph.getRoot();
     }
 
     /**

@@ -37,6 +37,8 @@ import java.beans.*;
 import java.util.*;
 import javax.swing.*;
 
+import org.progeeks.meta.*;
+import org.progeeks.meta.swing.*;
 import org.progeeks.util.*;
 
 import org.progeeks.nwn.model.*;
@@ -52,7 +54,7 @@ import org.progeeks.nwn.resource.*;
 public class ObjectPanel extends JScrollPane
 {
     private WindowContext context;
-    private JLabel temporary;
+    private JTextPane temporary;
 
     public ObjectPanel( WindowContext context )
     {
@@ -61,7 +63,8 @@ public class ObjectPanel extends JScrollPane
         context.addPropertyChangeListener( new ContextListener() );
         context.addPropertyChangeListener( WindowContext.PROP_SELECTED_OBJECTS, new SelectionListener() );
 
-        temporary = new JLabel();
+        temporary = new JTextPane();
+        temporary.setEditable( false );
         setViewportView( temporary );
     }
 
@@ -85,17 +88,29 @@ public class ObjectPanel extends JScrollPane
                 System.out.println( "Was stale:" + stale );
 
                 // Just some temporary code
-                if( ri.getKey().getType() == ResourceTypes.TYPE_NSS )
+                try
                     {
-                    // We could load the script here...
-
-
+                    String s = StringUtils.readFile( ri.getSource().getFile( context.getProject() ) );
+                    temporary.setText( s );
+                    temporary.getCaret().setDot( 0 );
+                    }
+                catch( java.io.IOException e )
+                    {
+                    e.printStackTrace();
                     temporary.setText( ri.getName() );
                     }
-                else
-                    {
-                    temporary.setText( ri.getName() );
-                    }
+                setViewportView( temporary );
+                }
+            else if( o == context.getProject().getProjectRoot() )
+                {
+                MetaObject mProject = context.wrapObject( context.getProject() );
+                MetaObjectUI ui = context.createMetaObjectEditor( mProject.getMetaClass() );
+                ui.setMetaObject( mProject );
+                setViewportView( ui.getUIComponent() );
+                }
+            else
+                {
+                System.out.println( o + "  instance of :" + o.getClass() );
                 }
         }
 

@@ -134,7 +134,8 @@ public class GlobalContext extends DefaultViewContext
             List properties = BeanUtils.getBeanPropertyInfos( Project.class );
             MetaObjectUtils.replacePropertyType( properties, "projectDescription", new LongStringType() );
 
-            MetaClassRegistry.getRootRegistry().createMetaClass( Project.class.getName(), properties );
+            MetaClass pClass = MetaClassRegistry.getRootRegistry().createMetaClass( Project.class.getName(),
+                                                                                    properties );
 
             MetaClass fiClass = BeanUtils.createBeanMetaClass( FileIndex.class );
             MetaClass graphClass = BeanUtils.createBeanMetaClass( ProjectGraph.class );
@@ -154,6 +155,15 @@ public class GlobalContext extends DefaultViewContext
             List fields = new ArrayList();
             fields.add( "fullPath" );
             registerForm( fiClass, fields );
+
+            fields = new ArrayList();
+            fields.add( "name" );
+            fields.add( "targetModuleName" );
+            fields.add( "projectDescription" );
+            //fields.add( "buildDirectory" );
+            //fields.add( "workDirectory" );
+            //fields.add( "sourceDirectory" );
+            registerForm( pClass, fields );
 
             factories.getFormatRegistry().registerDefaultFormat( ResourceKey.class,
                             new AbstractPropertyFormat()

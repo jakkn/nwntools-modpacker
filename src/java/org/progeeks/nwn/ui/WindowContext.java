@@ -38,6 +38,9 @@ import javax.swing.Action;
 import javax.swing.tree.TreeModel;
 
 import org.progeeks.cmd.swing.SwingCommandProcessor;
+import org.progeeks.meta.*;
+import org.progeeks.meta.beans.*;
+import org.progeeks.meta.swing.*;
 import org.progeeks.util.*;
 import org.progeeks.util.swing.*;
 
@@ -224,6 +227,27 @@ public class WindowContext extends DefaultViewContext
     public SwingCommandProcessor getCommandProcessor()
     {
         return( getGlobalContext().getCommandProcessor() );
+    }
+
+    /**
+     *  Wraps the specified object in a meta-object as necessary
+     *  for its class.  This method is preferable to manual creation
+     *  because it may cache instances, etc..
+     */
+    public MetaObject wrapObject( Object obj )
+    {
+        // The kit may actually be different depending on the object
+        MetaKit kit = BeanUtils.getMetaKit();
+        MetaClass metaClass = kit.getMetaClassForObject( obj );
+        if( metaClass == null )
+            return( null );
+
+        return( kit.wrapObject( obj, metaClass ) );
+    }
+
+    public MetaObjectUI createMetaObjectEditor( MetaClass type )
+    {
+        return( getGlobalContext().getFactoryRegistry().createMetaObjectEditor( type ) );
     }
 
     /**
