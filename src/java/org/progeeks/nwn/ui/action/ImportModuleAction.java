@@ -102,6 +102,29 @@ public class ImportModuleAction extends AbstractAction
             }
     }
 
+    protected List getModuleResourceList( File moduleFile ) throws IOException
+    {
+        List results = new ArrayList();
+        FileInputStream in = new FileInputStream( moduleFile );
+        try
+            {
+            ModReader modReader = new ModReader( in );
+
+            // Find the input stream for the module.ifo resource
+            ModReader.ResourceInputStream rIn = null;
+            while( (rIn = modReader.nextResource()) != null )
+                {
+                results.add( new ResourceKey( rIn.getResourceName(), rIn.getResourceType() ) );
+                }
+
+            return( results );
+            }
+        finally
+            {
+            in.close();
+            }
+    }
+
     public void actionPerformed( ActionEvent event )
     {
         System.out.println( "Import" );
@@ -234,6 +257,15 @@ public class ImportModuleAction extends AbstractAction
             File scriptDir = new File( projectDirectory, "Scripts" );
             File dialogDir = new File( projectDirectory, "Conversations" );
             File blueprintDir = new File( projectDirectory, "Blueprints" );
+            File merchantDir = new File( blueprintDir, "Merchants" );
+            File soundDir = new File( blueprintDir, "Sounds" );
+            File encounterDir = new File( blueprintDir, "Encounters" );
+            File placeableDir = new File( blueprintDir, "Placeables" );
+            File itemDir = new File( blueprintDir, "Items" );
+            File creatureDir = new File( blueprintDir, "Creatures" );
+            File waypointDir = new File( blueprintDir, "Waypoints" );
+            File triggerDir = new File( blueprintDir, "Triggers" );
+            File doorDir = new File( blueprintDir, "Doors" );
 
             ProjectGraph graph = project.getProjectGraph();
             graph.addNode( areaDir );
@@ -244,21 +276,177 @@ public class ImportModuleAction extends AbstractAction
             graph.addEdge( ProjectGraph.EDGE_FILE, project, dialogDir, true );
             graph.addNode( blueprintDir );
             graph.addEdge( ProjectGraph.EDGE_FILE, project, blueprintDir, true );
+            graph.addNode( merchantDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, merchantDir, true );
+            graph.addNode( soundDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, soundDir, true );
+            graph.addNode( encounterDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, encounterDir, true );
+            graph.addNode( placeableDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, placeableDir, true );
+            graph.addNode( itemDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, itemDir, true );
+            graph.addNode( creatureDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, creatureDir, true );
+            graph.addNode( waypointDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, waypointDir, true );
+            graph.addNode( triggerDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, triggerDir, true );
+            graph.addNode( doorDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, doorDir, true );
 
             // Now go through all of the resources and add them too
-            // Just the areas for now
-            List areas = (List)info.getList( "Mod_Area_list" );
-            for( Iterator i = areas.iterator(); i.hasNext(); )
+            List resources = getModuleResourceList( module );
+            for( Iterator i = resources.iterator(); i.hasNext(); )
                 {
-                Struct a = (Struct)i.next();
-                String areaName = a.getString( "Area_Name" );
-                ResourceKey key = new ResourceKey( areaName, ResourceUtils.RES_ARE );
-                System.out.println( "   :" + key );
-                graph.addNode( key );
-                graph.addEdge( ProjectGraph.EDGE_FILE, areaDir, key, true );
+                ResourceKey key = (ResourceKey)i.next();
+                switch( key.getType() )
+                    {
+                    case ResourceKey.TYPE_ARE:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, areaDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_NSS:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, scriptDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_DLG:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, dialogDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTM:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, merchantDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTS:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, soundDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTP:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, placeableDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTE:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, encounterDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTI:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, itemDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTC:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, creatureDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTW:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, waypointDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTT:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, triggerDir, key, true );
+                        break;
+
+                    case ResourceKey.TYPE_UTD:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, doorDir, key, true );
+                        break;
+
+                    // Ignored types
+                    case ResourceKey.TYPE_NCS: // compiled script files
+                    case ResourceKey.TYPE_NDB: // debug files
+                    case ResourceKey.TYPE_GIC: // area comments
+                    case ResourceKey.TYPE_GIT: // area items
+                    case ResourceKey.TYPE_IFO: // module info file
+                    case ResourceKey.TYPE_ITP: // palette files
+                    case ResourceKey.TYPE_FAC: // factions
+                    case ResourceKey.TYPE_JRL: // journal
+                        break;
+
+                    case ResourceKey.TYPE_BTC:
+                    case ResourceKey.TYPE_RES:
+                    case ResourceKey.TYPE_BMP:
+                    case ResourceKey.TYPE_MVE:
+                    case ResourceKey.TYPE_TGA:
+                    case ResourceKey.TYPE_WAV:
+                    case ResourceKey.TYPE_PLT:
+                    case ResourceKey.TYPE_INI:
+                    case ResourceKey.TYPE_BMU:
+                    case ResourceKey.TYPE_MPG:
+                    case ResourceKey.TYPE_TXT:
+                    case ResourceKey.TYPE_PLH:
+                    case ResourceKey.TYPE_TEX:
+                    case ResourceKey.TYPE_MDL:
+                    case ResourceKey.TYPE_THG:
+                    case ResourceKey.TYPE_FNT:
+                    case ResourceKey.TYPE_LUA:
+                    case ResourceKey.TYPE_SLT:
+                    case ResourceKey.TYPE_MOD:
+                    case ResourceKey.TYPE_SET:
+                    case ResourceKey.TYPE_BIC:
+                    case ResourceKey.TYPE_WOK:
+                    case ResourceKey.TYPE_2DA:
+                    case ResourceKey.TYPE_TLK:
+                    case ResourceKey.TYPE_TXI:
+                    case ResourceKey.TYPE_BTI:
+                    case ResourceKey.TYPE_BTT:
+                    case ResourceKey.TYPE_DDS:
+                    case ResourceKey.TYPE_LTR:
+                    case ResourceKey.TYPE_GFF:
+                    case ResourceKey.TYPE_BTE:
+                    case ResourceKey.TYPE_BTD:
+                    case ResourceKey.TYPE_BTP:
+                    case ResourceKey.TYPE_DTF:
+                    case ResourceKey.TYPE_GUI:
+                    case ResourceKey.TYPE_CSS:
+                    case ResourceKey.TYPE_CCS:
+                    case ResourceKey.TYPE_BTM:
+                    case ResourceKey.TYPE_DWK:
+                    case ResourceKey.TYPE_PWK:
+                    case ResourceKey.TYPE_BTG:
+                    case ResourceKey.TYPE_UTG:
+                    case ResourceKey.TYPE_SAV:
+                    case ResourceKey.TYPE_4PC:
+                    case ResourceKey.TYPE_SSF:
+                    case ResourceKey.TYPE_HAK:
+                    case ResourceKey.TYPE_NWM:
+                    case ResourceKey.TYPE_BIK:
+                    case ResourceKey.TYPE_PTM:
+                    case ResourceKey.TYPE_PTT:
+                    case ResourceKey.TYPE_270C:
+                    case ResourceKey.TYPE_ERF:
+                    case ResourceKey.TYPE_BIF:
+                    case ResourceKey.TYPE_KEY:
+                    default:
+                        graph.addNode( key );
+                        graph.addEdge( ProjectGraph.EDGE_FILE, project, key, true );
+                        break;
+                    }
                 }
 
-            System.out.println( "Graph:" + graph );
+            // Just the areas for now
+            //List areas = (List)info.getList( "Mod_Area_list" );
+            //for( Iterator i = areas.iterator(); i.hasNext(); )
+            //    {
+            //    Struct a = (Struct)i.next();
+            //    String areaName = a.getString( "Area_Name" );
+            //    ResourceKey key = new ResourceKey( areaName, ResourceUtils.RES_ARE );
+            //    System.out.println( "   :" + key );
+            //    graph.addNode( key );
+            //    graph.addEdge( ProjectGraph.EDGE_FILE, areaDir, key, true );
+            //    }
+
+            //System.out.println( "Graph:" + graph );
             context.getFileTreeModel().setFileTreeView( new FileTreeView( graph ) );
             }
         catch( IOException e )
