@@ -185,12 +185,14 @@ public class GlobalContext extends DefaultViewContext
      */
     public void saveProject( Project project ) throws IOException
     {
+        long start = System.currentTimeMillis();
+
         File f = project.getProjectFile();
 
         MetaClass cProject = metaKit.getMetaClassForObject( project );
         MetaObject mProject = metaKit.wrapObject( project, cProject );
 
-        FileWriter out = new FileWriter( f );
+        BufferedWriter out = new BufferedWriter( new FileWriter( f ), 32767 );
         try
             {
             xmlRenderer.renderXml( mProject, out );
@@ -198,6 +200,8 @@ public class GlobalContext extends DefaultViewContext
         finally
             {
             out.close();
+            long end = System.currentTimeMillis();
+            System.out.println( "Saved in " + (end - start) + " ms" );
             }
     }
 
@@ -206,7 +210,8 @@ public class GlobalContext extends DefaultViewContext
      */
     public Project loadProject( File f ) throws IOException
     {
-        FileReader in = new FileReader( f );
+        long start = System.currentTimeMillis();
+        BufferedReader in = new BufferedReader( new FileReader( f ), 32767 );
 
         try
             {
@@ -216,6 +221,8 @@ public class GlobalContext extends DefaultViewContext
         finally
             {
             in.close();
+            long end = System.currentTimeMillis();
+            System.out.println( "Loaded in " + (end - start) + " ms" );
             }
     }
 
