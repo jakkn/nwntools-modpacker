@@ -52,6 +52,7 @@ public class GffWriter
     private BinaryDataOutputStream out;
     private List structs = new ArrayList();
     private List structStubs = new ArrayList();
+    private Map labelMap = new HashMap();
     private List labels = new ArrayList();
     private List elements = new ArrayList();
     private List elementStubs = new ArrayList();
@@ -87,15 +88,13 @@ public class GffWriter
      */
     protected int addLabel( String label )
     {
-        int i = labels.indexOf( label );
-        if( i >= 0 )
-            {
-            //System.out.println( "Reusing label index:" + i );
-            return( i );
-            }
+        Integer index = (Integer)labelMap.get( label );
+        if( index != null )
+            return( index.intValue() );
 
-        i = labels.size();
+        int i = labels.size();
         labels.add( label );
+        labelMap.put( label, new Integer( i ) );
 
         return( i );
     }
