@@ -63,17 +63,23 @@ public class MiniMapExporter
     public static final String OPTION_HAK = "-hak";
 
     public static final String[] usage = new String[] {
-            "Usage: MiniMapExport <options> <area files>",
+            "Usage: MiniMapExport <options> <files>",
             "",
             "Where:",
             "",
-            "<area files> are the extracted .are files that should be converted",
-            "             to PNG images.",
+            "<files> are any combination of extracted .are area files or .mod",
+            "        module files.  The .are are converted to PNG images",
+            "        containing the area's minimap.  For .mod files, PNG images",
+            "        will be generated for every area in the module.",
+            "        For .mod files, the HAK list is picked up automatically",
+            "        from the module file.",
             "",
             "<options> are one of the following:",
             "    -nwn <dir>     Specifies the main Neverwinter Nights install",
             "                   directory where the .key files can be found.",
-            "                   Defaults to \\NeverwinterNights\\NWN",
+            "                   Defaults to " + ResourceManager.DEFAULT_NWN_DIR,
+            "                   This is also where .HAK files are located when",
+            "                   extracting area minimaps from a .mod file.",
             "",
             "    -d <dir>       Specifies the directory to which images will be",
             "                   written.  Defaults to the current directory.",
@@ -90,13 +96,15 @@ public class MiniMapExporter
             "                   resolving tileset resources."
         };
 
-    private static ResourceManager resMgr = new ResourceManager();
+    private static ResourceManager resourceManager = new ResourceManager();
 
-    private File nwnDir;
+    private File nwnDir = ResourceManager.DEFAULT_NWN_DIR;
     private File destinationDir = new File( "." );
     private double scale = 1.0;
     private List hakFiles = new ArrayList();
     private List areaFiles = new ArrayList();
+    private List modFiles = new ArrayList();
+    private Map modInfos = new HashMap();
 
     // Cache the tileset minimap tiles as we go
     private static Map tilesets = new HashMap();
@@ -105,39 +113,57 @@ public class MiniMapExporter
     {
     }
 
-    protected TilesetImages getTilesetImages( String tileset ) throws Exception
+    protected TilesetImages getTilesetImages( String tileset, ResourceManager resMgr ) throws Exception
     {
         TilesetImages ti = (TilesetImages)tilesets.get( tileset );
         if( ti != null )
             return( ti );
 
-        ti = new TilesetImages( tileset );
+        ti = new TilesetImages( tileset, resMgr );
         tilesets.put( tileset, ti );
 
         return( ti );
     }
 
-    protected Struct readArea( File area ) throws IOException
+    /*protected Struct readArea( File area ) throws IOException
     {
-        FileInputStream fIn = new FileInputStream( area );
-        GffReader reader = new GffReader( fIn );
+        FileInputStream in = new FileInputStream( area );
         try
             {
-            return( reader.readRootStruct() );
+            return( readArea( in ) );
             }
         finally
             {
-            reader.close();
+            in.close();
+            }
+    }*/
+
+    protected Struct readArea( InputStream in ) throws IOException
+    {
+        GffReader reader = new GffReader( in );
+        return( reader.readRootStruct() );
+    }
+
+    protected void exportMiniMap( File area, ResourceManager resMgr ) throws Exception
+    {
+        FileInputStream in = new FileInputStream( area );
+        try
+            {
+            exportMiniMap( area.getName(), in, resMgr );
+            }
+        finally
+            {
+            in.close();
             }
     }
 
-    protected void exportMiniMap( File area ) throws Exception
+    protected void exportMiniMap( String areaName, InputStream in, ResourceManager resMgr ) throws Exception
     {
         // Read the area
-        System.out.println( "Loading area:" + area );
-        Struct areaStruct = readArea( area );
+        System.out.println( "Loading area:" + areaName );
+        Struct areaStruct = readArea( in );
 
-        String name = area.getName().toLowerCase();
+        String name = areaName.toLowerCase();
         name = name.replaceAll( "\\.are", "\\.png" );
         File export = new File( destinationDir, name );
         System.out.println( "    output image:" + export );
@@ -153,7 +179,7 @@ public class MiniMapExporter
 
         String tilesetName = areaStruct.getString( "Tileset" );
         System.out.println( "    tileset:" + tilesetName );
-        TilesetImages tileImages = getTilesetImages( tilesetName );
+        TilesetImages tileImages = getTilesetImages( tilesetName, resMgr );
 
         System.out.println( "Generating image." );
         List tileList = areaStruct.getList( "Tile_List" );
@@ -207,31 +233,62 @@ public class MiniMapExporter
             System.out.println( "Image not written successfully." );
     }
 
+    protected int scanModules() throws IOException
+    {
+        int areaCount = 0;
+
+        for( Iterator i = modFiles.iterator(); i.hasNext(); )
+            {
+            File mod = (File)i.next();
+            System.out.println( "Prescanning:" + mod );
+            ModuleInfo info = new ModuleInfo( mod );
+            modInfos.put( mod, info );
+            areaCount += info.areaCount;
+            }
+
+        return( areaCount );
+    }
+
     public void export() throws Exception
     {
-        System.out.println( "Will export " + areaFiles.size() + " images." );
+        int imageCount = areaFiles.size();
+
+        // Quickly scan the module files to pick-up HAK information
+        // and images counts.  This could be done as the files are being
+        // processed but is a good pre-validation step.
+        imageCount += scanModules();
+
+        System.out.println( "Will export " + imageCount + " images." );
         System.out.println( "    using NWN in:" + ((nwnDir == null)?"/NeverwinterNights/NWN":nwnDir.toString()) );
         System.out.println( "    writing images to:" + destinationDir );
         System.out.println( "    scale: " + scale );
-        System.out.println( "    HAK files: " + hakFiles );
+        if( hakFiles.size() > 0 )
+            System.out.println( "    HAK files: " + hakFiles );
 
         System.out.println( "Loading NWN .key files..." );
         if( nwnDir == null )
-            resMgr.loadDefaultKeys();
+            resourceManager.loadDefaultKeys();
         else
-            resMgr.loadDefaultKeys( nwnDir );
+            resourceManager.loadDefaultKeys( nwnDir );
 
         for( Iterator i = hakFiles.iterator(); i.hasNext(); )
             {
             File f = (File)i.next();
             System.out.println( "Loading:" + f );
-            resMgr.addEncapsulatedResourceFile( f );
+            resourceManager.addEncapsulatedResourceFile( f );
             }
 
         System.out.println( "Exporting areas..." );
         for( Iterator i = areaFiles.iterator(); i.hasNext(); )
             {
-            exportMiniMap( (File)i.next() );
+            exportMiniMap( (File)i.next(), resourceManager );
+            }
+
+        for( Iterator i = modFiles.iterator(); i.hasNext(); )
+            {
+            File mod = (File)i.next();
+            ModuleInfo info = (ModuleInfo)modInfos.get(mod);
+            info.exportMiniMaps();
             }
     }
 
@@ -245,7 +302,7 @@ public class MiniMapExporter
                 System.out.println( usage[i] );
             return;
             }
-        System.out.println( "--- Mini-map Exporter version 0.2 ---" );
+        System.out.println( "--- Mini-map Exporter version 0.3 ---" );
 
         MiniMapExporter exporter = new MiniMapExporter();
 
@@ -284,6 +341,10 @@ public class MiniMapExporter
                 {
                 exporter.areaFiles.add( new File( arg ) );
                 }
+            else if( arg.toLowerCase().endsWith( ".mod" ) )
+                {
+                exporter.modFiles.add( new File( arg ) );
+                }
             else
                 {
                 System.out.println( "Error: Don't know how to handle arg:" + arg );
@@ -291,7 +352,7 @@ public class MiniMapExporter
                 }
             }
 
-        if( exporter.areaFiles.size() == 0 )
+        if( exporter.areaFiles.size() == 0 && exporter.modFiles.size() == 0 )
             {
             System.out.println( "No files to export." );
             return;
@@ -305,11 +366,13 @@ public class MiniMapExporter
      */
     private static class TilesetImages
     {
+        ResourceManager resMgr;
         List tiles;
         List images = new ArrayList();
 
-        public TilesetImages( String tileset ) throws IOException
+        public TilesetImages( String tileset, ResourceManager resMgr ) throws IOException
         {
+            this.resMgr = resMgr;
             tiles = (List)resMgr.getResource( new ResourceKey( tileset, ResourceTypes.TYPE_SET ) );
             if( tiles == null )
                 throw new RuntimeException( "Tileset not found:" + tileset );
@@ -335,12 +398,126 @@ public class MiniMapExporter
             img = (Image)resMgr.getResource( new ResourceKey( res, ResourceTypes.TYPE_TGA ) );
             images.set( index, img );
 
-            if( img == null )
+            if( img == null && !"mi_temp01".equals( res ) )
                 {
                 System.out.println( "Failed to load image:" + res );
                 }
             return( img );
         }
 
+    }
+
+    /**
+     *  Contains the area count and HAK list for a module.
+     */
+    private class ModuleInfo
+    {
+        File mod;
+        int areaCount;
+        List haks = new ArrayList();
+        Struct info;
+
+        public ModuleInfo( File mod ) throws IOException
+        {
+            this.mod = mod;
+
+            BufferedInputStream in = new BufferedInputStream( new FileInputStream(mod) );
+            try
+                {
+                ModReader modReader = new ModReader( in );
+                ModReader.ResourceInputStream res = null;
+                while( (res = modReader.nextResource()) != null )
+                    {
+                    int type = res.getResourceType();
+                    String name = res.getResourceName();
+
+                    if( type == ResourceTypes.TYPE_IFO && name.equals( "module" ) )
+                        {
+                        this.info = readStruct( res );
+                        extractHakList();
+                        continue;
+                        }
+                    if( type == ResourceTypes.TYPE_ARE )
+                        areaCount++;
+                    }
+                }
+            finally
+                {
+                in.close();
+                }
+        }
+
+        /**
+         *  Converts the list of haks in the info struct into a usable form.
+         */
+        protected void extractHakList()
+        {
+            ListElement hakList = (ListElement)info.getValue( "Mod_HakList" );
+            List entries = hakList.getValue();
+            for( Iterator i = entries.iterator(); i.hasNext(); )
+                {
+                Struct s = (Struct)i.next();
+                String hak = s.getValue( "Mod_Hak" ).getStringValue();
+                File f = new File( nwnDir, "hak/" + hak + ".hak" );
+                haks.add( f );
+                }
+        }
+
+        protected Struct readStruct( InputStream in ) throws IOException
+        {
+            GffReader reader = new GffReader( in );
+            try
+                {
+                return( reader.readRootStruct() );
+                }
+            finally
+                {
+                reader.close();
+                }
+        }
+
+        /**
+         *  Goes through each .are resource and calls up to the outer
+         *  class to process the stream into a PNG.
+         */
+        public void exportMiniMaps() throws Exception
+        {
+            // If we have HAK files... then we need to create our
+            // own resource manager to load them so as not to effect
+            // subsequent modules.  We will inherit the base resources
+            // though.
+            ResourceManager resMgr = resourceManager;
+            if( haks.size() > 0 )
+                {
+                resMgr = (ResourceManager)resMgr.clone();
+                for( Iterator i = haks.iterator(); i.hasNext(); )
+                    {
+                    File f = (File)i.next();
+                    resMgr.addEncapsulatedResourceFile( f );
+                    }
+                }
+
+            BufferedInputStream in = new BufferedInputStream( new FileInputStream(mod) );
+            try
+                {
+                ModReader modReader = new ModReader( in );
+                ModReader.ResourceInputStream res = null;
+                while( (res = modReader.nextResource()) != null )
+                    {
+                    int type = res.getResourceType();
+                    String name = res.getResourceName();
+                    if( type == ResourceTypes.TYPE_ARE )
+                        {
+                        System.out.println( "Exporting area:" + name + " from module:" + mod );
+                        exportMiniMap( name + ".are", res, resMgr );
+                        }
+                    }
+                }
+            finally
+                {
+                in.close();
+                }
+
+        }
     }
 }
