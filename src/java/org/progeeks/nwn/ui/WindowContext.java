@@ -244,6 +244,22 @@ public class WindowContext extends DefaultViewContext
     }
 
     /**
+     *  Saves the current project.
+     */
+    public void saveProject() throws java.io.IOException
+    {
+        getGlobalContext().saveProject( getProject() );
+    }
+
+    /**
+     *  Stores the current project in the working directory.
+     */
+    public void cacheProject() throws java.io.IOException
+    {
+        getGlobalContext().cacheProject( getProject() );
+    }
+
+    /**
      *  Setup any meta-classes.
      */
     protected void setupMetaClasses()

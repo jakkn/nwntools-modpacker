@@ -157,6 +157,15 @@ public class ResourceIndex implements Comparable
     }
 
     /**
+     *  Retrieves the destinations file's last modified time and recaches
+     *  it.  This method returns true if the value was updated.
+     */
+    public boolean makeDestinationCurrent( Project project )
+    {
+        return( destination.updateLastModified( project ) );
+    }
+
+    /**
      *  Returns true if the source file is newer than the destination
      *  file.
      */
@@ -168,7 +177,7 @@ public class ResourceIndex implements Comparable
     /**
      *  Forces the source and destination times to be the same.
      */
-    public void makeAllCurrent( Project project )
+    public void makeAllUpToDate( Project project )
     {
         File dest = getDestination().getFile( project );
         File src = getSource().getFile( project );

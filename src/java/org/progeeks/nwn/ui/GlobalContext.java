@@ -222,6 +222,36 @@ public class GlobalContext extends DefaultViewContext
     }
 
     /**
+     *  Provides support for caching the project graph to the work
+     *  directory.  This is where most auto-saving is done.  This
+     *  is so if the app dies, the user doesn't lose their modifications
+     *  since they can be recovered.
+     */
+    public void cacheProject( Project project ) throws IOException
+    {
+        long start = System.currentTimeMillis();
+
+        File f = project.getProjectFile();
+        File work = project.getWorkDirectory().getFile( project );
+        f = new File( work, f.getName() + ".cache" );
+
+        MetaClass cProject = metaKit.getMetaClassForObject( project );
+        MetaObject mProject = metaKit.wrapObject( project, cProject );
+
+        BufferedWriter out = new BufferedWriter( new FileWriter( f ), 32767 );
+        try
+            {
+            xmlRenderer.renderXml( mProject, out );
+            }
+        finally
+            {
+            out.close();
+            long end = System.currentTimeMillis();
+            System.out.println( "Saved in " + (end - start) + " ms" );
+            }
+    }
+
+    /**
      *  Loads the data for a project and returns it.
      */
     public Project loadProject( File f, ProgressReporter pr ) throws IOException

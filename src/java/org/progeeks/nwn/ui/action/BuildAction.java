@@ -136,6 +136,7 @@ public class BuildAction extends AbstractAction
                 return( true );
 
             ri.makeSourceCurrent( project );
+            ri.makeDestinationCurrent( project );
             if( ri.isSourceNewer() )
                 {
                 addStaleResource( ri );
@@ -205,7 +206,7 @@ public class BuildAction extends AbstractAction
                 // point the src and destination _are_ up-to-date since the
                 // destination is just the script copy.  Errors need to be
                 // added to the graph or resource or something.
-                ri.makeAllCurrent( project );
+                ri.makeAllUpToDate( project );
 
                 // Compile the script
                 scriptCompiler.compileScript( ri.getKey().getFileName(), buildDir );
@@ -241,7 +242,7 @@ public class BuildAction extends AbstractAction
                 log.debug( "Copying:" + src + " to:" + dest );
                 FileUtils.copyFile( src, dest );
 
-                ri.makeAllCurrent( project );
+                ri.makeAllUpToDate( project );
                 }
         }
 
@@ -322,6 +323,17 @@ public class BuildAction extends AbstractAction
             finally
                 {
                 pr.done();
+                }
+
+            try
+                {
+                // Store a cached version of the project with all of the changes
+                // we just made above.
+                context.cacheProject();
+                }
+            catch( IOException e )
+                {
+                log.error( "Error compiling scripts", e );
                 }
 
             // Now build the module.

@@ -539,6 +539,11 @@ public class ImportModuleAction extends AbstractAction
                 if( !buildDir.exists() )
                     buildDir.mkdirs();
 
+                // Make sure the work directory exists
+                File workDir = project.getWorkDirectory().getFile( project );
+                if( !workDir.exists() )
+                    workDir.mkdirs();
+
                 UserRequestHandler reqHandler = context.getRequestHandler();
                 ProgressReporter pr;
                 pr = reqHandler.requestProgressReporter( "Importing module:" + module.getName(),
@@ -575,7 +580,7 @@ public class ImportModuleAction extends AbstractAction
                 pr = reqHandler.requestProgressReporter( "Importing module:" + module.getName(),
                                                          "Saving project:" + project.getName(), 0, 100 );
                 // Try to save the project
-                context.getGlobalContext().saveProject( project );
+                context.saveProject();
                 pr.done();
                 }
             catch( IOException e )

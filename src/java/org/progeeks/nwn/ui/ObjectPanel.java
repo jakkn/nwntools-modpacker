@@ -79,7 +79,8 @@ public class ObjectPanel extends JScrollPane
                 // probably in the cache since the cache would have to be
                 // refreshed.
                 ResourceIndex ri = (ResourceIndex)o;
-                boolean stale = ri.makeSourceCurrent( context.getProject() );
+                boolean stale = ri.makeDestinationCurrent( context.getProject() );
+                stale = ri.makeSourceCurrent( context.getProject() );
                 System.out.println( "Was stale:" + stale );
                 }
         }
