@@ -96,7 +96,14 @@ public class ResourceIndexFactory
             case ResourceTypes.TYPE_GIT: // area objects
                 break;
             case ResourceTypes.TYPE_UTC: // creature blueprint
-                s = struct.getString( "FirstName" ) + " " + struct.getString( "LastName" );
+                String first = struct.getString( "FirstName" );
+                String last = struct.getString( "LastName" );
+                if( first != null && last != null )
+                    s = first + " " + last;
+                else if( last != null )
+                    s = last;
+                else
+                    s = first;
                 s.trim();
                 break;
             case ResourceTypes.TYPE_UTD: // door blueprint
