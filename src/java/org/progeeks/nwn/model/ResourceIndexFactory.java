@@ -171,7 +171,15 @@ public class ResourceIndexFactory
         switch( key.getType() )
             {
             case ResourceTypes.TYPE_NSS:
-                ext = "ncs";
+                //ext = "ncs";
+                ext = "nss";
+                // Note: for scripts we use the NSS extension because
+                // the source files will always be copied into the build directory.
+                // Right now this is really the only way we can build and
+                // it's also the only way we can tell if the source file has
+                // changed since not all .nss files will have a .ncs file (includes).
+                // If we ever want to not store scripts in the module then it can
+                // be filtered out at module construction time... but not here.
                 break;
             default:
                 ext = key.getTypeString().toLowerCase();

@@ -304,6 +304,10 @@ public class ImportModuleAction extends AbstractAction
                         pr.setMessage( "Storing: " + f.getName() );
                         saveStream( f, rIn );
 
+                        // Go ahead and make the source and target times the same
+                        File df = ri.getDestination().getFile( project );
+                        df.setLastModified( f.lastModified() );
+
                         // Make sure the file indexes are up-to-date.
                         ri.getSource().updateLastModified( project );
                         ri.getDestination().updateLastModified( project );
