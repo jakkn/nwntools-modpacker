@@ -67,6 +67,7 @@ public class BuildAction extends AbstractAction
     {
         super( "Build Module" );
         this.context = context;
+        PropertyActionConnector.connect( WindowContext.PROP_PROJECT, this, context );
     }
 
     public void actionPerformed( ActionEvent event )

@@ -32,50 +32,51 @@
 
 package org.progeeks.nwn.ui.action;
 
-import java.awt.event.ActionEvent;
-import java.io.*;
-import javax.swing.AbstractAction;
+import java.beans.*;
+import javax.swing.Action;
 
-import org.progeeks.cmd.*;
-import org.progeeks.cmd.swing.*;
-import org.progeeks.util.log.*;
 import org.progeeks.util.*;
 
-import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.ui.*;
 
 /**
- *  Action to save the current project.
+ *  Enables or disables an action based on the existence
+ *  of a property value in the window context.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class SaveProjectAction extends AbstractAction
+public class PropertyActionConnector implements PropertyChangeListener
 {
-    static Log log = Log.getLog( OpenProjectAction.class );
+    private Inspector ins;
+    private String property;
+    private Action action;
 
-    private WindowContext context;
-
-    public SaveProjectAction( WindowContext context )
+    protected PropertyActionConnector( String property, Action a, WindowContext context )
     {
-        super( "Save project" );
-        this.context = context;
-        PropertyActionConnector.connect( WindowContext.PROP_PROJECT, this, context );
+        this.property = property;
+        this.action = a;
+        this.ins = new Inspector( context );
+        context.addPropertyChangeListener( property, this );
+        updateState();
     }
 
-    public void actionPerformed( ActionEvent event )
+    public static void connect( String property, Action a, WindowContext context )
     {
-        try
+        new PropertyActionConnector( property, a, context );
+    }
+
+    protected void updateState()
+    {
+        Object value = ins.get( property );
+        action.setEnabled( value != null );
+    }
+
+    public void propertyChange( PropertyChangeEvent event )
+    {
+        if( property.equals( event.getPropertyName() ) )
             {
-            System.out.println( "Save Project" );
-            context.saveProject();
-            }
-        catch( IOException e )
-            {
-            log.error( "Error saving project", e );
-            context.getRequestHandler().requestShowMessage( "Error saving project:\n" + e.getMessage() );
+            updateState();
             }
     }
 }
-
-
