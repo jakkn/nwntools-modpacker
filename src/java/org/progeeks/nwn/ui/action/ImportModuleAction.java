@@ -49,8 +49,6 @@ import org.progeeks.util.log.*;
 
 import org.progeeks.nwn.*;
 import org.progeeks.nwn.gff.*;
-import org.progeeks.nwn.io.gff.*;
-import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
 import org.progeeks.nwn.ui.*;
@@ -66,7 +64,6 @@ public class ImportModuleAction extends AbstractAction
 {
     static Log log = Log.getLog( ImportModuleAction.class );
 
-    private byte[] transferBuff = new byte[65536];
     private static String[] defaultStructure = new String[] {
                                                     "Areas",
                                                     "Blueprints",
@@ -91,187 +88,9 @@ public class ImportModuleAction extends AbstractAction
         this.context = context;
     }
 
-    protected Struct getModuleInfo( File moduleFile ) throws IOException
-    {
-        FileInputStream in = new FileInputStream( moduleFile );
-        try
-            {
-            ModReader modReader = new ModReader( in );
-
-            // Find the input stream for the module.ifo resource
-            ModReader.ResourceInputStream rIn = null;
-            while( (rIn = modReader.nextResource()) != null )
-                {
-                if( rIn.getResourceType() == ResourceTypes.TYPE_IFO
-                    && rIn.getResourceName().equals( "module" ) )
-                    {
-                    break;
-                    }
-                }
-
-            if( rIn == null )
-                {
-                throw new RuntimeException( "The specified module does not contain a valid module.ifo resource."
-                                             + "\nModule file:" + moduleFile );
-                }
-
-            GffReader reader = new GffReader( rIn );
-            return( (Struct)reader.readRootStruct() );
-            }
-        finally
-            {
-            in.close();
-            }
-    }
-
-    protected List getModuleResourceList( File moduleFile ) throws IOException
-    {
-        List results = new ArrayList();
-        FileInputStream in = new FileInputStream( moduleFile );
-        try
-            {
-            ModReader modReader = new ModReader( in );
-
-            // Find the input stream for the module.ifo resource
-            ModReader.ResourceInputStream rIn = null;
-            while( (rIn = modReader.nextResource()) != null )
-                {
-                results.add( new ResourceKey( rIn.getResourceName(), rIn.getResourceType() ) );
-                }
-
-            return( results );
-            }
-        finally
-            {
-            in.close();
-            }
-    }
-
-    // FIXME - This should DEFINITELY be a utility method somewhere
-    public long saveStream( File f, InputStream in ) throws IOException
-    {
-        FileOutputStream fOut = new FileOutputStream(f);
-        BufferedOutputStream out = new BufferedOutputStream( fOut, 65536 );
-        try
-            {
-            int count = 0;
-            int total = 0;
-            while( (count = in.read(transferBuff)) >= 0 )
-                {
-                out.write( transferBuff, 0, count );
-                total += count;
-                }
-
-            return( total );
-            }
-        finally
-            {
-            out.close();
-            }
-
-    }
-
-    protected void writeGffXml( File f, Struct struct, ResourceKey key ) throws IOException
-    {
-        String type = key.getTypeString() + " ";
-        String version = GffWriter.GFF_VERSION;
-
-        FileWriter fOut = new FileWriter( f );
-        BufferedWriter bOut = new BufferedWriter( fOut, 65536 );
-        GffXmlWriter out = new GffXmlWriter( key.getName(), type, version, bOut );
-        try
-            {
-            out.writeStruct( struct );
-            }
-        finally
-            {
-            out.close();
-            }
-    }
-
-    protected FileIndex getPathForResource( List rules, ResourceKey key, FileIndex start )
-    {
-        FileIndex currentParent = start;
-
-        for( Iterator j = rules.iterator(); j.hasNext(); )
-            {
-            MappingRule rule = (MappingRule)j.next();
-            MappingResult result = rule.performMapping( currentParent, key );
-            if( result == null )
-                {
-                // The rule swallowed it
-                return( null );
-                }
-
-            currentParent = (FileIndex)result.getParent();
-
-            if( result.shouldTerminate() )
-                {
-                // The rule says we're done
-                break;
-                }
-            }
-
-        return( currentParent );
-    }
-
-    protected ResourceIndex createSource( ModReader.ResourceInputStream rIn, ResourceKey key, Project project,
-                                          FileIndex destination ) throws IOException
-    {
-        ResourceIndex ri = null;
-
-        // If it's a GFF file, the read it's struct
-        if( key.isGffType() )
-            {
-            ResourceLoader loader = context.getResourceManager().getLoader( key.getType() );
-            Struct struct = (Struct)loader.loadResource( key, rIn );
-            ri = ResourceIndexFactory.createResourceIndex( key, struct, destination,
-                                                           project.getModuleFilesDirectory() );
-
-            // Now write out the struct
-            File f = ri.getSource().getFile( project );
-            writeGffXml( f, struct, key );
-
-            // Go ahead and make the source and target times the same
-            File df = ri.getDestination().getFile( project );
-            df.setLastModified( f.lastModified() );
-
-            // Make sure the file indexes are up-to-date.
-            ri.getSource().updateLastModified( project );
-            ri.getDestination().updateLastModified( project );
-            }
-        else
-            {
-            try
-                {
-                // Just copy the file
-                ri = ResourceIndexFactory.createResourceIndex( key, destination,
-                                                               project.getModuleFilesDirectory() );
-
-                File f = ri.getSource().getFile( project );
-                saveStream( f, rIn );
-
-                // Go ahead and make the source and target times the same
-                File df = ri.getDestination().getFile( project );
-                df.setLastModified( f.lastModified() );
-
-                // Make sure the file indexes are up-to-date.
-                ri.getSource().updateLastModified( project );
-                ri.getDestination().updateLastModified( project );
-                }
-            finally
-                {
-                rIn.close();
-                }
-            }
-        return( ri );
-    }
-
-    protected void convertResources( File moduleFile, Project project, List rules,
+    protected void convertResources( File moduleFile, ModuleImporter importer,
                                      ProgressReporter pr ) throws IOException
     {
-        ProjectGraph graph = project.getProjectGraph();
-
         // Even though we just copied the files to a directory,
         // we'll read the originals back out of the module.
         // This won't be reusable by the main system, but it's
@@ -307,103 +126,7 @@ public class ImportModuleAction extends AbstractAction
 
                 ResourceKey key = new ResourceKey( name, type );
 
-                FileIndex destination;
-                boolean   shouldHaveParent = false;
-                Object    parentNode = null;
-                List      children = null;
-
-                // Certain file types piggy-back on other resources
-                switch( type )
-                    {
-                    case ResourceTypes.TYPE_GIC: // area comments
-                    case ResourceTypes.TYPE_GIT: // area items
-                        // These get attached to the are resource and
-                        // inherit its directory.
-                        ResourceKey parent = new ResourceKey( name, ResourceTypes.TYPE_ARE );
-                        destination = getPathForResource( rules, parent, project.getSourceDirectory() );
-
-                        parentNode = graph.getResourceIndex( parent );
-
-                        if( parentNode == null )
-                            log.warn( "Resource has no parent:" + name );
-
-                        shouldHaveParent = true;
-                        break;
-
-                    case ResourceTypes.TYPE_ARE:
-                        // We do an extra check here just in case the GIC or GIT
-                        // resources were added before us
-                        ResourceKey k = new ResourceKey( name, ResourceTypes.TYPE_GIC );
-                        ResourceIndex temp = graph.getResourceIndex( k );
-                        if( temp != null )
-                            {
-                            children = new ArrayList();
-                            // Need to connect this one to it
-                            children.add( temp );
-                            }
-                        k = new ResourceKey( name, ResourceTypes.TYPE_GIT );
-                        temp = graph.getResourceIndex( k );
-                        if( temp != null )
-                            {
-                            if( children == null )
-                                children = new ArrayList();
-
-                            // Need to connect this one to it
-                            children.add( temp );
-                            }
-                        destination = getPathForResource( rules, key, project.getSourceDirectory() );
-                        break;
-
-                    case ResourceTypes.TYPE_IFO: // module info file
-                    case ResourceTypes.TYPE_ITP: // palette files
-                    case ResourceTypes.TYPE_FAC: // factions
-                    case ResourceTypes.TYPE_JRL: // journal
-                        parentNode = graph.getRoot();
-                        destination = getPathForResource( rules, key, project.getSourceDirectory() );
-                        shouldHaveParent = true;
-                        break;
-
-                    default:
-                        destination = getPathForResource( rules, key, project.getSourceDirectory() );
-                        break;
-                    }
-
-                if( destination == null )
-                    {
-                    // Skipping it because it doesn't convert or copy to a source
-                    // file
-                    continue;
-                    }
-
-                // Construct the path if it doesn't exist
-                File path = destination.getFile( project );
-                if( !path.exists() )
-                    path.mkdirs();
-
-                pr.setMessage( "Sourcing: " + key.getName() );
-                ResourceIndex ri = createSource( rIn, key, project, destination );
-
-                // Now that we have a fully built out ResourceIndex,
-                // add it to the graph
-                graph.addNode( ri );
-                if( shouldHaveParent )
-                    {
-                    if( parentNode != null )
-                        graph.addEdge( ProjectGraph.EDGE_AGGREGATE, parentNode, ri, true );
-                    }
-                else
-                    {
-                    graph.addDirectory( destination );
-                    graph.addEdge( ProjectGraph.EDGE_FILE, destination, ri, true );
-                    }
-
-                if( children != null )
-                    {
-                    for( Iterator i = children.iterator(); i.hasNext(); )
-                        {
-                        graph.addEdge( ProjectGraph.EDGE_AGGREGATE, ri, i.next(), true );
-                        }
-                    }
+                importer.importResource( key, rIn );
                 }
             }
         finally
@@ -428,7 +151,7 @@ public class ImportModuleAction extends AbstractAction
         System.out.println( "Import:" + module );
         try
             {
-            Struct info = getModuleInfo( module );
+            Struct info = ModuleImporter.getModuleInfo( module );
             System.out.println( "Info:" + info );
 
             String name = info.getString( "Mod_Name" );
@@ -642,7 +365,8 @@ public class ImportModuleAction extends AbstractAction
                 // Go through all of the resources and add them to the source
                 // directories.
                 // This should probably be moved to a separate class.
-                convertResources( module, project, rules, pr );
+                ModuleImporter importer = new ModuleImporter( project, rules );
+                convertResources( module, importer, pr );
                 if( pr.isCanceled() )
                     throw new RuntimeException( "Operation Canceled" );
                 pr.done();

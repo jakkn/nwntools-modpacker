@@ -75,6 +75,42 @@ public class GffUtils
             }
     }
 
+    public static void writeGffXml( ResourceKey key, Struct struct, Writer out ) throws IOException
+    {
+        String type = key.getTypeString() + " ";
+        String version = GffWriter.GFF_VERSION;
+
+        GffXmlWriter writer = new GffXmlWriter( key.getName(), type, version, out );
+        try
+            {
+            writer.writeStruct( struct );
+            }
+        finally
+            {
+            out.close();
+            }
+    }
+
+    public static void writeGffXml( ResourceKey key, Struct struct, File f ) throws IOException
+    {
+        FileWriter fOut = new FileWriter( f );
+        BufferedWriter bOut = new BufferedWriter( fOut, 65536 );
+        writeGffXml( key, struct, bOut );
+    }
+
+    public static Struct readGff( InputStream in ) throws IOException
+    {
+        GffReader reader = new GffReader( in );
+        try
+            {
+            return( reader.readRootStruct() );
+            }
+        finally
+            {
+            reader.close();
+            }
+    }
+
     public static void writeGff( ResourceKey key, Struct struct, OutputStream out ) throws IOException
     {
         String type = key.getTypeString() + " ";
