@@ -43,6 +43,7 @@ import org.progeeks.nwn.io.*;
  */
 public class Header
 {
+    public static final int HEADER_SIZE = (4 + 4 + 8 + 8 + 8 + 8 + 8 + 8);
     private String type;
     private String version;
     private BlockIndex structs;
