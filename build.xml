@@ -185,6 +185,7 @@
         <zip destfile="${dist}/nwntools-src.zip" >
             <fileset dir="${basedir}" >
                 <include name="build.xml" />
+                <include name="build.properties.sample" />
                 <include name="src/**" />
                 <exclude name="**/CVS" />
                 <exclude name="**/backups/**" />
