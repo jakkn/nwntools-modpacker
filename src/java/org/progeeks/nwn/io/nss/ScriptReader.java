@@ -67,6 +67,7 @@ public class ScriptReader
         st.ordinaryChar( '.' );
         st.ordinaryChar( '-' );
         st.ordinaryChar( '#' );
+        st.ordinaryChar( '\\' );
         st.wordChars( '0', '9' );
         st.wordChars( '.', '.' );
         st.wordChars( '#', '#' );
@@ -74,6 +75,7 @@ public class ScriptReader
         st.wordChars( '*', '*' );
         st.wordChars( '_', '_' );
         st.wordChars( '\'', '\'' );
+        st.wordChars( '\\', '\\' );
     }
 
     /**
@@ -98,7 +100,6 @@ public class ScriptReader
         while( true )
             {
             token = st.nextToken();
-
             if( token == StreamTokenizer.TT_EOF )
                 {
                 endOfFile = true;
@@ -146,6 +147,20 @@ public class ScriptReader
                         }
                     break;
                 case '"':
+                    // It sort of sucks that the parser is doing this for us
+                    if( st.sval.indexOf( "\n" ) >= 0 )
+                        {
+                        // Have to replace them all
+                        // See two \\ would escape it for the compiler.
+                        // we need to escape it for the regex processor
+                        // which will need extra escaping... thus \\\\
+                        st.sval = st.sval.replaceAll( "\n", "\\\\n" );
+                        }
+                    if( st.sval.indexOf( "\t" ) >= 0 )
+                        {
+                        // Have to replace them all
+                        st.sval = st.sval.replaceAll( "\t", "\\\\t" );
+                        }
                     block.append( "\"" + st.sval + "\"" );
                     break;
                 case StreamTokenizer.TT_NUMBER:
