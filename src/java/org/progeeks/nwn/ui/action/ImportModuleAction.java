@@ -309,8 +309,23 @@ public class ImportModuleAction extends AbstractAction
                 for( Iterator j = rules.iterator(); j.hasNext(); )
                     {
                     MappingRule rule = (MappingRule)j.next();
-                    currentParent = (File)rule.getParent( currentParent, key );
+                    MappingResult result = rule.performMapping( currentParent, key );
+                    if( result == null )
+                        {
+                        // The rule swallowed it
+                        currentParent = null;
+                        break;
+                        }
+
+                    currentParent = (File)result.getParent();
+
+                    if( result.shouldTerminate() )
+                        {
+                        // The rule says we're done
+                        break;
+                        }
                     }
+
                 if( currentParent == null )
                     {
                     // This one has been skipped
@@ -362,7 +377,36 @@ public class ImportModuleAction extends AbstractAction
          *  If this method returns null, it means the node cannot
          *  be added to the graph.
          */
-        public Object getParent( Object currentParent, Object newNode );
+        public MappingResult performMapping( Object currentParent, Object newNode );
+    }
+
+    private static class MappingResult
+    {
+        private Object parent;
+        private boolean terminate;
+
+        public MappingResult( Object parent, boolean terminate )
+        {
+            this.parent = parent;
+            this.terminate = terminate;
+        }
+
+        /**
+         *  Returns true if the mapping rule has indicated that
+         *  no further searching should be done.
+         */
+        public boolean shouldTerminate()
+        {
+            return( terminate );
+        }
+
+        /**
+         *  Returns the parent result from the mapping.
+         */
+        public Object getParent()
+        {
+            return( parent );
+        }
     }
 
     /**
@@ -382,7 +426,7 @@ public class ImportModuleAction extends AbstractAction
             this.pattern = Pattern.compile( regex );
         }
 
-        public Object getParent( Object currentParent, Object newNode )
+        public MappingResult performMapping( Object currentParent, Object newNode )
         {
             ResourceKey key = (ResourceKey)newNode;
             Matcher m = pattern.matcher( key.getName() );
@@ -390,9 +434,9 @@ public class ImportModuleAction extends AbstractAction
             if( m.matches() )
                 {
                 //System.out.println( "  Matches." );
-                return( new File( (File)currentParent, subdirectory ) );
+                return( new MappingResult( new File( (File)currentParent, subdirectory ), false ) );
                 }
-            return( currentParent );
+            return( new MappingResult( currentParent, false ) );
         }
     }
 
@@ -401,7 +445,7 @@ public class ImportModuleAction extends AbstractAction
      */
     private static class ResourceTypeFilterRule implements MappingRule
     {
-        public Object getParent( Object currentParent, Object newNode )
+        public MappingResult performMapping( Object currentParent, Object newNode )
         {
             ResourceKey key = (ResourceKey)newNode;
             String subDir = null;
@@ -461,9 +505,9 @@ public class ImportModuleAction extends AbstractAction
                 }
 
             if( subDir == null )
-                return( currentParent );
+                return( new MappingResult( currentParent, false ) );
 
-            return( new File( (File)currentParent, subDir ) );
+            return( new MappingResult( new File( (File)currentParent, subDir ), false ) );
         }
     }
 }
