@@ -279,7 +279,11 @@ public class GffReader
 
             if( stub.index < 0 )
                 {
-                System.out.println( "Negative struct index encountered.  Skipping." );
+                // This seems a fairly normal way of defining an empty
+                // struct.  Mostly in git files it seems.
+                //System.out.println( "Negative struct index encountered.  type:"
+                //                    + stub.type + "  DataOrDataOFfset:" + stub.index
+                //                    + " Field count:" + stub.data );
                 }
             else if( stub.data == 1 )
                 {

@@ -214,9 +214,6 @@ public class GffToXml
                     continue;
                     }
                 int type = rIn.getResourceType();
-                if( !ResourceUtils.isGffType( type ) )
-                    continue;
-
                 name += "." + ResourceUtils.getExtensionForType(rIn.getResourceType()).toLowerCase();
 
                 System.out.println( "-------Resource:" + name + "    size:" + rIn.getBytesLeft() );
