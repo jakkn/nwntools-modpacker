@@ -226,6 +226,39 @@ public class ImportModuleAction extends AbstractAction
             dlg.show();
 
             System.out.println( "Canceled:" + dlg.isCanceled() );
+            if( dlg.isCanceled() )
+                return;
+
+            // Build out the resource graph as a test.
+            File areaDir = new File( projectDirectory, "Areas" );
+            File scriptDir = new File( projectDirectory, "Scripts" );
+            File dialogDir = new File( projectDirectory, "Conversations" );
+            File blueprintDir = new File( projectDirectory, "Blueprints" );
+
+            ProjectGraph graph = project.getProjectGraph();
+            graph.addNode( areaDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, project, areaDir, true );
+            graph.addNode( scriptDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, project, scriptDir, true );
+            graph.addNode( dialogDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, project, dialogDir, true );
+            graph.addNode( blueprintDir );
+            graph.addEdge( ProjectGraph.EDGE_FILE, project, blueprintDir, true );
+
+            // Now go through all of the resources and add them too
+            // Just the areas for now
+            List areas = (List)info.getList( "Mod_Area_list" );
+            for( Iterator i = areas.iterator(); i.hasNext(); )
+                {
+                Struct a = (Struct)i.next();
+                String areaName = a.getString( "Area_Name" );
+                ResourceKey key = new ResourceKey( areaName, ResourceUtils.RES_ARE );
+                System.out.println( "   :" + key );
+                graph.addNode( key );
+                graph.addEdge( ProjectGraph.EDGE_FILE, areaDir, key, true );
+                }
+
+            System.out.println( "Graph:" + graph );
             }
         catch( IOException e )
             {

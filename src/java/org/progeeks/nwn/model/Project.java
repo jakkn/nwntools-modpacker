@@ -50,6 +50,7 @@ public class Project
     private File   buildDirectory;
     private File   workDirectory;
     private File   sourceDirectory;
+    private ProjectGraph graph = new ProjectGraph( this );
 
     public Project()
     {
@@ -70,6 +71,14 @@ public class Project
     public String getName()
     {
         return( name );
+    }
+
+    /**
+     *  Returns the resource graph for this project.
+     */
+    public ProjectGraph getProjectGraph()
+    {
+        return( graph );
     }
 
     /**
@@ -187,6 +196,10 @@ public class Project
         return( projectDescription );
     }
 
+    public String toString()
+    {
+        return( "Project[" + name + "]" );
+    }
 }
 
 
