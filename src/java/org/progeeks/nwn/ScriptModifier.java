@@ -47,7 +47,7 @@ import org.progeeks.nwn.io.nss.*;
 public class ScriptModifier
 {
     private File output = null;
-    private Map constants = new HashMap();
+    private Map constants = new LinkedHashMap();
 
     public ScriptModifier()
     {
@@ -82,6 +82,10 @@ public class ScriptModifier
             }
         String name = c.substring( 0, split ).trim();
         c = c.substring( split + 1 );
+
+        if( !constant.endsWith( ";" ) )
+            constant += ";";
+        constant += "\n";
 
         System.out.println( "Setting constant:" + name + " to:" + c );
         constants.put( name, constant );
@@ -122,12 +126,80 @@ public class ScriptModifier
             }
     }
 
+    protected void setConstants( List blocks )
+    {
+        Set used = new HashSet();
+
+        // Go through the blocks to see if there are constants
+        // already set that we need to replace.  While we're in
+        // there, go ahead and keep track of the index of the
+        // first include or declaration.
+        int insertIndex = -1;
+        int index = 0;
+        for( Iterator i = blocks.iterator(); i.hasNext(); index++ )
+            {
+            ScriptBlock block = (ScriptBlock)i.next();
+            switch( block.getType() )
+                {
+                case ScriptBlock.COMMENT:
+                case ScriptBlock.MULTICOMMENT:
+                case ScriptBlock.WHITESPACE:
+                    break;
+                case ScriptBlock.INCLUDE:
+                case ScriptBlock.DECLARATION:
+                    if( insertIndex < 0 )
+                        insertIndex = index;
+                    break;
+                case ScriptBlock.CONSTANT:
+                    if( insertIndex < 0 )
+                        insertIndex = index;
+
+                    ConstantBlock cb = (ConstantBlock)block;
+
+                    // See if we've defined a value for this name
+                    String text = (String)constants.get( cb.getName() );
+                    if( text != null )
+                        {
+                        cb.setBlockText( new StringBuffer( text ) );
+                        used.add( cb.getName() );
+                        }
+                    break;
+                }
+            }
+
+        // Now, go through the constants map adding any
+        // that we haven't set yet.
+        int insertCount = 0;
+        for( Iterator i = constants.entrySet().iterator(); i.hasNext(); )
+            {
+            Map.Entry e = (Map.Entry)i.next();
+            String name = (String)e.getKey();
+            String text = (String)e.getValue();
+
+            if( used.contains( name ) )
+                continue;
+
+            ConstantBlock newBlock = new ConstantBlock( new StringBuffer( text ) );
+            blocks.add( insertIndex + insertCount, newBlock );
+            insertCount++;
+            }
+
+        // If we've inserted any new constants then add some whitespace
+        // before and after.
+        if( insertCount > 0 )
+            {
+            blocks.add( insertIndex + insertCount, new ScriptBlock( new StringBuffer( "\n" ) ) );
+            blocks.add( insertIndex, new ScriptBlock( new StringBuffer( "\n" ) ) );
+            }
+    }
+
     public void processScript( File scriptFile ) throws IOException
     {
         System.out.println( "Processing:" + scriptFile );
         List blocks = readScript( scriptFile );
 
         // Set any constants
+        setConstants( blocks );
 
         // Perform any processing
 
