@@ -34,11 +34,19 @@ package org.progeeks.nwn.ui.action;
 
 import java.awt.event.*;
 import java.io.*;
+import java.util.*;
 import javax.swing.*;
+
+import org.progeeks.meta.*;
+import org.progeeks.meta.beans.*;
+import org.progeeks.meta.swing.*;
+import org.progeeks.util.*;
+import org.progeeks.util.log.*;
 
 import org.progeeks.nwn.*;
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.gff.*;
+import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.ui.*;
 
 /**
@@ -50,6 +58,8 @@ import org.progeeks.nwn.ui.*;
  */
 public class ImportModuleAction extends AbstractAction
 {
+    static Log log = Log.getLog( ImportModuleAction.class );
+
     private WindowContext context;
 
     public ImportModuleAction( WindowContext context )
@@ -94,9 +104,14 @@ public class ImportModuleAction extends AbstractAction
     public void actionPerformed( ActionEvent event )
     {
         System.out.println( "Import" );
-        File module = context.getRequestHandler().requestFile( "Import Module",  "NWN Module File",
-                                                               "mod", true );
+        UserRequestHandler reqHandler = context.getRequestHandler();
+        File module = reqHandler.requestFile( "Import Module",  "NWN Module File",
+                                              "mod", true );
         if( module == null )
+            return;
+
+        File projectDirectory = reqHandler.requestDirectory( "Project Directory" );
+        if( projectDirectory == null )
             return;
 
         System.out.println( "Import:" + module );
@@ -112,6 +127,73 @@ public class ImportModuleAction extends AbstractAction
             System.out.println( "Module:" + name );
             System.out.println( "Description:" + description );
             System.out.println( "Minimum game version:" + minGameVer );
+
+            Project project = new Project();
+            project.setName( name );
+            project.setTargetModuleName( name );
+            project.setProjectDescription( description );
+
+            // Need to create wizard pages with the following configuration
+            // Page 1:
+            //  Confirmation page that shows the project directory and module
+            //  to import... as read-only fields.  So they can actually just
+            //  be a part of the text description.
+            //
+            // Page 2:
+            //  Project name, module name, project description.
+            //
+            // Page 3:
+            //  Directory settings.
+            //
+            // Page 4:
+            //  Source tree and filters.
+            //
+            // Any plug-in added pages (how's that work?)
+            //  ...CVS, etc...
+            //
+            // The final page has the final confirmation with
+            // a list of what will be done.
+
+            // The data can all be bundled into a single ImportConfiguration object...
+            // or can we combing new project with import module into one common config.
+            // ProjectConfiguration.
+            // Additional objects can be added by name... so maybe it's a map.
+            // Or everything is just a map that gets put together into a CompositeMetaObject.
+
+            // Page configurations should come from a list in the global context.
+            // Plugins can then add their own page configurations to correspond to the
+            // project configuration objects they added.
+
+            MetaWizardDialog dlg = new MetaWizardDialog( null, "Import Module", true );
+
+            MetaKit kit = BeanUtils.getMetaKit();
+            MetaObject mProject = kit.wrapObject( project, kit.getMetaClassForObject( project ) );
+
+            String d1 = StringUtils.readStringResource( getClass(), "ImportModule.html" );
+            d1 = d1.replaceAll( "@module@", module.getName() );
+            d1 = d1.replaceAll( "@project@", name );
+            d1 = d1.replaceAll( "@directory@", projectDirectory.getPath().replace( '\\', '/' ) );
+
+            MetaWizardDialog.PageConfiguration page;
+            ImageIcon icon = new ImageIcon( getClass().getResource( "ImportModule.png" ) );
+            page = new MetaWizardDialog.PageConfiguration( null, d1, icon );
+
+            dlg.addPage( page );
+
+
+            List fields = new ArrayList();
+            fields.add( "name" );
+            fields.add( "targetModuleName" );
+            fields.add( "projectDescription" );
+            //page = new MetaWizardDialog.PageConfiguration( "Project Information", (String)null, fields );
+            page = new MetaWizardDialog.PageConfiguration( "Project Information", icon, fields );
+
+            dlg.addPage( page );
+
+            dlg.setMetaObject( 1, mProject );
+
+            dlg.setLocationRelativeTo( null );
+            dlg.show();
             }
         catch( IOException e )
             {
@@ -120,7 +202,8 @@ public class ImportModuleAction extends AbstractAction
             }
         catch( RuntimeException e )
             {
-            context.getRequestHandler().requestShowMessage( e.getMessage() );
+            log.error( "Error importing module", e );
+            context.getRequestHandler().requestShowMessage( "Error importing module:\n" + e.getMessage() );
             }
 
     }
