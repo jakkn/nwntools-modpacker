@@ -44,15 +44,29 @@ public class ErrorInfo
     private String task;
     private String message;
 
+    public ErrorInfo()
+    {
+    }
+
     public ErrorInfo( String task, String message )
     {
         this.task = task;
         this.message = message;
     }
 
+    public void setTask( String task )
+    {
+        this.task = task;
+    }
+
     public String getTask()
     {
         return( task );
+    }
+
+    public void setMessage( String message )
+    {
+        this.message = message;
     }
 
     public String getMessage()

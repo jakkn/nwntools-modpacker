@@ -331,6 +331,16 @@ public class BuildAction extends AbstractAction
                 {
                 if( list[i].isDirectory() )
                     continue;
+
+                // Check for types we won't copy... this should
+                // really be determined by some project build options
+                int type = ResourceUtils.getTypeForFileName( list[i].getName() );
+                switch( type )
+                    {
+                    case ResourceTypes.TYPE_NDB:
+                        continue;
+                    }
+
                 packer.addFile( list[i] );
                 }
 

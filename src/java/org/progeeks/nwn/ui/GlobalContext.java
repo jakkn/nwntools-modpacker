@@ -141,6 +141,8 @@ public class GlobalContext extends DefaultViewContext
             MetaClass graphClass = BeanUtils.createBeanMetaClass( ProjectGraph.class );
             MetaClass riClass = BeanUtils.createBeanMetaClass( ResourceIndex.class );
             BeanUtils.createBeanMetaClass( ProjectRoot.class );
+            BeanUtils.createBeanMetaClass( ErrorInfo.class );
+            BeanUtils.createBeanMetaClass( CompileError.class );
 
             xmlRenderer = new XmlRenderingEngine();
 

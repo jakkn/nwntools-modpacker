@@ -175,7 +175,7 @@ public class ProjectGraph extends DefaultEnhancedGraph
     public void clearErrors( ResourceIndex ri )
     {
         TraverserFilter filter = new DefaultTraverserFilter( GraphUtils.TRUE, EDGE_ERROR,
-                                                             GraphUtils.DIRECTED_IN_MASK );
+                                                             GraphUtils.DIRECTED_OUT_MASK );
         for( Traverser t = traverser( ri, filter ); t.hasNext(); )
             {
             Object node = t.next();

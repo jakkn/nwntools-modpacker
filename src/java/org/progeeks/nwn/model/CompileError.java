@@ -45,6 +45,10 @@ public class CompileError extends ErrorInfo
     private String scriptName;
     private int line;
 
+    public CompileError()
+    {
+    }
+
     public CompileError( String message, String scriptName, int line )
     {
         super( "Compiling", message );
@@ -52,9 +56,19 @@ public class CompileError extends ErrorInfo
         this.line = line;
     }
 
+    public void setScriptName( String scriptName )
+    {
+        this.scriptName = scriptName;
+    }
+
     public String getScriptName()
     {
         return( scriptName );
+    }
+
+    public void setLineNumber( int line )
+    {
+        this.line = line;
     }
 
     public int getLineNumber()
