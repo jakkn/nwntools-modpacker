@@ -56,9 +56,13 @@ public class KeyReader
         this.in = new BinaryDataInputStream( in );
         this.header = new Header( this.in );
 
-System.out.println( header );
         readFileTable();
         readKeyTable();
+    }
+
+    public List getFiles()
+    {
+        return( files );
     }
 
     protected void readFileTable() throws IOException
@@ -66,9 +70,8 @@ System.out.println( header );
         // Position the file in the right place
         in.gotoPosition( header.getFileTableOffset() );
 
-        List entries = new ArrayList();
-
         int count = header.getFileCount();
+        List entries = new ArrayList( count );
         for( int i = 0; i < count; i++ )
             {
             FileEntryStub entry = new FileEntryStub( i, in );
@@ -89,7 +92,7 @@ System.out.println( header );
 
             byte[] buff = new byte[stub.nameSize];
             in.readFully( buff );
-            file.name = new String( buff );
+            file.name = new String( buff ).trim();
             }
     }
 
@@ -102,13 +105,8 @@ System.out.println( header );
         for( int i = 0; i < count; i++ )
             {
             KeyEntry entry = new KeyEntry( in );
-System.out.println( "KeyEntry:" );
-System.out.println( "    key:" + entry.key );
-System.out.println( "    type:" + entry.type + "   (" + ResourceUtils.getExtensionForType( entry.type ) + ")" );
-System.out.println( "    id:" + Integer.toHexString( entry.id ) );
-System.out.println( "   file:" + entry.fileIndex + "  index:" + entry.index + "   tableIndex:" + entry.tableIndex );
             FileEntry file = (FileEntry)files.get( entry.fileIndex );
-System.out.println( "       :" + file.name );
+            file.keys.add( entry );
             }
     }
 
@@ -121,6 +119,17 @@ System.out.println( "       :" + file.name );
             try
                 {
                 KeyReader reader = new KeyReader( fIn );
+                for( Iterator j = reader.getFiles().iterator(); j.hasNext(); )
+                    {
+                    FileEntry file = (FileEntry)j.next();
+                    for( Iterator k = file.getKeyEntries().iterator(); k.hasNext(); )
+                        {
+                        KeyEntry key = (KeyEntry)k.next();
+                        System.out.println( file.getFileName() + ":" + key.getKey()
+                                             + " variable index:" + key.getVariableIndex()
+                                             +  "fixed index:" + key.getFixedIndex() );
+                        }
+                    }
                 }
             finally
                 {
@@ -129,16 +138,37 @@ System.out.println( "       :" + file.name );
             }
     }
 
-    private class FileEntry
+    public class FileEntry
     {
-        String name;
-        int fileSize;
-        int driveFlags;
+        private String name;
+        private int fileSize;
+        private int driveFlags;
+        private List keys = new ArrayList();
 
-        public FileEntry( FileEntryStub stub )
+        private FileEntry( FileEntryStub stub )
         {
             this.fileSize = stub.fileSize;
             this.driveFlags = stub.driveFlags;
+        }
+
+        public String getFileName()
+        {
+            return( name );
+        }
+
+        public int getFileSize()
+        {
+            return( fileSize );
+        }
+
+        public int getDriveFlags()
+        {
+            return( driveFlags );
+        }
+
+        public List getKeyEntries()
+        {
+            return( keys );
         }
     }
 
@@ -150,7 +180,7 @@ System.out.println( "       :" + file.name );
         int nameSize;
         int driveFlags;
 
-        public FileEntryStub( int entryNumber, BinaryDataInputStream in ) throws IOException
+        private FileEntryStub( int entryNumber, BinaryDataInputStream in ) throws IOException
         {
             this.entryNumber = entryNumber;
 
@@ -174,26 +204,47 @@ System.out.println( "       :" + file.name );
         }
     }
 
-    private class KeyEntry
+    public class KeyEntry
     {
-        String key;
-        int type;
-        int id;
-        int fileIndex;
-        int index;
-        int tableIndex;
+        private ResourceKey key;
+        private int id;
+        private int fileIndex;
+        private int variableIndex;
+        private int fixedIndex;
 
-        public KeyEntry( BinaryDataInputStream in ) throws IOException
+        private KeyEntry( BinaryDataInputStream in ) throws IOException
         {
             byte[] buff = new byte[16];
             in.readFully( buff );
-            key = new String(buff);
-            type = in.readShort();
+            String s = new String(buff).trim();
+            int type = in.readShort();
+            key = new ResourceKey( s, type );
+
             id = in.readInt();
 
             fileIndex = id >> 20;
-            index = id & 0x3fff;
-            tableIndex = (id >> 14) & 0x3f;
+            variableIndex = id & 0x3fff;
+            fixedIndex = (id >> 14) & 0x3f;
+        }
+
+        public ResourceKey getKey()
+        {
+            return( key );
+        }
+
+        public int getResourceId()
+        {
+            return( id );
+        }
+
+        public int getVariableIndex()
+        {
+            return( variableIndex );
+        }
+
+        public int getFixedIndex()
+        {
+            return( fixedIndex );
         }
     }
 }
