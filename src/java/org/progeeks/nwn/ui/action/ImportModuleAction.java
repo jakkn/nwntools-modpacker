@@ -271,12 +271,14 @@ public class ImportModuleAction extends AbstractAction
 
             ProjectGraph graph = project.getProjectGraph();
 
-            // Build out the resource graph as a test.
-            /*for( int i = 0; i < defaultStructure.length; i++ )
+            // Always add the standard directories to make sure
+            // they exist.  Eventually the user will define a custom
+            // starting folder set, for now, this will do.
+            for( int i = 0; i < defaultStructure.length; i++ )
                 {
                 File f = new File( projectDirectory, defaultStructure[i] );
                 graph.addDirectory( f );
-                }*/
+                }
 
             List rules = new ArrayList();
             rules.add( new ResourceRegexRule( "ats_.*", "Tools/ATS Tradeskills" ) );
@@ -296,7 +298,7 @@ public class ImportModuleAction extends AbstractAction
             rules.add( new ResourceRegexRule( "lib_.*", "Tools/Memetic Toolkit" ) );
             rules.add( new ResourceRegexRule( "nw_.*", "Tools/Overrides" ) );
             rules.add( new ResourceRegexRule( "sei_.*", "Tools/Subraces" ) );
-            rules.add( new ResourceTypeFilterRule() );
+            rules.add( new StandardTypeFilterRule() );
 
             // Now go through all of the resources and add them too
             List resources = getModuleResourceList( module );
@@ -363,151 +365,6 @@ public class ImportModuleAction extends AbstractAction
         {
             buttonFlags |= MetaWizardDialog.BUTTON_FINISH;
             return( buttonFlags );
-        }
-    }
-
-    // Temporarily put here for ease of developmenr
-    private static interface MappingRule
-    {
-        /**
-         *  Returns the appropriate parent for the specified node,
-         *  or currentParent if this mapping rule does not apply.
-         *  It is assumed that the caller will know how to add and
-         *  parents that don't already exist in the graph.
-         *  If this method returns null, it means the node cannot
-         *  be added to the graph.
-         */
-        public MappingResult performMapping( Object currentParent, Object newNode );
-    }
-
-    private static class MappingResult
-    {
-        private Object parent;
-        private boolean terminate;
-
-        public MappingResult( Object parent, boolean terminate )
-        {
-            this.parent = parent;
-            this.terminate = terminate;
-        }
-
-        /**
-         *  Returns true if the mapping rule has indicated that
-         *  no further searching should be done.
-         */
-        public boolean shouldTerminate()
-        {
-            return( terminate );
-        }
-
-        /**
-         *  Returns the parent result from the mapping.
-         */
-        public Object getParent()
-        {
-            return( parent );
-        }
-    }
-
-    /**
-     *  Rule for moving the resource into a sub-directory if its
-     *  name fits the specified regex.
-     */
-    private static class ResourceRegexRule implements MappingRule
-    {
-        private String regex;
-        private String subdirectory;
-        private Pattern pattern;
-
-        public ResourceRegexRule( String regex, String subdirectory )
-        {
-            this.regex = regex;
-            this.subdirectory = subdirectory;
-            this.pattern = Pattern.compile( regex );
-        }
-
-        public MappingResult performMapping( Object currentParent, Object newNode )
-        {
-            ResourceKey key = (ResourceKey)newNode;
-            Matcher m = pattern.matcher( key.getName() );
-            //System.out.println( "Key:" + key.getName() + "  Regex:" + regex );
-            if( m.matches() )
-                {
-                //System.out.println( "  Matches." );
-                return( new MappingResult( new File( (File)currentParent, subdirectory ), false ) );
-                }
-            return( new MappingResult( currentParent, false ) );
-        }
-    }
-
-    /**
-     *  Rule for moving the resource into a type-specific sub-directory.
-     */
-    private static class ResourceTypeFilterRule implements MappingRule
-    {
-        public MappingResult performMapping( Object currentParent, Object newNode )
-        {
-            ResourceKey key = (ResourceKey)newNode;
-            String subDir = null;
-
-            switch( key.getType() )
-                {
-                case ResourceKey.TYPE_ARE:
-                    subDir = "Areas";
-                    break;
-                case ResourceKey.TYPE_NSS:
-                    subDir = "Scripts";
-                    break;
-                case ResourceKey.TYPE_DLG:
-                    subDir = "Conversations";
-                    break;
-                case ResourceKey.TYPE_UTM:
-                    subDir = "Blueprints/Merchants";
-                    break;
-                case ResourceKey.TYPE_UTS:
-                    subDir = "Blueprints/Sounds";
-                    break;
-                case ResourceKey.TYPE_UTP:
-                    subDir = "Blueprints/Placeables";
-                    break;
-                case ResourceKey.TYPE_UTE:
-                    subDir = "Blueprints/Encounters";
-                    break;
-                case ResourceKey.TYPE_UTI:
-                    subDir = "Blueprints/Items";
-                    break;
-                case ResourceKey.TYPE_UTC:
-                    subDir = "Blueprints/Creatures";
-                    break;
-                case ResourceKey.TYPE_UTW:
-                    subDir = "Blueprints/Waypoints";
-                    break;
-                case ResourceKey.TYPE_UTT:
-                    subDir = "Blueprints/Triggers";
-                    break;
-                case ResourceKey.TYPE_UTD:
-                    subDir = "Blueprints/Doors";
-                    break;
-
-                // Ignored types
-                case ResourceKey.TYPE_NCS: // compiled script files
-                case ResourceKey.TYPE_NDB: // debug files
-                case ResourceKey.TYPE_GIC: // area comments
-                case ResourceKey.TYPE_GIT: // area items
-                case ResourceKey.TYPE_IFO: // module info file
-                case ResourceKey.TYPE_ITP: // palette files
-                case ResourceKey.TYPE_FAC: // factions
-                case ResourceKey.TYPE_JRL: // journal
-                    return( null );
-
-                default:
-                    break;
-                }
-
-            if( subDir == null )
-                return( new MappingResult( currentParent, false ) );
-
-            return( new MappingResult( new File( (File)currentParent, subDir ), false ) );
         }
     }
 }
