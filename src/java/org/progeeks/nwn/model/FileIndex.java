@@ -50,9 +50,36 @@ public class FileIndex implements Comparable
 
     public FileIndex( FileIndex parent, String file )
     {
-        // Parse out multiple directories as needed.
-        StringTokenizer st = new StringTokenizer( file, "/\\" );
         this.parent = parent;
+        setFullPath( file );
+    }
+
+    public FileIndex( String file )
+    {
+        this( null, file );
+    }
+
+    public FileIndex()
+    {
+    }
+
+    /**
+     *  Returns the name of this file, not including parent information.
+     */
+    public String getName()
+    {
+        return( file );
+    }
+
+    /**
+     *  Sets the fullpath of this file index.  The path will be split up
+     *  and the parent FileIndex updated accordingly.  If there is already a
+     *  name set for this FileIndex then an exception will be thrown.
+     */
+    public void setFullPath( String path )
+    {
+        // Parse out multiple directories as needed.
+        StringTokenizer st = new StringTokenizer( path, "/\\" );
 
         String current = st.nextToken();
         while( st.hasMoreTokens() )
@@ -64,23 +91,10 @@ public class FileIndex implements Comparable
         this.file = current;
 
         // Cache our full path
-        if( this.parent == null )
+        if( parent == null )
             fullPath = this.file;
         else
-            fullPath = this.parent.getFullPath() + "/" + this.file;
-    }
-
-    public FileIndex( String file )
-    {
-        this( null, file );
-    }
-
-    /**
-     *  Returns the name of this file, not including parent information.
-     */
-    public String getName()
-    {
-        return( file );
+            fullPath = parent.getFullPath() + "/" + this.file;
     }
 
     /**
