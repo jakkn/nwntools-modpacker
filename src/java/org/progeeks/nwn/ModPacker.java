@@ -358,7 +358,7 @@ public class ModPacker
             return;
             }
 
-        System.out.println( "--- Module Packer version 0.2 ---" );
+        System.out.println( "--- Module Packer version 0.3 ---" );
 
         long start = System.currentTimeMillis();
 
@@ -410,7 +410,7 @@ public class ModPacker
             int split = name.lastIndexOf( '.' );
             if( split >= 0 )
                 {
-                ext = name.substring( split + 1 );
+                ext = name.substring( split + 1 ).toLowerCase();
                 name = name.substring( 0, split );
                 }
             this.index = index;
