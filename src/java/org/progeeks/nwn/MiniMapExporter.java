@@ -302,7 +302,7 @@ public class MiniMapExporter
                 System.out.println( usage[i] );
             return;
             }
-        System.out.println( "--- Mini-map Exporter version 0.3 ---" );
+        System.out.println( "--- Mini-map Exporter version 0.4 ---" );
 
         MiniMapExporter exporter = new MiniMapExporter();
 
@@ -395,10 +395,12 @@ public class MiniMapExporter
                 return( null );
                 }
             res = res.toLowerCase();
+            if( res.trim().length() == 0 || "mi_temp01".equals( res ) )
+                return( null );
             img = (Image)resMgr.getResource( new ResourceKey( res, ResourceTypes.TYPE_TGA ) );
             images.set( index, img );
 
-            if( img == null && !"mi_temp01".equals( res ) )
+            if( img == null )
                 {
                 System.out.println( "Failed to load image:" + res );
                 }
@@ -453,6 +455,8 @@ public class MiniMapExporter
         protected void extractHakList()
         {
             ListElement hakList = (ListElement)info.getValue( "Mod_HakList" );
+            if( hakList == null )
+                return;
             List entries = hakList.getValue();
             for( Iterator i = entries.iterator(); i.hasNext(); )
                 {
