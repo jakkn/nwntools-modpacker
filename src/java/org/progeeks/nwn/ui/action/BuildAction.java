@@ -84,6 +84,7 @@ public class BuildAction extends AbstractAction
         private Set checkedScripts = new HashSet();
         private int scriptCount = 0;
         private int xmlCount = 0;
+        private boolean hasCompileErrors = false;
 
         public BuildCommand( Project project )
         {
@@ -182,6 +183,7 @@ public class BuildAction extends AbstractAction
 
             boolean hasCompiler = scriptCompiler.hasCompiler();
 
+            hasCompileErrors = false;
             ErrorListener errorListener = new ErrorListener()
                 {
                     public void error( Object source, ErrorInfo error )
@@ -211,6 +213,8 @@ public class BuildAction extends AbstractAction
                             o.makeDirty( project );
                             graph.addEdge( ProjectGraph.EDGE_ERROR, o, error, true );
                             }
+
+                        hasCompileErrors = true;
                     }
                 };
 
@@ -264,6 +268,10 @@ public class BuildAction extends AbstractAction
                 {
                 log.error( "Error waiting for compiles to finish", e );
                 }
+
+            // Check to see if there were any compile errors
+            if( hasCompileErrors )
+                throw new RuntimeException( "Build aborted due to compile errors." );
 
             if( !hasCompiler )
                 {
