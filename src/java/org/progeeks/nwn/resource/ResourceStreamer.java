@@ -30,36 +30,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.progeeks.nwn;
+package org.progeeks.nwn.resource;
 
 import java.io.*;
 import java.util.*;
 
+import org.progeeks.nwn.*;
 import org.progeeks.nwn.io.key.*;
 import org.progeeks.nwn.io.bif.*;
 
+
 /**
- *  Allows resource lookup based on the 16 character ResRef string
- *  and a resource type.  Lookup follows the same rules as the standard
- *  toolset.
+ *  Hooks up ResourceKeys to the streams that contain their data.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ResourceManager
+public class ResourceStreamer
 {
+    /**
+     *  Maps resource keys to specific stream implementations.
+     */
     private Map resources = new HashMap();
 
+    /**
+     *  Returns the InputStream for the specified resource key.
+     */
     public InputStream getResourceStream( ResourceKey key )
     {
-for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
-    {
-    ResourceKey k = (ResourceKey)i.next();
-    if( k.getName().equals( key.getName() ) )
-        System.out.println( "Key:" + k );
-    if( key.equals( k ) )
-        System.out.println( "Equal." );
-    }
         try
             {
             ResourceIndex index = (ResourceIndex)resources.get( key );
@@ -73,7 +71,7 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
     }
 
     /**
-     *  Adds the specified key file to this resource manager's
+     *  Adds the specified key file to this resource streamer's
      *  resource index.
      */
     public void addKeyFile( File keyFile ) throws IOException
@@ -102,7 +100,7 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
     }
 
     /**
-     *  Adds the specified directory to this resource manager's
+     *  Adds the specified directory to this resource streamer's
      *  resource index.
      */
     public void addResourceDirectory( File directory )
@@ -122,7 +120,7 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
     }
 
     /**
-     *  Adds the specified resource file to this resource manager's
+     *  Adds the specified resource file to this resource streamer's
      *  resource index determining the type from the file's extension.
      */
     public void addResourceFile( File resource )
@@ -134,7 +132,7 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
     }
 
     /**
-     *  Adds the specified resource file to this resource manager's
+     *  Adds the specified resource file to this resource streamer's
      *  resource index using the specified resource type.
      */
     public void addResourceFile( File resource, int type )
@@ -149,7 +147,8 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
 
     /**
      *  Adds the specified ERF file to this resource manager's
-     *  resouce index.
+     *  resouce index.  I'd actually rather avoid implementing this
+     *  method since I don't think it will be used.
      */
     public void addModule( File erfFile ) throws IOException
     {
@@ -158,6 +157,8 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
     public void loadDefaultKeys() throws IOException
     {
         // Check for the default location of standard NWN key files
+        // FIXME - this check should be a bit more advanced, maybe check
+        //         user preferences.
         File nwn = new File( "/NeverwinterNights/NWN" );
         if( nwn.exists() && nwn.isDirectory() )
             {
@@ -183,8 +184,8 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
     {
         long startTime = System.currentTimeMillis();
 
-        ResourceManager resMgr = new ResourceManager();
-        resMgr.loadDefaultKeys();
+        ResourceStreamer streamer = new ResourceStreamer();
+        streamer.loadDefaultKeys();
 
         System.out.println( "Indexing user specified files..." );
         List resources = new ArrayList();
@@ -203,13 +204,13 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
                 {
                 File f = new File( args[i] );
                 if( args[i].toLowerCase().endsWith( ".key" ) )
-                    resMgr.addKeyFile( f );
+                    streamer.addKeyFile( f );
                 else if( args[i].toLowerCase().endsWith( ".mod" ) )
-                    resMgr.addModule( f );
+                    streamer.addModule( f );
                 else if( f.isDirectory() )
-                    resMgr.addResourceDirectory( f );
+                    streamer.addResourceDirectory( f );
                 else
-                    resMgr.addResourceFile( f );
+                    streamer.addResourceFile( f );
                 }
             }
 
@@ -221,7 +222,7 @@ for( Iterator i = resources.keySet().iterator(); i.hasNext(); )
             {
             ResourceKey key = (ResourceKey)i.next();
             System.out.println( "Looking up:" + key );
-            InputStream in = resMgr.getResourceStream( key );
+            InputStream in = streamer.getResourceStream( key );
             try
                 {
                 System.out.println( "Stream:" + in );
@@ -323,3 +324,4 @@ System.out.println( "Opening BIF file:" + file + "   index:" + (id & 0x3fff) );
         }
     }
 }
+

@@ -44,6 +44,7 @@ import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.gff.*;
 import org.progeeks.nwn.io.image.*;
 import org.progeeks.nwn.io.set.*;
+import org.progeeks.nwn.resource.*;
 
 /**
  *  A simple area viewer that uses the in-game maps to view the

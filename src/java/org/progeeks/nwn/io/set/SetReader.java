@@ -37,6 +37,7 @@ import java.util.*;
 
 import org.progeeks.nwn.*;
 import org.progeeks.nwn.gff.*;
+import org.progeeks.nwn.resource.*;
 
 /**
  *  NWN Area tileset reader.
@@ -114,14 +115,15 @@ public class SetReader
         for( int i = 0; i < args.length; i++ )
             {
             InputStream in = resMgr.getResourceStream( new ResourceKey( args[0], ResourceUtils.RES_SET ) );
+            SetReader setReader = new SetReader( in );
             try
                 {
-                SetReader set = new SetReader( in );
-System.out.println( "Tiles:" + set.tiles );
+                List tiles = setReader.readTiles();
+System.out.println( "Tiles:" + tiles );
                 }
             finally
                 {
-                in.close();
+                setReader.close();
                 }
             }
     }
