@@ -292,6 +292,43 @@ public class MiniMapExporter
             }
     }
 
+    public File searchForNwnPath() throws Exception
+    {
+        String keyName = "chitin.key";
+
+        // First try the current working directory
+        File key = new File( ".", keyName );
+        if( key.exists() )
+            return( key );
+
+        // Now check the paths provided.
+        Set paths = new HashSet();
+        for( Iterator i = areaFiles.iterator(); i.hasNext(); )
+            {
+            File f = (File)i.next();
+            paths.add( f.getParentFile() );
+            }
+        for( Iterator i = modFiles.iterator(); i.hasNext(); )
+            {
+            File f = (File)i.next();
+            paths.add( f.getParentFile() );
+            }
+
+        for( Iterator i = paths.iterator(); i.hasNext(); )
+            {
+            File f = (File)i.next();
+            while( f != null )
+                {
+                key = new File( f, keyName );
+                if( key.exists() )
+                    return( key );
+                f = f.getParentFile();
+                }
+            }
+
+        return( null );
+    }
+
     public static void main( String[] args ) throws Exception
     {
         Log.initialize();
@@ -356,6 +393,28 @@ public class MiniMapExporter
             {
             System.out.println( "No files to export." );
             return;
+            }
+
+        // Verify the NWN path
+        File key = new File( exporter.nwnDir, "chitin.key" );
+        if( !key.exists() )
+            {
+            // Attempt a quick search in the current directory and any
+            // paths we might have been given.
+            key = exporter.searchForNwnPath();
+
+            if( key == null )
+                {
+                System.out.println( "*** Warning: NWN path does not seem to be correct.\n"
+                                + "***          Could not locate:" + key + "\n"
+                                + "***          Please check the -nwn option or specify one if the\n"
+                                + "***          default " + ResourceManager.DEFAULT_NWN_DIR
+                                + " is not correct." );
+                }
+            else
+                {
+                exporter.nwnDir = key.getParentFile();
+                }
             }
 
         exporter.export();
