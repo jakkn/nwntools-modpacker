@@ -62,6 +62,24 @@ public class StringElement extends Element
         return( value );
     }
 
+    /**
+     *  Returns the amount of space this element will take up in the
+     *  data block.  Will be 0 for all but the types that are actually
+     *  stored in the data block.
+     */
+    public int getSize()
+    {
+        switch( getType() )
+            {
+            case TYPE_STRING:
+                return( 4 + value.length() );
+            case TYPE_RESREF:
+                return( 1 + value.length() );
+            default:
+                throw new RuntimeException( "Cannot calculate size for type." );
+            }
+    }
+
     public String toString()
     {
         return( getName() + " = " + TYPES[getType()] + ":" + value );

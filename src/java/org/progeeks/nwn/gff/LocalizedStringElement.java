@@ -84,6 +84,29 @@ public class LocalizedStringElement extends Element
         return( map );
     }
 
+    /**
+     *  Returns the amount of space this element will take up in the
+     *  data block.  Will be 0 for all but the types that are actually
+     *  stored in the data block.
+     */
+    public int getSize()
+    {
+        switch( getType() )
+            {
+            case TYPE_STRREF:
+                int size = 12;  // for size, ID, count
+                for( Iterator i = getLocalStrings().values().iterator(); i.hasNext(); )
+                    {
+                    String s = (String)i.next();
+                    size += 8 + s.length(); // language, size, string
+                    }
+
+                return( size );
+            default:
+                throw new RuntimeException( "Cannot calculate size for type." );
+            }
+    }
+
     public void setStringValue( String value )
     {
     }

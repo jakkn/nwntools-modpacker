@@ -77,6 +77,23 @@ public class ObjectElement extends Element
         return( String.valueOf( value ) );
     }
 
+    /**
+     *  Returns the amount of space this element will take up in the
+     *  data block.  Will be 0 for all but the types that are actually
+     *  stored in the data block.
+     */
+    public int getSize()
+    {
+        switch( getType() )
+            {
+            case TYPE_DATREF:
+                if( value instanceof byte[] )
+                    return( ((byte[])value).length + 4 ); // size + buffer
+            default:
+                throw new RuntimeException( "Cannot calculate size for type." );
+            }
+    }
+
     public String toString()
     {
         if( value instanceof byte[] )
