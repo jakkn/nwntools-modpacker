@@ -275,8 +275,9 @@ public class GlobalContext extends DefaultViewContext
 
         try
             {
-            Object obj = xmlReader.readObject( in );
-            return( (Project)obj );
+            Project p = (Project)xmlReader.readObject( in );
+            p.setProjectFile( f );
+            return( p );
             }
         finally
             {
