@@ -135,12 +135,26 @@
         <copy file="lib/log4j.properties" toDir="${dist}/lib" />
     </target>
 
+    <target name="nwn-ant.jar" description="ANT task distribution" depends="dist">
+        <!-- make the jar file. -->
+        <jar jarFile="${dist}/nwn-ant.jar" basedir="${build.classes}" >
+            <include name="LICENSE" />
+            <include name="org/progeeks/nwn/ant/**" />
+            <include name="org/progeeks/nwn/model/CompileError*" />
+            <include name="org/progeeks/nwn/model/ScriptCompiler*" />
+            <manifest>
+                <attribute name="Class-Path" value="nwn-tools.jar nwn-io.jar" />
+            </manifest>
+        </jar>
+    </target>
+
     <target name="nwn-tools.jar" description="Create NWN Tools distribution" depends="dist" >
 
         <!-- make the jar file. -->
         <jar jarFile="${dist}/nwn-tools.jar" basedir="${build.classes}" >
             <include name="org/progeeks/**" />
             <include name="LICENSE" />
+
             <exclude name="org/progeeks/util/thread/**" />
             <exclude name="org/progeeks/nwn/io/bif/**" />
             <exclude name="org/progeeks/nwn/io/image/**" />
@@ -149,6 +163,7 @@
             <exclude name="org/progeeks/nwn/io/set/**" />
             <exclude name="org/progeeks/nwn/model/**" />
             <exclude name="org/progeeks/nwn/ui/**" />
+
             <manifest>
                 <attribute name="Class-Path" value="lib/meta-jb-xml.jar lib/meta-jb-util.jar lib/log4j.jar" />
             </manifest>
@@ -217,6 +232,25 @@
 
         <zip destfile="${dist}/minimap-export.zip"
             basedir="${dist}/minimap-export" >
+        </zip>
+    </target>
+
+    <target name="nwn-ant.zip" description="Create the ANT tasks zip download"
+                               depends="nwn-ant.jar,nwn-tools.jar,nwn-io.jar" >
+        <!-- Create the nwn-ant directory. -->
+        <mkdir dir="${dist}/nwn-ant" />
+        <mkdir dir="${dist}/nwn-ant/jars" />
+
+        <copy file="../web-site/ant-tasks.html" toFile="${dist}/nwn-ant/readme.html" />
+        <copy file="${dist}/nwn-ant.jar" toDir="${dist}/nwn-ant/jars" />
+        <copy file="${dist}/nwn-tools.jar" toDir="${dist}/nwn-ant/jars" />
+        <copy file="${dist}/nwn-io.jar" toDir="${dist}/nwn-ant/jars" />
+        <copy file="${dist}/lib/log4j.jar" toDir="${dist}/nwn-ant/jars" />
+        <copy file="${dist}/lib/meta-jb-xml.jar" toDir="${dist}/nwn-ant/jars" />
+        <copy file="${dist}/lib/meta-jb-util.jar" toDir="${dist}/nwn-ant/jars" />
+
+        <zip destfile="${dist}/nwn-ant.zip"
+            basedir="${dist}/nwn-ant" >
         </zip>
     </target>
 
