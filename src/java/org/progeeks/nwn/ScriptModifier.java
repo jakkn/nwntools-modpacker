@@ -48,9 +48,20 @@ public class ScriptModifier
 {
     private File output = null;
     private Map constants = new LinkedHashMap();
+    private List scriptOperators = new ArrayList();
 
     public ScriptModifier()
     {
+    }
+
+    public void addScriptOperator( ScriptOperator operator )
+    {
+        scriptOperators.add( operator );
+    }
+
+    public void removeScriptOperator( ScriptOperator operator )
+    {
+        scriptOperators.remove( operator );
     }
 
     public void setOutputDirectory( File f )
@@ -91,30 +102,25 @@ public class ScriptModifier
         constants.put( name, constant );
     }
 
-    protected List readScript( File script ) throws IOException
+    protected Script readScript( File scriptFile ) throws IOException
     {
-        System.out.println( "    parsing:" + script );
-        ScriptReader r = new ScriptReader( new FileReader( script ) );
-        try
-            {
-            return( r.readAllBlocks() );
-            }
-        finally
-            {
-            r.close();
-            }
+        System.out.println( "    parsing:" + scriptFile );
+        return( ScriptReader.readScript( scriptFile ) );
     }
 
-    protected void writeScript( File script, List blocks ) throws IOException
+    protected void writeScript( Script script ) throws IOException
     {
+        File scriptFile;
         if( output != null )
-            script = new File( output, script.getName() );
-        System.out.println( "    writing:" + script );
-        FileWriter fw = new FileWriter(script);
+            scriptFile = new File( output, script.getName() + ".nss" );
+        else
+            scriptFile = new File( script.getName() + ".nss" );
+        System.out.println( "    writing:" + scriptFile );
+        FileWriter fw = new FileWriter(scriptFile);
         PrintWriter out = new PrintWriter(fw);
         try
             {
-            for( Iterator i = blocks.iterator(); i.hasNext(); )
+            for( Iterator i = script.getBlocks().iterator(); i.hasNext(); )
                 {
                 ScriptBlock block = (ScriptBlock)i.next();
                 out.print( block.getBlockText() );
@@ -210,17 +216,12 @@ public class ScriptModifier
      *  Goes through all of the blocks, searching and replacing
      *  the standard variable references.
      */
-    protected void replaceVariables( File f, List blocks )
+    protected void replaceVariables( Script script )
     {
-        String scriptFile = f.getName();
-        String scriptName = scriptFile;
-        int split = scriptFile.lastIndexOf( '.' );
-        if( split > 0 )
-            {
-            scriptName = scriptFile.substring( 0, split );
-            }
+        String scriptName = script.getName();
+        String scriptFile = script.getFile().getName();
 
-        for( Iterator i = blocks.iterator(); i.hasNext(); )
+        for( Iterator i = script.getBlocks().iterator(); i.hasNext(); )
             {
             ScriptBlock block = (ScriptBlock)i.next();
             String text = block.getBlockText().toString();
@@ -232,19 +233,31 @@ public class ScriptModifier
             }
     }
 
+    protected void processOperators( Script script )
+    {
+        for( Iterator i = scriptOperators.iterator(); i.hasNext(); )
+            {
+            ScriptOperator op = (ScriptOperator)i.next();
+            op.processScript( script );
+            }
+    }
+
     public void processScript( File scriptFile ) throws IOException
     {
         System.out.println( "Processing:" + scriptFile );
-        List blocks = readScript( scriptFile );
+        Script script = readScript( scriptFile );
 
         // Set any constants
-        setConstants( blocks );
+        setConstants( script.getBlocks() );
 
         // Perform any processing
-        replaceVariables( scriptFile, blocks );
+        replaceVariables( script );
+
+        // Perform any other custom operations
+        processOperators( script );
 
         // Write it back out
-        writeScript( scriptFile, blocks );
+        writeScript( script );
     }
 
     public static void main( String[] args ) throws IOException

@@ -247,6 +247,25 @@ public class ScriptReader
         in.close();
     }
 
+    /**
+     *  Convenience method for reading a script and returning it as a
+     *  Script object.
+     */
+    public static Script readScript( File f ) throws IOException
+    {
+        FileReader in = new FileReader( f );
+        ScriptReader r = new ScriptReader( in );
+        try
+            {
+            List blocks = r.readAllBlocks();
+            return( new Script( f.getName(), f, blocks ) );
+            }
+        finally
+            {
+            r.close();
+            }
+    }
+
     public static void main( String[] args ) throws Exception
     {
         for( int i = 0; i < args.length; i++ )

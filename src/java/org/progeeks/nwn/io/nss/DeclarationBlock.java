@@ -43,7 +43,9 @@ package org.progeeks.nwn.io.nss;
 public class DeclarationBlock extends ScriptBlock
 {
     private String type;
+    private int typeStart = -1;
     private String name;
+    private int nameStart = -1;
 
     public DeclarationBlock( StringBuffer block )
     {
@@ -51,11 +53,33 @@ public class DeclarationBlock extends ScriptBlock
         setType( DECLARATION );
 
         type = block.toString().trim();
+        typeStart = 0;
+    }
+
+    public DeclarationBlock( StringBuffer block, String type, String name )
+    {
+        super( block );
+        this.type = type;
+        this.name = name;
     }
 
     public String getDeclarationType()
     {
         return( type );
+    }
+
+    /**
+     *  Sets the name of this declaration block and replaces the appropriate
+     *  part of the real text block.
+     */
+    public void setName( String name )
+    {
+        if( nameStart >= 0 )
+            {
+            StringBuffer sb = getBlockText();
+            sb.replace( nameStart, nameStart + this.name.length(), name );
+            }
+        this.name = name;
     }
 
     public String getName()
@@ -82,9 +106,14 @@ public class DeclarationBlock extends ScriptBlock
         else if( name == null )
             {
             if( text.equals( "{" ) )
+                {
                 name = "";
+                }
             else
+                {
                 name = text;
+                nameStart = getBlockText().length() - name.length();
+                }
             }
     }
 
