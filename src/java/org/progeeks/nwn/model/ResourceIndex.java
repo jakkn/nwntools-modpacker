@@ -189,6 +189,27 @@ public class ResourceIndex implements Comparable
         getDestination().updateLastModified( project );
     }
 
+    /**
+     *  Forces the destination to be older than the souce thus
+     *  ensuring that it will be built next time around.
+     */
+    public void makeDirty( Project project )
+    {
+        makeAllUpToDate( project );
+        if( isSourceNewer() )
+            {
+            // Nothing to do
+            return;
+            }
+
+        // Force the destination to be one second older
+        File dest = getDestination().getFile( project );
+        File src = getSource().getFile( project );
+
+        dest.setLastModified( src.lastModified() - 1000 );
+        getDestination().updateLastModified( project );
+    }
+
     public boolean equals( Object obj )
     {
         if( !(obj instanceof ResourceIndex) )

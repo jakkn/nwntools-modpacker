@@ -176,14 +176,7 @@ public class BuildAction extends AbstractAction
             System.out.println( "Compiling..." );
             int index = 0;
 
-            if( scriptCount > 1 )
-                {
-                if( !scriptCompiler.hasCompiler() )
-                    {
-                    log.error( "No compiler configured." );
-                    return;
-                    }
-                }
+            boolean hasCompiler = scriptCompiler.hasCompiler();
 
             // Compile the scripts first
             for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
@@ -192,6 +185,12 @@ public class BuildAction extends AbstractAction
                 ResourceIndex ri = (ResourceIndex)i.next();
                 if( ri.getKey().getType() != ResourceTypes.TYPE_NSS )
                     continue;
+
+                if( !hasCompiler )
+                    {
+                    ri.makeDirty( project );
+                    continue;
+                    }
 
                 pr.setMessage( "Compiling:" + ri.getKey().getFileName() );
 
@@ -222,6 +221,11 @@ public class BuildAction extends AbstractAction
             catch( InterruptedException e )
                 {
                 log.error( "Error waiting for compiles to finish", e );
+                }
+
+            if( !hasCompiler )
+                {
+                log.error( "No compiler configured." );
                 }
         }
 
