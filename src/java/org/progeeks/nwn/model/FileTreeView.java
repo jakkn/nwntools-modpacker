@@ -48,10 +48,10 @@ public class FileTreeView extends DefaultRootedTreeView
     public FileTreeView( Graph graph, Object root )
     {
         super( graph, root,
-               new DefaultTraverserPredicate( TruePredicate.INSTANCE, ProjectGraph.EDGE_FILE,
-                                              GraphUtils.DIRECTED_IN_MASK ),
-               new DefaultTraverserPredicate( TruePredicate.INSTANCE, ProjectGraph.EDGE_FILE,
-                                              GraphUtils.DIRECTED_OUT_MASK ) );
+               TraverserPredicateFactory.createEqualsUser( ProjectGraph.EDGE_FILE,
+                                                           GraphUtils.DIRECTED_IN_MASK ),
+               TraverserPredicateFactory.createEqualsUser( ProjectGraph.EDGE_FILE,
+                                                           GraphUtils.DIRECTED_OUT_MASK ) );
     }
 
 }

@@ -139,10 +139,9 @@ public class ProjectGraph extends CompositeGraph
      */
     public void clearErrors( ResourceIndex ri )
     {
-        Predicate filter = new DefaultTraverserPredicate( TruePredicate.INSTANCE, EDGE_ERROR,
-                                                          GraphUtils.DIRECTED_OUT_MASK );
-        Predicate inFilter = new DefaultTraverserPredicate( TruePredicate.INSTANCE, TruePredicate.INSTANCE,
-                                                            GraphUtils.DIRECTED_IN_MASK );
+        Predicate filter = TraverserPredicateFactory.createEqualsUser( EDGE_ERROR,
+                                                                       GraphUtils.DIRECTED_OUT_MASK );
+        Predicate inFilter = GraphUtils.IN_TRAVERSER_PREDICATE;
 
         for( Traverser t = traverser( ri, filter ); t.hasNext(); )
             {
