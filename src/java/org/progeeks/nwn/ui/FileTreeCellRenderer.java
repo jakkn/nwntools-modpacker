@@ -148,8 +148,7 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
 
         java.awt.Component retVal = super.getTreeCellRendererComponent( tree, value, sel, expanded,
                                                                         leaf, row, hasFocus );
-//System.out.println( "retVal:" + retVal );
-        if( ri != null && ri.isSourceNewer() )
+        if( ri != null )
             {
             setIcon( combined );
             if( ri.isSourceNewer() )
