@@ -182,6 +182,15 @@ public class ResourceManager
         streamer.addResourceFile( resource, type );
     }
 
+    /**
+     *  Adds the specified encapsulated resource file (and all of its contained
+     *  resources) to this resource manager's resource index.
+     */
+    public void addEncapsulatedResourceFile( File erf ) throws IOException
+    {
+        streamer.addEncapsulatedResourceFile( erf );
+    }
+
     public void loadDefaultKeys( File nwn ) throws IOException
     {
         streamer.loadDefaultKeys( nwn );

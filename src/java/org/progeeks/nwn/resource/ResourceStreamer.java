@@ -151,12 +151,31 @@ public class ResourceStreamer
     }
 
     /**
-     *  Adds the specified ERF file to this resource manager's
-     *  resouce index.  I'd actually rather avoid implementing this
-     *  method since I don't think it will be used.
+     *  Adds the specified ERF file (and it's contained resources) to this
+     *  resource manager's resouce index.  This is used to add HAK files
+     *  and such.
      */
-    public void addModule( File erfFile ) throws IOException
+    public void addEncapsulatedResourceFile( File erfFile ) throws IOException
     {
+        FileInputStream fIn = new FileInputStream( erfFile );
+        try
+            {
+            ModReader reader = new ModReader( fIn );
+            ModReader.ResourceInputStream resource = null;
+            while( (resource = reader.nextResource()) != null )
+                {
+                // We don't read it, just catalog it.
+                String name = resource.getResourceName().toLowerCase();
+                int type = resource.getResourceType();
+
+                ResourceKey key = new ResourceKey( name, type );
+                resources.put( key, new ErfIndex( erfFile, key ) );
+                }
+            }
+        finally
+            {
+            fIn.close();
+            }
     }
 
     public void loadDefaultKeys() throws IOException
@@ -231,7 +250,11 @@ public class ResourceStreamer
                 if( args[i].toLowerCase().endsWith( ".key" ) )
                     streamer.addKeyFile( f );
                 else if( args[i].toLowerCase().endsWith( ".mod" ) )
-                    streamer.addModule( f );
+                    streamer.addEncapsulatedResourceFile( f );
+                else if( args[i].toLowerCase().endsWith( ".hak" ) )
+                    streamer.addEncapsulatedResourceFile( f );
+                else if( args[i].toLowerCase().endsWith( ".erf" ) )
+                    streamer.addEncapsulatedResourceFile( f );
                 else if( f.isDirectory() )
                     streamer.addResourceDirectory( f );
                 else
@@ -327,6 +350,47 @@ public class ResourceStreamer
             return( new ParentClosingStream( resIn, fIn ) );
         }
     }
+
+    /**
+     *  Provides indexing into a MOD/HAK file.
+     */
+    private static class ErfIndex extends ResourceIndex
+    {
+        private File file;
+        private ResourceKey key;
+
+        protected ErfIndex( File file, ResourceKey key )
+        {
+            this.file = file;
+            this.key = key;
+        }
+
+        /**
+         *  Returns the input stream for this resouce's data.
+         */
+        public InputStream getResourceStream() throws IOException
+        {
+            //System.out.println( "Opening encapsulated resource file:" + file + "   key:" + key );
+            log.info( "Opening encapsulated resource file:" + file + "   key:" + key );
+
+            FileInputStream fIn = new FileInputStream( file );
+            ModReader reader = new ModReader( new BufferedInputStream( fIn, 32768 ) );
+
+            // Find the appropriate resource
+            ModReader.ResourceInputStream resource = null;
+            while( (resource = reader.nextResource()) != null )
+                {
+                if( key.getType() != resource.getResourceType() )
+                    continue;
+                if( !key.getName().equalsIgnoreCase( resource.getResourceName() ) )
+                    continue;
+                return( new ParentClosingStream( resource, fIn ) );
+                }
+
+            return( null );
+        }
+    }
+
 
     /**
      *  Filter stream implementation that can close a parent stream
