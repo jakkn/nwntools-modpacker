@@ -60,6 +60,7 @@ public class MiniMapExporter
     public static final String OPTION_NWN = "-nwn";
     public static final String OPTION_DESTINATION = "-d";
     public static final String OPTION_SCALE = "-scale";
+    public static final String OPTION_HAK = "-hak";
 
     public static final String[] usage = new String[] {
             "Usage: MiniMapExport <options> <area files>",
@@ -83,7 +84,10 @@ public class MiniMapExporter
             "                   Scaling example option:",
             "                       -scale 2.0",
             "                   The above scale would double the mini-map image",
-            "                   sizes."
+            "                   sizes.",
+            "",
+            "   -hak <file>     Specifies a HAK file that should be used when",
+            "                   resolving tileset resources."
         };
 
     private static ResourceManager resMgr = new ResourceManager();
@@ -91,6 +95,7 @@ public class MiniMapExporter
     private File nwnDir;
     private File destinationDir = new File( "." );
     private double scale = 1.0;
+    private List hakFiles = new ArrayList();
     private List areaFiles = new ArrayList();
 
     // Cache the tileset minimap tiles as we go
@@ -185,7 +190,9 @@ public class MiniMapExporter
 
                 Image img = tileImages.getTileImage( tileId );
                 if( img == null )
+                    {
                     continue;
+                    }
                 g2.translate( tileX, tileY );
                 g2.rotate( rads );
                 g2.drawImage( img, -8, -8, null );
@@ -206,12 +213,20 @@ public class MiniMapExporter
         System.out.println( "    using NWN in:" + ((nwnDir == null)?"/NeverwinterNights/NWN":nwnDir.toString()) );
         System.out.println( "    writing images to:" + destinationDir );
         System.out.println( "    scale: " + scale );
+        System.out.println( "    HAK files: " + hakFiles );
 
         System.out.println( "Loading NWN .key files..." );
         if( nwnDir == null )
             resMgr.loadDefaultKeys();
         else
             resMgr.loadDefaultKeys( nwnDir );
+
+        for( Iterator i = hakFiles.iterator(); i.hasNext(); )
+            {
+            File f = (File)i.next();
+            System.out.println( "Loading:" + f );
+            resMgr.addEncapsulatedResourceFile( f );
+            }
 
         System.out.println( "Exporting areas..." );
         for( Iterator i = areaFiles.iterator(); i.hasNext(); )
@@ -230,7 +245,7 @@ public class MiniMapExporter
                 System.out.println( usage[i] );
             return;
             }
-        System.out.println( "--- Mini-map Exporter version 0.1 ---" );
+        System.out.println( "--- Mini-map Exporter version 0.2 ---" );
 
         MiniMapExporter exporter = new MiniMapExporter();
 
@@ -252,6 +267,11 @@ public class MiniMapExporter
                 else if( OPTION_SCALE.equals( arg ) && i + 1 < args.length )
                     {
                     exporter.scale = Double.parseDouble( args[i + 1] );
+                    i++;
+                    }
+                else if( OPTION_HAK.equals( arg ) && i + 1 < args.length )
+                    {
+                    exporter.hakFiles.add( new File( args[i + 1] ) );
                     i++;
                     }
                 else
@@ -291,6 +311,8 @@ public class MiniMapExporter
         public TilesetImages( String tileset ) throws IOException
         {
             tiles = (List)resMgr.getResource( new ResourceKey( tileset, ResourceTypes.TYPE_SET ) );
+            if( tiles == null )
+                throw new RuntimeException( "Tileset not found:" + tileset );
             int size = tiles.size();
             for( int i = 0; i < size; i++ )
                 images.add( null );
@@ -304,10 +326,19 @@ public class MiniMapExporter
 
             Map tile = (Map)tiles.get( index );
             String res = (String)tile.get( "ImageMap2D" );
+            if( res == null )
+                {
+                System.out.println( "No image specified for tile index:" + index );
+                return( null );
+                }
             res = res.toLowerCase();
             img = (Image)resMgr.getResource( new ResourceKey( res, ResourceTypes.TYPE_TGA ) );
             images.set( index, img );
 
+            if( img == null )
+                {
+                System.out.println( "Failed to load image:" + res );
+                }
             return( img );
         }
 
