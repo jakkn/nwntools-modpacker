@@ -76,6 +76,13 @@ public class CompileTask extends MatchingTask
         this.destdir = destdir;
     }
 
+    public void setCompiler( File compiler )
+    {
+        if( !scriptCompiler.hasCompiler( compiler ) )
+            throw new RuntimeException( "Specified compiler is not valid:" + compiler );
+        nwncompiler = compiler;
+    }
+
     public void execute() throws BuildException
     {
         if( srcdir == null )
