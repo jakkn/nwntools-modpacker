@@ -384,6 +384,7 @@ public class ImportModuleAction extends AbstractAction
 
                 pr = reqHandler.requestProgressReporter( "Importing module:" + module.getName(),
                                                          "Saving project:" + project.getName(), 0, 100 );
+                pr.setProgress( 50 );
                 // Try to save the project
                 context.saveProject();
                 pr.done();

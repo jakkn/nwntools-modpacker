@@ -80,6 +80,16 @@ public class ModuleImporter
         return( rules );
     }
 
+    public Project getProject()
+    {
+        return( project );
+    }
+
+    public ProjectGraph getGraph()
+    {
+        return( graph );
+    }
+
     public static Struct getModuleInfo( File moduleFile ) throws IOException
     {
         FileInputStream in = new FileInputStream( moduleFile );
@@ -210,6 +220,48 @@ public class ModuleImporter
                 }
             }
         return( ri );
+    }
+
+    public void updateSource( InputStream in, ResourceIndex ri ) throws IOException
+    {
+        // If it's a GFF file, the read it's struct
+        if( ri.getKey().isGffType() )
+            {
+            Struct struct = GffUtils.readGff( in );
+
+            // Now write out the struct
+            File f = ri.getSource().getFile( project );
+            GffUtils.writeGffXml( ri.getKey(), struct, f );
+
+            // Go ahead and make the source and target times the same
+            File df = ri.getDestination().getFile( project );
+            df.setLastModified( f.lastModified() );
+
+            // Make sure the file indexes are up-to-date.
+            ri.getSource().updateLastModified( project );
+            ri.getDestination().updateLastModified( project );
+            }
+        else
+            {
+            try
+                {
+                // Just copy the file
+                File f = ri.getSource().getFile( project );
+                FileUtils.saveStream( f, in );
+
+                // Go ahead and make the source and target times the same
+                File df = ri.getDestination().getFile( project );
+                df.setLastModified( f.lastModified() );
+
+                // Make sure the file indexes are up-to-date.
+                ri.getSource().updateLastModified( project );
+                ri.getDestination().updateLastModified( project );
+                }
+            finally
+                {
+                in.close();
+                }
+            }
     }
 
     public void importResource( ResourceKey key, InputStream in ) throws IOException
