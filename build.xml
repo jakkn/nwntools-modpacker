@@ -1,108 +1,154 @@
 <project name="NWN Tools Development" default="build" basedir=".">
 
-  <!-- set global properties for this build -->
-  <property name="src"           value="src"/>
-  <property name="src.java"      value="${src}/java" />
-  <property name="src.cmd"      value="${src}/cmd" />
-  <property name="build"         value="build"/>
-  <property name="build.classes" value="${build}/classes" />
-  <property name="dist"          value="dist"/>
-  <property name="doc"           value="${basedir}/doc" />
-  <property name="doc.javadoc"   value="${doc}/javadoc" />
+    <!-- set global properties for this build -->
+    <property name="src"           value="src"/>
+    <property name="src.java"      value="${src}/java" />
+    <property name="src.cmd"      value="${src}/cmd" />
+    <property name="build"         value="build"/>
+    <property name="build.classes" value="${build}/classes" />
+    <property name="dist"          value="dist"/>
+    <property name="doc"           value="${basedir}/doc" />
+    <property name="doc.javadoc"   value="${doc}/javadoc" />
 
-  <target name="init">
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build.classes}"/>
-  </target>
-
-  <target name="compile" depends="init">
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}/java" destdir="${build.classes}" deprecation="off" debug="on"/>
-  </target>
-
-  <target name="rmic" depends="init">
-    <!-- Generate the RMI stubs and skeletons. -->
-    <rmic base="${build.classes}" includes="**/Remote*Impl.class" />
-  </target>
-
-  <target name="compile.deprecation" depends="init">
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}/java" destdir="${build.classes}" deprecation="on" debug="on"/>
-  </target>
-
-  <!-- Create the Javadocs. -->
-  <target name="javadoc">
-    <!-- clean the old version out and recreate.  Javadoc
-         will be happier this way. -->
-    <delete dir="${doc.javadoc}"/>
-    <mkdir dir="${doc.javadoc}"/>
-
-    <javadoc packagenames="org.progeeks.*"
-             sourcepath="${src.java}"
-             destdir="${doc.javadoc}"
-             author="true"
-             version="true"
-             windowtitle="Progeeks.org Project Documentation"
-             doctitle="Progeeks-Dev"
-             bottom="Copyright &#169; 2002 Paul Speed.  All Rights Reserved."
-             />
-  </target>
-
-  <target name="java.resources" depends="init">
-    <copy todir="${build.classes}">
-        <fileset dir="${src}/java">
-            <include name="**/LICENSE" />
-            <include name="**/*.gif" />
-            <include name="**/*.jpg" />
-            <include name="**/*.wav" />
-            <include name="**/*.txt" />
-            <include name="**/*.p" />
+    <!-- Construct a build classpath pointing to related libs
+         and directories other than build/classes. -->
+    <path id="build.classpath">
+        <!-- example reference:
+            <pathelement location="${log4j.jar}"/>
+            -->
+        <pathelement location="build/classes"/>
+        <fileset dir="lib">
+            <include name="**/*.jar" />
         </fileset>
-    </copy>
-    <copy todir="${build.classes}">
-        <fileset dir="${src}">
-            <include name="**/LICENSE" />
-        </fileset>
-    </copy>
-  </target>
+    </path>
+    <property name="build.classpath" refid="build.classpath" />
 
-  <target name="build" depends="compile,rmic,java.resources">
-  </target>
+    <!-- Targets for creating some convenience scripts for setting up
+        an environment. -->
+    <target name="setclasspath.cmd" >
+        <echo message="Creating setclasspath.cmd to set the CLASSPATH environment variable." />
+        <copy file="template/setclasspath.cmd.template" tofile="setclasspath.cmd" overwrite="yes" />
+        <replace file="setclasspath.cmd" token="@build.classpath@" value="${build.classpath}" />
+    </target>
+    <target name="setclasspath.cmd.relative" >
+        <echo message="Creating setclasspath.cmd to set the CLASSPATH environment variable." />
+        <copy file="template/setclasspath.cmd.template" tofile="setclasspath.cmd" overwrite="yes" />
 
-  <target name="dist" depends="build">
-    <!-- Create the distribution directory -->
-    <mkdir dir="${dist}/lib"/>
-  </target>
+        <!--<echo message="lib path: ${lib.path}" /> -->
 
-  <target name="nwn-tools.jar" description="Create NWN Tools distribution" depends="dist" >
+        <pathconvert targetos="windows" property="relative.classpath" refid="build.classpath">
+            <map from="${basedir}" to="." />
+        </pathconvert>
 
-      <!-- make the jar file. -->
-      <jar jarFile="${dist}/nwn-tools.jar" basedir="${build.classes}" >
-          <include name="org/progeeks/**" />
-          <include name="LICENSE" />
-      </jar>
-  </target>
+        <replace file="setclasspath.cmd" token="@build.classpath@" value="${relative.classpath}" />
+    </target>
+    <target name="setclasspath.sh" >
+        <echo message="Creating setclasspath.sh to set the CLASSPATH environment variable." />
+        <copy file="template/setclasspath.sh.template" tofile="setclasspath.sh" overwrite="yes" />
+        <replace file="setclasspath.sh" token="@build.classpath@" value="${build.classpath}" />
+    </target>
+    <target name="setclasspath.csh" >
+        <echo message="Creating setclasspath.csh to set the CLASSPATH environment variable." />
+        <copy file="template/setclasspath.csh.template" tofile="setclasspath.csh" overwrite="yes" />
+        <replace file="setclasspath.csh" token="@build.classpath@" value="${build.classpath}" />
+    </target>
 
-  <target name="modpacker.zip" description="Create the ModPacker zip download" depends="nwn-tools.jar" >
 
-    <!-- Create the modpacker directory -->
-    <mkdir dir="${dist}/modpacker"/>
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build.classes}"/>
+    </target>
 
-    <copy file="../web-site/modpacker.html" toFile="${dist}/modpacker/readme.html" />
-    <copy file="${dist}/nwn-tools.jar" toDir="${dist}/modpacker" />
-    <copy file="${src.cmd}/modpacker-setup.cmd" toFile="${dist}/modpacker/setup.cmd" />
+    <target name="compile" depends="init">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}/java" destdir="${build.classes}" deprecation="${javac.deprecation}"
+                                    debug="${javac.debug}" optimize="${javac.optimize}"
+                                    excludes="${javac.excludes}" classpathref="build.classpath" />
+    </target>
 
-    <zip destfile="${dist}/modpacker.zip"
-         basedir="${dist}/modpacker" >
-    </zip>
-  </target>
+    <target name="rmic" depends="init">
+        <!-- Generate the RMI stubs and skeletons. -->
+        <rmic base="${build.classes}" includes="**/Remote*Impl.class" classpathref="build.classpath" />
+    </target>
 
-  <target name="clean">
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build.classes}"/>
-    <delete dir="${dist}"/>
-  </target>
+    <target name="compile.deprecation" depends="init">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}/java" destdir="${build.classes}" deprecation="on" debug="on"/>
+    </target>
+
+    <!-- Create the Javadocs. -->
+    <target name="javadoc">
+        <!-- clean the old version out and recreate.  Javadoc
+            will be happier this way. -->
+        <delete dir="${doc.javadoc}"/>
+        <mkdir dir="${doc.javadoc}"/>
+
+        <javadoc packagenames="org.progeeks.*"
+                sourcepath="${src.java}"
+                destdir="${doc.javadoc}"
+                author="true"
+                version="true"
+                windowtitle="Progeeks.org Project Documentation"
+                doctitle="Progeeks-Dev"
+                bottom="Copyright &#169; 2002 Paul Speed.  All Rights Reserved."
+                />
+    </target>
+
+    <target name="java.resources" depends="init">
+        <copy todir="${build.classes}">
+            <fileset dir="${src}/java">
+                <include name="**/LICENSE" />
+                <include name="**/*.gif" />
+                <include name="**/*.jpg" />
+                <include name="**/*.wav" />
+                <include name="**/*.txt" />
+                <include name="**/*.p" />
+            </fileset>
+        </copy>
+        <copy todir="${build.classes}">
+            <fileset dir="${src}">
+                <include name="**/LICENSE" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="build" depends="compile,rmic,java.resources">
+    </target>
+
+    <target name="dist" depends="build">
+        <!-- Create the distribution directory -->
+        <mkdir dir="${dist}/lib"/>
+    </target>
+
+    <target name="nwn-tools.jar" description="Create NWN Tools distribution" depends="dist" >
+
+        <!-- make the jar file. -->
+        <jar jarFile="${dist}/nwn-tools.jar" basedir="${build.classes}" >
+            <include name="org/progeeks/**" />
+            <include name="LICENSE" />
+        </jar>
+    </target>
+
+    <target name="modpacker.zip" description="Create the ModPacker zip download" depends="nwn-tools.jar" >
+
+        <!-- Create the modpacker directory -->
+        <mkdir dir="${dist}/modpacker"/>
+
+        <copy file="../web-site/modpacker.html" toFile="${dist}/modpacker/readme.html" />
+        <copy file="${dist}/nwn-tools.jar" toDir="${dist}/modpacker" />
+        <copy file="${src.cmd}/modpacker-setup.cmd" toFile="${dist}/modpacker/setup.cmd" />
+
+        <zip destfile="${dist}/modpacker.zip"
+            basedir="${dist}/modpacker" >
+        </zip>
+    </target>
+
+    <target name="clean">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build.classes}"/>
+        <delete dir="${dist}"/>
+    </target>
 
 </project>
