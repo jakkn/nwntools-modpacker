@@ -82,6 +82,11 @@ public class WindowContext extends DefaultViewContext
     public static final String ACTIONS_BUILD = "Build";
 
     /**
+     *  Constant associated with the action menu action list.
+     */
+    public static final String ACTIONS_ACTION = "Action";
+
+    /**
      *  Constant associated with the application exit action.
      */
     public static final String ACTION_OPEN_PROJECT = "Open Project";
@@ -90,6 +95,7 @@ public class WindowContext extends DefaultViewContext
     public static final String ACTION_UPDATE_PROJECT = "Update Project";
     public static final String ACTION_EXIT = "Exit";
     public static final String ACTION_BUILD_MODULE = "Build Module";
+    public static final String ACTION_ADD_DIRECTORY = "Add Directory";
 
     /**
      *  The root-level menu action list.
@@ -173,6 +179,27 @@ public class WindowContext extends DefaultViewContext
     public ObservableList getSelectedObjects()
     {
         return( selectedObjects );
+    }
+
+    /**
+     *  Sets the currently selected object.
+     */
+    public void setSelectedObject( Object obj )
+    {
+        getSelectedObjects().clear();
+        getSelectedObjects().add( obj );
+    }
+
+    /**
+     *  Returns the current single-selected object or null if there
+     *  are more than one objects selected or no objects selected.
+     */
+    public Object getSelectedObject()
+    {
+        int size = getSelectedObjects().size();
+        if( size == 0 || size > 1 )
+            return( null );
+        return( getSelectedObjects().get( 0 ) );
     }
 
     /**
@@ -311,6 +338,13 @@ public class WindowContext extends DefaultViewContext
         file.add( addAction( ACTION_UPDATE_PROJECT, new UpdateFromModuleAction( this ) ) );
         file.add( null );
         file.add( addAction( ACTION_EXIT, new ExitAction( this ) ) );
+
+
+        ActionList action = addActionList( ACTIONS_ACTION, new ActionList( "Action" ) );
+        rootActionList.add( action );
+
+        action.add( addAction( ACTION_ADD_DIRECTORY, new AddDirectoryAction( this ) ) );
+
 
         ActionList build = addActionList( ACTIONS_BUILD, new ActionList( "Build" ) );
         rootActionList.add( build );
