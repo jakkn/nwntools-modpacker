@@ -84,6 +84,11 @@ public class AddDirectoryAction extends AbstractAction
         String name = reqHandler.requestString( "Directory Name",
                                                 "Enter sub-directory name for [" + parent.getName() + "]:",
                                                 "" );
+        if( name == null )
+            return; // user canceled
+        name = name.trim();
+        if( name.length() == 0 )
+            return; // not usable
 
         Project project = context.getProject();
 
