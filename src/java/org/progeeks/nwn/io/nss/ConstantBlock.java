@@ -93,8 +93,6 @@ public class ConstantBlock extends ScriptBlock
             name = text;
         else if( value == null )
             value = text;
-        else
-            throw new RuntimeException( "Format error parsing constant declaration." );
     }
 
     public void setType( int type )

@@ -73,6 +73,7 @@ public class ScriptReader
         st.wordChars( '/', '/' );
         st.wordChars( '*', '*' );
         st.wordChars( '_', '_' );
+        st.wordChars( '\'', '\'' );
     }
 
     /**
