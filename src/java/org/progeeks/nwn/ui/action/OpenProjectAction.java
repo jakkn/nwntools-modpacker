@@ -74,9 +74,8 @@ public class OpenProjectAction extends AbstractAction
             {
             Project project = context.getGlobalContext().loadProject( projectFile );
 
-            // This is not the right way, but just for testing.
-            // Update the context with the new file tree
-            context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
+            // Set the current project to the newly loaded one
+            context.setProject( project );
             }
         catch( IOException e )
             {

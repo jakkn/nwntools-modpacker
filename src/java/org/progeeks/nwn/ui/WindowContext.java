@@ -40,6 +40,7 @@ import org.progeeks.cmd.swing.SwingCommandProcessor;
 import org.progeeks.util.*;
 import org.progeeks.util.swing.*;
 
+import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.ResourceManager;
 import org.progeeks.nwn.ui.action.*;
 
@@ -55,6 +56,11 @@ public class WindowContext extends DefaultViewContext
      *  The window title property.
      */
     public static final String PROP_TITLE = "title";
+
+    /**
+     *  The window's current project property.
+     */
+    public static final String PROP_PROJECT = "project";
 
     /**
      *  Constant associated with the file menu action list.
@@ -185,6 +191,23 @@ public class WindowContext extends DefaultViewContext
     public SwingCommandProcessor getCommandProcessor()
     {
         return( getGlobalContext().getCommandProcessor() );
+    }
+
+    /**
+     *  Sets the currently loaded project.
+     */
+    public void setProject( Project project )
+    {
+        setObjectProperty( PROP_PROJECT, project );
+        setTitle( project.getName() );
+    }
+
+    /**
+     *  Returns the currently loaded project.
+     */
+    public Project getProject()
+    {
+        return( (Project)getObjectProperty( PROP_PROJECT ) );
     }
 
     /**

@@ -557,8 +557,8 @@ public class ImportModuleAction extends AbstractAction
                     throw new RuntimeException( "Operation Canceled" );
                 pr.done();
 
-                // Update the context with the new file tree
-                context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
+                // Set the current project to the newly imported project
+                context.setProject( project );
 
                 // It would be nice to do the above two operations in one step,
                 // but it would require that we push the data to two different writers

@@ -180,7 +180,8 @@ public class GlobalContext extends DefaultViewContext
     }
 
     /**
-     *  Temporary method.
+     *  Provides support for saving a specific project object and its
+     *  related project graph.
      */
     public void saveProject( Project project ) throws IOException
     {
@@ -201,7 +202,7 @@ public class GlobalContext extends DefaultViewContext
     }
 
     /**
-     *  Temporary method.
+     *  Loads the data for a project and returns it.
      */
     public Project loadProject( File f ) throws IOException
     {
@@ -210,7 +211,6 @@ public class GlobalContext extends DefaultViewContext
         try
             {
             Object obj = xmlReader.readObject( in );
-System.out.println(" Obj:" + obj );
             return( (Project)obj );
             }
         finally

@@ -58,7 +58,8 @@ public class MainWindow extends JFrame
     {
         this.context = context;
         context.setRequestHandler( new SwingRequestHandler( this ) );
-        context.addPropertyChangeListener( new ContextListener() );
+        ContextListener l = new ContextListener();
+        context.addPropertyChangeListener( l );
 
         setTitle( context.getFullTitle() );
 
@@ -147,6 +148,11 @@ public class MainWindow extends JFrame
             if( WindowContext.PROP_TITLE.equals( name ) )
                 {
                 setTitle( context.getFullTitle() );
+                }
+            else if( WindowContext.PROP_PROJECT.equals( name ) )
+                {
+                Project project = context.getProject();
+                context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
                 }
         }
     }
