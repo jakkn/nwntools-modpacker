@@ -108,16 +108,8 @@ public class ScriptInstrumenter
      */
     private static class AddInstrumentation implements ScriptOperator
     {
-        private DeclarationBlock instrumentedMain;
-
         public AddInstrumentation()
         {
-            StringBuffer sb = new StringBuffer();
-            sb.append( "void main()\n" );
-            sb.append( "{\n" );
-            sb.append( "    " + REAL_FUNCTION_NAME + "()\n" );
-            sb.append( "}\n" );
-            instrumentedMain = new DeclarationBlock( sb, "void", "main" );
         }
 
         public void processScript( Script script )
@@ -131,6 +123,16 @@ public class ScriptInstrumenter
                 System.out.println( "No main function found, skipping." );
                 return;
                 }
+
+            DeclarationBlock instrumentedMain;
+            StringBuffer sb = new StringBuffer();
+            sb.append( "void main()\n" );
+            sb.append( "{\n" );
+            sb.append( "    WriteTimestampedLogEntry( \"+Script [" + script.getName() + "] starting. \" );\n" );
+            sb.append( "    " + REAL_FUNCTION_NAME + "();\n" );
+            sb.append( "    WriteTimestampedLogEntry( \"-Script [" + script.getName() + "] finished. \" );\n" );
+            sb.append( "}\n" );
+            instrumentedMain = new DeclarationBlock( sb, "void", "main" );
 
             // Go ahead and see if we might have already instrumented this code
             DeclarationBlock renamedMain = script.findDeclaration( "void", REAL_FUNCTION_NAME );
