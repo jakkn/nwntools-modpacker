@@ -40,6 +40,11 @@ import org.progeeks.util.swing.*;
 
 import org.progeeks.nwn.model.*;
 
+
+import com.phoenixst.plexus.*;
+import org.progeeks.graph.*;
+import org.progeeks.nwn.resource.*;
+
 /**
  *  The main window for the IDE.
  *
@@ -136,7 +141,28 @@ public class MainWindow extends JFrame
             else if( WindowContext.PROP_PROJECT.equals( name ) )
                 {
                 Project project = context.getProject();
-                context.getFileTreeModel().setRootedTreeView( new FileTreeView( project.getProjectGraph() ) );
+                ProjectGraph graph = project.getProjectGraph();
+
+                /*
+                // For testing, wrap the graph in a filtered graph.
+                NodeFilter nodeFilter = new NodeFilter()
+                    {
+                        public boolean evaluateNode( Object node, Graph g )
+                        {
+                            if( !(node instanceof ResourceIndex) )
+                                return( true );
+
+                            ResourceIndex ri = (ResourceIndex)node;
+                            return( ri.getKey().getType() == ResourceTypes.TYPE_NSS );
+                        }
+                    };
+
+                ProjectGraph graph = project.getProjectGraph();
+                Graph filtered = new EnhancedFilteredGraph( graph, null, nodeFilter );
+
+                context.getFileTreeModel().setRootedTreeView( new FileTreeView( filtered, graph.getRoot() ) );*/
+
+                context.getFileTreeModel().setRootedTreeView( new FileTreeView( graph, graph.getRoot() ) );
                 }
         }
     }

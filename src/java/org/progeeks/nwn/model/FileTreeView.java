@@ -43,9 +43,9 @@ import com.phoenixst.plexus.*;
  */
 public class FileTreeView extends DefaultRootedTreeView
 {
-    public FileTreeView( ProjectGraph graph )
+    public FileTreeView( Graph graph, Object root )
     {
-        super( graph, graph.getRoot(),
+        super( graph, root,
                new DefaultTraverserFilter( GraphUtils.TRUE, ProjectGraph.EDGE_FILE,
                                            GraphUtils.DIRECTED_IN_MASK ),
                new DefaultTraverserFilter( GraphUtils.TRUE, ProjectGraph.EDGE_FILE,
