@@ -95,6 +95,43 @@ public abstract class Element
         return( type );
     }
 
+    /**
+     *  Returns the amount of space this element will take up in the
+     *  data block.  Will be 0 for all but the types that are actually
+     *  stored in the data block.
+     */
+    public int getSize()
+    {
+        switch( type )
+            {
+            case TYPE_UINT8:
+            case TYPE_INT8:
+            case TYPE_UINT16:
+            case TYPE_INT16:
+            case TYPE_UINT32:
+            case TYPE_INT32:
+            case TYPE_FLOAT:
+            case TYPE_STRUCTREF:
+            case TYPE_LIST:
+            case TYPE_STRUCT:
+                return( 0 );
+
+            case TYPE_UINT64:
+                return( 8 );
+            case TYPE_INT64:
+                return( 8 );
+            case TYPE_DOUBLE:
+                return( 8 );
+
+            case TYPE_STRING:
+            case TYPE_RESREF:
+            case TYPE_STRREF:
+            case TYPE_DATREF:
+            default:
+                throw new RuntimeException( "Cannot calculate size for type." );
+            }
+    }
+
     public abstract void setStringValue( String value );
 
     public abstract String getStringValue();

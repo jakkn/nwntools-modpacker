@@ -232,7 +232,8 @@ public class GffReader
                     len = in.readInt();
                     int id = in.readInt();
                     int langCount = in.readInt();
-                    String val = null;
+
+                    el = new LocalizedStringElement( name, stub.type, id );
 
                     for( int t = 0; t < langCount; t++ )
                         {
@@ -240,10 +241,9 @@ public class GffReader
                         len = in.readInt();
                         buff = new byte[len];
                         in.readFully( buff );
-                        if( val == null )
-                            val = new String( buff );
+
+                        ((LocalizedStringElement)el).addLocalString( l, new String( buff ) );
                         }
-                    el = new StringElement( name, stub.type, val );
                     break;
                 case Element.TYPE_DATREF:
                     in.gotoPosition( dataOffset + stub.data );

@@ -35,61 +35,67 @@ package org.progeeks.nwn.gff;
 import java.util.*;
 
 /**
- *  Contains a list of elements accessible by name.
+ *  Element containing a String reference to a localized string value
+ *  and/or a list of language-dependent strings.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class Struct
+public class LocalizedStringElement extends Element
 {
-    private int id;
-    private Map elements = new LinkedHashMap();
+    private int refId;
+    private HashMap map;
+    private String value;
 
-    public Struct( int id, List values )
+    public LocalizedStringElement( String name, int type, int id )
     {
-        this.id = id;
-        setValues( values );
+        super( name, type );
+        this.refId = id;
     }
 
-    public int getId()
+    public int getReferenceId()
     {
-        return( id );
+        return( refId );
     }
 
-    public void setValues( List values )
+    public void addLocalString( int languageId, String s )
     {
-        elements.clear();
-        if( values == null )
-            return;
-        for( Iterator i = values.iterator(); i.hasNext(); )
-            {
-            Element e = (Element)i.next();
-            elements.put( e.getName(), e );
-            }
+        if( value == null )
+            value = s;
+        if( map == null )
+            map = new HashMap();
+        map.put( new Integer( languageId ), s );
     }
 
-    public Iterator values()
+    public String getValue()
     {
-        return( elements.values().iterator() );
+        return( value );
     }
 
-    public List getValues()
+    public String getLocalString( int languageId )
     {
-        return( new ArrayList( elements.values() ) );
+        return( (String)map.get( new Integer( languageId ) ) );
     }
 
-    public void setValue( String name, Element element )
+    public Map getLocalStrings()
     {
-        elements.put( name, element );
+        if( map == null )
+            return( Collections.EMPTY_MAP );
+        return( map );
     }
 
-    public Element getValue( String name )
+    public void setStringValue( String value )
     {
-        return( (Element)elements.get(name) );
+    }
+
+    public String getStringValue()
+    {
+        return( value );
     }
 
     public String toString()
     {
-        return( "Struct[" + elements + "]" );
+        return( getName() + " = " + TYPES[getType()] + ":" + value );
     }
 }
+

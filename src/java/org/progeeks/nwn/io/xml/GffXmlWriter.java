@@ -133,6 +133,33 @@ public class GffXmlWriter
                     }
                 }
             }
+        else if( el instanceof LocalizedStringElement )
+            {
+            LocalizedStringElement se = (LocalizedStringElement)el;
+
+            out.printAttribute( "value", String.valueOf( se.getReferenceId() ) );
+
+            for( Iterator i = se.getLocalStrings().entrySet().iterator(); i.hasNext(); )
+                {
+                Map.Entry e = (Map.Entry)i.next();
+                out.pushTag( "localString" );
+                out.printAttribute( "languageId", e.getKey().toString() );
+                String val = (String)e.getValue();
+                if( val.indexOf( '\r' ) < 0 && val.indexOf( '\n' ) < 0 )
+                    {
+                    out.printAttribute( "value", val );
+                    }
+                else
+                    {
+                    out.pushTag( "value" );
+                    out.startDataBlock();
+                    out.print( val );
+                    out.closeDataBlock();
+                    out.popTag();
+                    }
+                out.popTag();
+                }
+            }
         else
             {
             out.printAttribute( "value", el.getStringValue() );
