@@ -68,8 +68,12 @@ public class AreaViewer extends JFrame
 
         setSize( 600, 600 );
 
+        long startTime = System.currentTimeMillis();
         readArea( area );
         drawArea();
+        long endTime = System.currentTimeMillis();
+
+        System.out.println( "Load and render time:" + (endTime - startTime) );
 
         getContentPane().add( new JLabel( new ImageIcon( image ) ) );
     }
@@ -91,17 +95,20 @@ public class AreaViewer extends JFrame
     protected List getTileset( String tileset ) throws IOException
     {
         InputStream in = resMgr.getResourceStream( new ResourceKey( tileset, ResourceUtils.RES_SET ) );
+        SetReader setReader = new SetReader( in );
+
         try
             {
-            SetReader set = new SetReader( in );
-            int size = set.getTiles().size();
+            List tiles = setReader.readTiles();
+
+            int size = tiles.size();
             for( int i = 0; i < size; i++ )
                 images.add( null );
-            return( set.getTiles() );
+            return( tiles );
             }
         finally
             {
-            in.close();
+            setReader.close();
             }
     }
 
@@ -117,16 +124,16 @@ public class AreaViewer extends JFrame
 System.out.println( "Res:" + res );
         // Right now just read it every time
         InputStream in = resMgr.getResourceStream( new ResourceKey( res, ResourceUtils.RES_TGA ) );
+        TgaReader reader = new TgaReader( in );
         try
             {
-            TgaReader reader = new TgaReader( in );
-            img = reader.getImage();
+            img = reader.readImage();
             images.set( index, img );
             return( img );
             }
         finally
             {
-            in.close();
+            reader.close();
             }
     }
 

@@ -54,7 +54,10 @@ public class SetReader
     public SetReader( InputStream in ) throws IOException
     {
         this.in = new BufferedReader( new InputStreamReader( in ) );
+    }
 
+    public List readTiles() throws IOException
+    {
         skipTo( "[TILES]" );
 
         String line = findLine( "Count=" );
@@ -73,11 +76,13 @@ public class SetReader
 
             tiles.add( tile );
             }
+
+        return( tiles );
     }
 
-    public List getTiles()
+    public void close() throws IOException
     {
-        return( tiles );
+        in.close();
     }
 
     private String findLine( String prefix ) throws IOException

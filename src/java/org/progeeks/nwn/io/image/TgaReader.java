@@ -55,23 +55,20 @@ public class TgaReader
     public TgaReader( InputStream in ) throws IOException
     {
         this.in = new BinaryDataInputStream( in );
-
-        try
-            {
-            readImage();
-            }
-        finally
-            {
-            in.close();
-            }
     }
 
-    public Image getImage()
+    public Image readImage() throws IOException
     {
+        readTargaData();
         return( image );
     }
 
-    private void readImage() throws IOException
+    public void close() throws IOException
+    {
+        in.close();
+    }
+
+    private void readTargaData() throws IOException
     {
         int idLen = in.readUnsignedByte();
         int cmapType = in.readUnsignedByte();
