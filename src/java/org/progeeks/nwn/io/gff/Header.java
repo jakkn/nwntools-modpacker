@@ -68,6 +68,16 @@ public class Header
         lists = new BlockIndex(in);
     }
 
+    public String getType()
+    {
+        return( type );
+    }
+
+    public String getVersion()
+    {
+        return( version );
+    }
+
     public BlockIndex getStructs()
     {
         return( structs );

@@ -74,6 +74,11 @@ public class GffReader
         resolveLists( fieldStubs );
     }
 
+    public Header getHeader()
+    {
+        return( header );
+    }
+
     public Struct getRootStruct()
     {
         return( (Struct)structs.get(0) );

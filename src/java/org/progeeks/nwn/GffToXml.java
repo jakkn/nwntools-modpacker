@@ -206,8 +206,10 @@ public class GffToXml
 
         try
             {
-            writer.pushTag( ResourceUtils.getExtensionForType( type ).toLowerCase() );
+            writer.pushTag( "gff" );
             writer.printAttribute( "name", name );
+            writer.printAttribute( "type", reader.getHeader().getType() );
+            writer.printAttribute( "version", reader.getHeader().getVersion() );
             writeStruct( reader.getRootStruct() );
             writer.popTag();
             }
