@@ -78,12 +78,25 @@ public class BuildAction extends AbstractAction
         private ProjectGraph graph;
         private Set staleResources = new HashSet();
         private Set checkedScripts = new HashSet();
+        private int scriptCount = 0;
+        private int xmlCount = 0;
 
         public BuildCommand( Project project )
         {
             super( false );
 
             this.project = project;
+        }
+
+        private void addStaleResource( ResourceIndex ri )
+        {
+            staleResources.add( ri );
+
+            ResourceKey key = ri.getKey();
+            if( key.isGffType() )
+                xmlCount++;
+            else if( key.getType() == ResourceTypes.TYPE_NSS )
+                scriptCount++;
         }
 
         private boolean checkScriptDependencies( ResourceIndex ri ) throws IOException
@@ -125,7 +138,7 @@ public class BuildAction extends AbstractAction
             ri.makeSourceCurrent( project );
             if( ri.isSourceNewer() )
                 {
-                staleResources.add( ri );
+                addStaleResource( ri );
                 return( true );
                 }
 
@@ -139,7 +152,7 @@ public class BuildAction extends AbstractAction
                     // Check for dependencies
                     if( checkScriptDependencies( ri ) )
                         {
-                        staleResources.add( ri );
+                        addStaleResource( ri );
                         return( true );
                         }
                     }
@@ -179,9 +192,60 @@ public class BuildAction extends AbstractAction
                 pr.done();
                 }
 
-System.out.println( "Stale:" + staleResources );
+            pr = reqHandler.requestProgressReporter( prName, "Compiling scripts...", 0, scriptCount );
+            System.out.println( "Compiling..." );
+            try
+                {
+                int index = 0;
+                // Compile the scripts first
+                for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
+                    {
+                    pr.setProgress( index );
+                    ResourceIndex ri = (ResourceIndex)i.next();
+                    if( ri.getKey().getType() != ResourceTypes.TYPE_NSS )
+                        continue;
 
+                    System.out.println( "Need to compile script:" + ri.getKey().getFileName() );
+                    i.remove();
+                    }
+                }
+            finally
+                {
+                pr.done();
+                }
 
+            // Convert the XML next
+            pr = reqHandler.requestProgressReporter( prName, "Converting XML...", 0, xmlCount );
+            System.out.println( "Converting..." );
+            try
+                {
+                int index = 0;
+                // Compile the scripts first
+                for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
+                    {
+                    pr.setProgress( index );
+                    ResourceIndex ri = (ResourceIndex)i.next();
+                    if( !ri.getKey().isGffType() )
+                        continue;
+                    System.out.println( "Need to convert XML for:" + ri.getName() );
+                    i.remove();
+                    }
+                }
+            finally
+                {
+                pr.done();
+                }
+
+            if( staleResources.size() > 0 )
+                {
+                // Copy the rest of the files
+                for( Iterator i = staleResources.iterator(); i.hasNext(); )
+                    {
+                    System.out.println( "Need to copy:" + i.next() );
+                    }
+                }
+
+            // Now build the module.
 
             return( null );
         }
