@@ -537,6 +537,7 @@ public class ResourceUtils
             case ResourceTypes.TYPE_PTM: // plot manager
             case ResourceTypes.TYPE_PTT: // plot wizard blueprint
             case ResourceTypes.TYPE_BIC: // Character/Creature file
+            case ResourceTypes.TYPE_GFF: // generic GFF
                 return( true );
             }
         return( false );
