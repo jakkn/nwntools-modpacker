@@ -39,6 +39,7 @@ import javax.swing.tree.TreeModel;
 import org.progeeks.util.*;
 import org.progeeks.util.swing.*;
 
+import org.progeeks.nwn.resource.ResourceManager;
 import org.progeeks.nwn.ui.action.*;
 
 /**
@@ -164,6 +165,11 @@ public class WindowContext extends DefaultViewContext
     public FileTreeModel getFileTreeModel()
     {
         return( fileTreeModel );
+    }
+
+    public ResourceManager getResourceManager()
+    {
+        return( ((GlobalContext)getParentContext()).getResourceManager() );
     }
 
     /**

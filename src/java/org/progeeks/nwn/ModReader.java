@@ -197,6 +197,52 @@ public class ModReader
             }
     }
 
+    public static void extractModule( File module, File destination, boolean verbose ) throws IOException
+    {
+        FileInputStream fIn = new FileInputStream( module );
+        BufferedInputStream in = new BufferedInputStream( fIn, 65536 );
+        int count = 0;
+        long total = 0;
+
+        try
+            {
+            File root = destination;
+
+            ModReader m = new ModReader( in );
+
+            ResourceInputStream rIn = null;
+            while( (rIn = m.nextResource()) != null )
+                {
+                String name = rIn.getResourceName();
+                if( name.length() == 0 )
+                    {
+                    if( verbose )
+                        System.out.println( "Skipping empty resource entry.                         " );
+                    continue;
+                    }
+                name += "." + ResourceUtils.getExtensionForType(rIn.getResourceType()).toLowerCase();
+
+                File f = new File( root, name );
+                if( verbose )
+                    {
+                    System.out.print( "Writing:" + f + "  size:" + rIn.getBytesLeft()
+                                                + "                   \r" );
+                    }
+                int size = dumpStream( f, rIn );
+
+                total += size;
+                count++;
+                }
+
+            if( verbose )
+                System.out.println( "Extracted " + count + " resources for a total of " + total + " bytes.     " );
+            }
+        finally
+            {
+            in.close();
+            }
+    }
+
     public static void main( String[] args ) throws Exception
     {
         if( args.length < 2 )
@@ -213,43 +259,7 @@ public class ModReader
 
         long start = System.currentTimeMillis();
 
-        FileInputStream fIn = new FileInputStream( args[0] );
-        BufferedInputStream in = new BufferedInputStream( fIn, 65536 );
-        int count = 0;
-        long total = 0;
-
-        try
-            {
-            File root = new File( args[1] );
-
-            ModReader m = new ModReader( in );
-
-            ResourceInputStream rIn = null;
-            while( (rIn = m.nextResource()) != null )
-                {
-                String name = rIn.getResourceName();
-                if( name.length() == 0 )
-                    {
-                    System.out.println( "Skipping empty resource entry.                         " );
-                    continue;
-                    }
-                name += "." + ResourceUtils.getExtensionForType(rIn.getResourceType()).toLowerCase();
-
-                File f = new File( root, name );
-                System.out.print( "Writing:" + f + "  size:" + rIn.getBytesLeft()
-                                            + "                   \r" );
-                int size = dumpStream( f, rIn );
-
-                total += size;
-                count++;
-                }
-
-            System.out.println( "Extracted " + count + " resources for a total of " + total + " bytes.     " );
-            }
-        finally
-            {
-            in.close();
-            }
+        extractModule( new File( args[0] ), new File( args[1] ), true );
 
         long totalTime = System.currentTimeMillis() - start;
         double secs = (double)totalTime / 1000.0;

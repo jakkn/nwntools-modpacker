@@ -48,7 +48,9 @@ import org.progeeks.util.log.*;
 import org.progeeks.nwn.*;
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.gff.*;
+import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.model.*;
+import org.progeeks.nwn.resource.*;
 import org.progeeks.nwn.ui.*;
 
 /**
@@ -62,6 +64,7 @@ public class ImportModuleAction extends AbstractAction
 {
     static Log log = Log.getLog( ImportModuleAction.class );
 
+    private byte[] transferBuff = new byte[65536];
     private static String[] defaultStructure = new String[] {
                                                     "Areas",
                                                     "Blueprints",
@@ -142,6 +145,163 @@ public class ImportModuleAction extends AbstractAction
             }
     }
 
+    // FIXME - This should DEFINITELY be a utility method somewhere
+    public long saveStream( File f, InputStream in ) throws IOException
+    {
+        FileOutputStream fOut = new FileOutputStream(f);
+        BufferedOutputStream out = new BufferedOutputStream( fOut, 65536 );
+        try
+            {
+            int count = 0;
+            int total = 0;
+            while( (count = in.read(transferBuff)) >= 0 )
+                {
+                out.write( transferBuff, 0, count );
+                total += count;
+                }
+
+            return( total );
+            }
+        finally
+            {
+            out.close();
+            }
+
+    }
+
+    protected void writeGffXml( File f, Struct struct, ResourceKey key ) throws IOException
+    {
+        String type = key.getTypeString() + " ";
+        String version = "V3.2";
+
+        FileWriter fOut = new FileWriter( f );
+        BufferedWriter bOut = new BufferedWriter( fOut, 65536 );
+        GffXmlWriter out = new GffXmlWriter( key.getName(), type, version, bOut );
+        try
+            {
+            out.writeStruct( struct );
+            }
+        finally
+            {
+            out.close();
+            }
+    }
+
+    protected FileIndex getPathForResource( List rules, ResourceKey key, FileIndex start )
+    {
+        FileIndex currentParent = start;
+
+        for( Iterator j = rules.iterator(); j.hasNext(); )
+            {
+            MappingRule rule = (MappingRule)j.next();
+            MappingResult result = rule.performMapping( currentParent, key );
+            if( result == null )
+                {
+                // The rule swallowed it
+                return( null );
+                }
+
+            currentParent = (FileIndex)result.getParent();
+
+            if( result.shouldTerminate() )
+                {
+                // The rule says we're done
+                break;
+                }
+            }
+
+        return( currentParent );
+    }
+
+
+    protected void convertResources( File moduleFile, Project project, List rules ) throws IOException
+    {
+        ProjectGraph graph = project.getProjectGraph();
+
+        // Even though we just copied the files to a directory,
+        // we'll read the originals back out of the module.
+        // This won't be reusable by the main system, but it's
+        // easier because we don't have nice ResourceIndex objects
+        // to help us yet.
+        FileInputStream fIn = new FileInputStream( moduleFile );
+        BufferedInputStream in = new BufferedInputStream( fIn, 65536 );
+        try
+            {
+            ModReader reader = new ModReader( in );
+
+            ModReader.ResourceInputStream rIn = null;
+            while( (rIn = reader.nextResource()) != null )
+                {
+                String name = rIn.getResourceName();
+System.out.println( "Processing:" + name );
+                if( name.length() == 0 )
+                    {
+                    System.out.println( "Skipping empty resource entry." );
+                    continue;
+                    }
+                int type = rIn.getResourceType();
+
+                ResourceKey key = new ResourceKey( name, type );
+
+                FileIndex destination = getPathForResource( rules, key, project.getSourceDirectory() );
+                if( destination == null )
+                    {
+                    // Skipping it because it doesn't convert or copy to a source
+                    // file
+                    continue;
+                    }
+
+                // Construct the path if it doesn't exist
+                File path = destination.getFile( project );
+                if( !path.exists() )
+                    path.mkdirs();
+
+                ResourceIndex ri = null;
+
+                // If it's a GFF file, the read it's struct
+                if( key.isGffType() )
+                    {
+                    ResourceLoader loader = context.getResourceManager().getLoader( key.getType() );
+                    Struct struct = (Struct)loader.loadResource( key, rIn );
+                    ri = ResourceIndexFactory.createResourceIndex( key, struct, destination,
+                                                                   project.getBuildDirectory() );
+
+                    // Now write out the struct
+                    File f = ri.getSource().getFile( project );
+                    System.out.println( "  Converting to:" + f );
+                    writeGffXml( f, struct, key );
+                    }
+                else
+                    {
+                    try
+                        {
+                        // Just copy the file
+                        ri = ResourceIndexFactory.createResourceIndex( key, destination,
+                                                                       project.getBuildDirectory() );
+
+                        File f = ri.getSource().getFile( project );
+                        System.out.println( "  Copying to:" + f );
+                        saveStream( f, rIn );
+                        }
+                    finally
+                        {
+                        rIn.close();
+                        }
+                    }
+
+                // Now that we have a fully built out ResourceIndex,
+                // add it to the graph
+                graph.addDirectory( destination );
+                graph.addNode( ri );
+                graph.addEdge( ProjectGraph.EDGE_FILE, destination, ri, true );
+                }
+            }
+        finally
+            {
+            in.close();
+            }
+    }
+
     public void actionPerformed( ActionEvent event )
     {
         System.out.println( "Import" );
@@ -174,9 +334,9 @@ public class ImportModuleAction extends AbstractAction
             project.setTargetModuleName( module.getName() );
             project.setProjectDescription( description );
 
-            project.setBuildDirectory( new File( projectDirectory, "build" ) );
-            project.setWorkDirectory( new File( projectDirectory, "cache" ) );
-            project.setSourceDirectory( new File( projectDirectory, "source" ) );
+            project.setBuildDirectory( new FileIndex( "build" ) );
+            project.setWorkDirectory( new FileIndex( "cache" ) );
+            project.setSourceDirectory( new FileIndex( "source" ) );
 
             // Need to create wizard pages with the following configuration
             // Page 1:
@@ -254,9 +414,9 @@ public class ImportModuleAction extends AbstractAction
             d4 = d4.replaceAll( "@module@", module.getName() );
             d4 = d4.replaceAll( "@module-file@", module.getPath().replace( '\\', '/' ) );
             d4 = d4.replaceAll( "@project-file@", projectFile.getPath().replace( '\\', '/' ) );
-            d4 = d4.replaceAll( "@build-directory@", project.getBuildDirectory().getPath().replace( '\\', '/' ) );
-            d4 = d4.replaceAll( "@work-directory@", project.getWorkDirectory().getPath().replace( '\\', '/' ) );
-            d4 = d4.replaceAll( "@source-directory@", project.getSourceDirectory().getPath().replace( '\\', '/' ) );
+            d4 = d4.replaceAll( "@build-directory@", project.getBuildDirectory().getFullPath() );
+            d4 = d4.replaceAll( "@work-directory@", project.getWorkDirectory().getFullPath() );
+            d4 = d4.replaceAll( "@source-directory@", project.getSourceDirectory().getFullPath() );
 
             page = new PageConfiguration( "Summary", d4, icon );
             page.setPageEvaluator( new EndEvaluator() );
@@ -276,7 +436,7 @@ public class ImportModuleAction extends AbstractAction
             // starting folder set, for now, this will do.
             for( int i = 0; i < defaultStructure.length; i++ )
                 {
-                FileIndex f = new FileIndex( defaultStructure[i] );
+                FileIndex f = new FileIndex( project.getSourceDirectory(), defaultStructure[i] );
                 graph.addDirectory( f );
                 }
 
@@ -302,56 +462,39 @@ public class ImportModuleAction extends AbstractAction
 
             // Create a FileIndex for the build directory so that we can
             // tell the resource indexes where they should go.
-            File buildDir = project.getBuildDirectory();
-            String bs = buildDir.getCanonicalPath();
-            String ps = projectDirectory.getCanonicalPath();
-            bs = bs.substring( ps.length() );
-            FileIndex targetDir = new FileIndex( bs );
+            //File buildDir = project.getBuildDirectory();
+            //String bs = buildDir.getCanonicalPath();
+            //String ps = projectDirectory.getCanonicalPath();
+            //bs = bs.substring( ps.length() );
+            //FileIndex targetDir = new FileIndex( bs );
+            File buildDir = project.getBuildDirectory().getFile( project );
+
+            // Make sure the build directory exists
+            if( !buildDir.exists() )
+                buildDir.mkdirs();
+
+            // The import process should go as follows:
+            // 1) extract the module to the build directory.
+            // 2) move/convert the appropriate resources and put
+            //    them in the source directory... creating the
+            //    file graph as we go.
+            //
+            // It would be nice to do them in one step, but it would
+            // require that we push the data to two different writers
+            // rather than doing the standard read/write loop.
+            //
+            // Plus, by doing the processing separately, it makes it
+            // easier to do things like update the source from the
+            // binaries and such.
+            //
+            // And we can use are existing mod reading stuff to
+            // just extract the module... really we need a version
+            // that can give us status updates.
+            ModReader.extractModule( module, buildDir, true );
 
             // Now go through all of the resources and add them too
-            List resources = getModuleResourceList( module );
-            for( Iterator i = resources.iterator(); i.hasNext(); )
-                {
-                ResourceKey key = (ResourceKey)i.next();
-                FileIndex currentParent = null;
-
-                // For some testing, run through some sample rules
-                for( Iterator j = rules.iterator(); j.hasNext(); )
-                    {
-                    MappingRule rule = (MappingRule)j.next();
-                    MappingResult result = rule.performMapping( currentParent, key );
-                    if( result == null )
-                        {
-                        // The rule swallowed it
-                        key = null;
-                        break;
-                        }
-
-                    currentParent = (FileIndex)result.getParent();
-
-                    if( result.shouldTerminate() )
-                        {
-                        // The rule says we're done
-                        break;
-                        }
-                    }
-
-                if( key == null )
-                    {
-                    // This one has been skipped
-                    continue;
-                    }
-
-                if( currentParent != null )
-                    {
-                    graph.addDirectory( currentParent );
-
-                    ResourceIndex ri = ResourceIndexFactory.createResourceIndex( key, currentParent, targetDir );
-                    graph.addNode( ri );
-                    graph.addEdge( ProjectGraph.EDGE_FILE, currentParent, ri, true );
-                    continue;
-                    }
-                }
+            // This should probably be moved to a separate class.
+            convertResources( module, project, rules );
 
             //System.out.println( "Graph:" + graph );
             context.getFileTreeModel().setFileTreeView( new FileTreeView( graph ) );

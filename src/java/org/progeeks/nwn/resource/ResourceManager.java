@@ -133,7 +133,7 @@ public class ResourceManager
     /**
      *  Returns a loader implementation for the specified type.
      */
-    protected ResourceLoader getLoader( int type )
+    public ResourceLoader getLoader( int type )
     {
         return( (ResourceLoader)loaderMap.get( new Integer(type) ) );
     }

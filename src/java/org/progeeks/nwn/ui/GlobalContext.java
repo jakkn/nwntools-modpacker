@@ -40,6 +40,7 @@ import org.progeeks.meta.beans.*;
 import org.progeeks.meta.util.*;
 
 import org.progeeks.nwn.model.*;
+import org.progeeks.nwn.resource.*;
 import org.progeeks.util.*;
 import org.progeeks.util.swing.*;
 
@@ -56,6 +57,8 @@ public class GlobalContext extends DefaultViewContext
 
     private ObservableList windows = new ObservableList( new ArrayList() );
 
+    private ResourceManager resourceMgr = new ResourceManager();
+
     public GlobalContext()
     {
         setupMetaClasses();
@@ -69,6 +72,11 @@ public class GlobalContext extends DefaultViewContext
     public String getVersion()
     {
         return( "v 0.0.1" );
+    }
+
+    public ResourceManager getResourceManager()
+    {
+        return( resourceMgr );
     }
 
     /**

@@ -47,9 +47,9 @@ public class Project
     private String projectDescription;
     private String moduleName;
     private File   projectFile;
-    private File   buildDirectory;
-    private File   workDirectory;
-    private File   sourceDirectory;
+    private FileIndex buildDirectory;
+    private FileIndex workDirectory;
+    private FileIndex sourceDirectory;
     private ProjectGraph graph = new ProjectGraph( this );
 
     public Project()
@@ -129,7 +129,7 @@ public class Project
      *  XML -> GFF conversion process and the script compilation
      *  process.
      */
-    public void setBuildDirectory( File buildDirectory )
+    public void setBuildDirectory( FileIndex buildDirectory )
     {
         this.buildDirectory = buildDirectory;
     }
@@ -137,7 +137,7 @@ public class Project
     /**
      *  Returns the location of the converted module binaries.
      */
-    public File getBuildDirectory()
+    public FileIndex getBuildDirectory()
     {
         return( buildDirectory );
     }
@@ -147,7 +147,7 @@ public class Project
      *  that Pandora uses to keep track of the project such as dependency
      *  information and cached thumbnails, etc..
      */
-    public void setWorkDirectory( File workDirectory )
+    public void setWorkDirectory( FileIndex workDirectory )
     {
         this.workDirectory = workDirectory;
     }
@@ -155,7 +155,7 @@ public class Project
     /**
      *  Returns the location of the project work files.
      */
-    public File getWorkDirectory()
+    public FileIndex getWorkDirectory()
     {
         return( workDirectory );
     }
@@ -166,7 +166,7 @@ public class Project
      *  the GFF and NCS binaries before bundling them into a module.
      *  If you're going to put a directory in CVS, this is the one.
      */
-    public void setSourceDirectory( File sourceDirectory )
+    public void setSourceDirectory( FileIndex sourceDirectory )
     {
         this.sourceDirectory = sourceDirectory;
     }
@@ -174,7 +174,7 @@ public class Project
     /**
      *  Returns the location of the project source files.
      */
-    public File getSourceDirectory()
+    public FileIndex getSourceDirectory()
     {
         return( sourceDirectory );
     }
