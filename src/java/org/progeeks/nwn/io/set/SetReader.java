@@ -35,9 +35,12 @@ package org.progeeks.nwn.io.set;
 import java.io.*;
 import java.util.*;
 
+import org.progeeks.util.log.*;
+
 import org.progeeks.nwn.*;
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.resource.*;
+
 
 /**
  *  NWN Area tileset reader.
@@ -52,8 +55,10 @@ import org.progeeks.nwn.resource.*;
  */
 public class SetReader
 {
+    static Log log = Log.getLog( SetReader.class );
+
     private BufferedReader in;
-    private List tiles = new ArrayList();
+    private Map[] tiles;
     private int count = 0;
 
     public SetReader( InputStream in ) throws IOException
@@ -68,21 +73,84 @@ public class SetReader
         String line = findLine( "Count=" );
         count = Integer.parseInt( line.substring( "Count=".length() ) );
 
-        // Quick and dirty reading for now
-        for( int i = 0; i < count; i++ )
+        // Preinitialize the tiles array to the appropriate size.
+        tiles = new Map[count];
+
+        boolean debugOptimized = log.isDebugEnabled();
+
+        Map tile = null;
+        int tileNum = 0;
+        int tileCount = 0;
+        while( (line = in.readLine()) != null )
             {
-            skipTo( "[TILE" + i + "]" );
-            line = findLine( "ImageMap2D=" );
-            String mapImage = line.substring( "ImageMap2D=".length() );
+            line = line.trim();
 
-            // Because it's nice and typeless
-            Map tile = new HashMap();
-            tile.put( "ImageMap2D", mapImage );
+            if( line.length() == 0 )
+                continue;
 
-            tiles.add( tile );
+            if( line.startsWith( "[TILE" ) )
+                {
+                // If this is a door reference then we ignore it for now
+                // but it should be part of the previous tile.
+                if( line.indexOf( "DOOR" ) != -1 )
+                    {
+                    tile = null;
+                    continue;
+                    }
+
+                // Parse the tile string
+                String number = line.substring( "[TILE".length(), line.length() - 1 );
+                tileNum = Integer.parseInt( number );
+
+                if( tileNum != tileCount )
+                    {
+                    log.warn( "Tile index gap.  Read index:" + tileNum + "  Tile count:" + tileCount );
+                    }
+
+                // Create the new tile and set it to the appropriate
+                // location.
+                tile = tiles[tileNum] = new HashMap();
+                tileCount++;
+
+                continue;
+                }
+
+            // Prior to getting to the first tile, we're reading
+            // information about the tileset as a whole.  And actually,
+            // because we start at [TILES] we shouldn't be seeing these
+            // either but it's good to be safe.
+            // These may also be door tiles which we skip.
+            if( tile == null )
+                {
+                // We ignore these for now
+                continue;
+                }
+
+            if( line.equals( "[GROUPS]" ) )
+                {
+                // Then we're done... we don't read the groups yet.
+                break;
+                }
+
+            // Process the tile attribute
+            int split = line.indexOf( '=' );
+            if( split < 0 )
+                {
+                log.warn( "Skipping unparsable line:" + line );
+                continue;
+                }
+
+            String name = line.substring( 0, split );
+            String val = line.substring( split + 1 );
+
+            if( debugOptimized )
+                {
+                log.debug( "Tile[" + tileNum + "]  " + name + " = [" + val + "]" );
+                }
+            tile.put( name, val );
             }
 
-        return( tiles );
+        return( Arrays.asList( tiles ) );
     }
 
     public void close() throws IOException
@@ -95,6 +163,7 @@ public class SetReader
         String line = null;
         while( (line = in.readLine()) != null )
             {
+//System.out.println( "Line:" + line );
             if( line.startsWith( prefix ) )
                 return( line );
             }
@@ -106,6 +175,7 @@ public class SetReader
         String line = null;
         while( (line = in.readLine()) != null )
             {
+//System.out.println( "Line:" + line );
             if( s.equals( line.trim() ) )
                 break;
             }
@@ -113,22 +183,27 @@ public class SetReader
 
     public static void main( String[] args ) throws IOException
     {
-        ResourceManager resMgr = new ResourceManager();
-        resMgr.loadDefaultKeys();
+        //ResourceManager resMgr = new ResourceManager();
+        //resMgr.loadDefaultKeys();
 
         for( int i = 0; i < args.length; i++ )
             {
-            InputStream in = resMgr.getResourceStream( new ResourceKey( args[0], ResourceTypes.TYPE_SET ) );
+            //InputStream in = resMgr.getResourceStream( new ResourceKey( args[0], ResourceTypes.TYPE_SET ) );
+            long start = System.currentTimeMillis();
+            FileInputStream in = new FileInputStream( new File(args[i]) );
             SetReader setReader = new SetReader( in );
             try
                 {
                 List tiles = setReader.readTiles();
-System.out.println( "Tiles:" + tiles );
+//System.out.println( "Tiles:" + tiles );
                 }
             finally
                 {
                 setReader.close();
                 }
+
+            long total = System.currentTimeMillis() - start;
+            System.out.println( args[i] + " read in " + total + " ms." );
             }
     }
 
