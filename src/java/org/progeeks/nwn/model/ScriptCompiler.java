@@ -197,6 +197,18 @@ public class ScriptCompiler
 
         public void run()
         {
+            try
+                {
+                runLoop();
+                }
+            catch( Throwable t )
+                {
+                t.printStackTrace();
+                }
+        }
+
+        public void runLoop()
+        {
             while( go )
                 {
                 try
@@ -283,15 +295,6 @@ public class ScriptCompiler
             if( done )
                 return;
 
-            if( !errDone )
-                {
-                int b = err.read();
-                if( b >= 0 )
-                    errors.append( (char)b );
-                else
-                    errDone = true;
-                }
-
             if( !inDone )
                 {
                 int b = in.read();
@@ -301,7 +304,19 @@ public class ScriptCompiler
                     inDone = true;
                 }
 
-            done = inDone && errDone;
+            /*
+            We never seem to actually see errors and the blocking
+            causes problems sometimes.
+            if( !errDone && err.available() > 0 )
+                {
+                int b = err.read();
+                if( b >= 0 )
+                    errors.append( (char)b );
+                else
+                    errDone = true;
+                }*/
+
+            done = inDone; // && errDone;
         }
 
         public void cleanup()
