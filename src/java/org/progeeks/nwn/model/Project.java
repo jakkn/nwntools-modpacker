@@ -46,6 +46,7 @@ public class Project
     private String name;
     private String projectDescription;
     private String moduleName;
+    private File   projectFile;
     private File   buildDirectory;
     private File   workDirectory;
     private File   sourceDirectory;
@@ -69,6 +70,32 @@ public class Project
     public String getName()
     {
         return( name );
+    }
+
+    /**
+     *  Sets the project File in case it's somehow different than
+     *  the project name.  This file will also be used to resolve
+     *  relative paths because it is always set both when the project
+     *  file is read (from the project's XML file) and after it is
+     *  read.  This lets the Project convert any paths.  We do this
+     *  because we can't really control the files that are passed
+     *  in and returned... besides it's more convenient for them to
+     *  be real Files while the program is running.
+     */
+    public void setProjectFile( File file )
+    {
+        if( file.equals( this.projectFile ) )
+            return;
+
+        File oldFile = this.projectFile;
+        this.projectFile = file;
+
+        // Repath the sub-directories as necessary.
+    }
+
+    public File getProjectFile()
+    {
+        return( projectFile );
     }
 
     /**

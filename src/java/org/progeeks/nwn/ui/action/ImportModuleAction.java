@@ -191,7 +191,6 @@ public class ImportModuleAction extends AbstractAction
             fields.add( "name" );
             fields.add( "targetModuleName" );
             fields.add( "projectDescription" );
-            //page = new MetaWizardDialog.PageConfiguration( "Project Information", (String)null, fields );
             String d2 = StringUtils.readStringResource( getClass(), "ImportModule-info.html" );
             page = new PageConfiguration( "Project Information", d2, fields );
 
@@ -205,8 +204,23 @@ public class ImportModuleAction extends AbstractAction
             String d3 = StringUtils.readStringResource( getClass(), "ImportModule-dirs.html" );
             d3 = d3.replaceAll( "@directory@", projectDirectory.getPath().replace( '\\', '/' ) );
             page = new PageConfiguration( "Directories", d3, fields );
-            page.setPageEvaluator( new EndEvaluator() );
             dlg.addPage( page, mProject );
+
+            // And the summary page
+            File projectFile = new File( projectDirectory, name + ".xml" );
+            project.setProjectFile( projectFile );
+            String d4 = StringUtils.readStringResource( getClass(), "ImportModule-summary.html" );
+            d4 = d4.replaceAll( "@project@", name );
+            d4 = d4.replaceAll( "@module@", module.getName() );
+            d4 = d4.replaceAll( "@module-file@", module.getPath().replace( '\\', '/' ) );
+            d4 = d4.replaceAll( "@project-file@", projectFile.getPath().replace( '\\', '/' ) );
+            d4 = d4.replaceAll( "@build-directory@", project.getBuildDirectory().getPath().replace( '\\', '/' ) );
+            d4 = d4.replaceAll( "@work-directory@", project.getWorkDirectory().getPath().replace( '\\', '/' ) );
+            d4 = d4.replaceAll( "@source-directory@", project.getSourceDirectory().getPath().replace( '\\', '/' ) );
+
+            page = new PageConfiguration( "Summary", d4, icon );
+            page.setPageEvaluator( new EndEvaluator() );
+            dlg.addPage( page );
 
             dlg.setLocationRelativeTo( null );
             dlg.show();
