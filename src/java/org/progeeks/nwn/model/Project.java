@@ -179,12 +179,38 @@ public class Project
         return( sourceDirectory );
     }
 
+/*
+public void setTest1( Project p )
+{
+    System.out.println( "Test1:" + p );
+}
+
+public Project getTest1()
+{
+    return( null );
+}
+
+public void setTest2( java.util.List l )
+{
+    System.out.println( "Test2:" + l );
+}
+
+public void addTest2( Project p )
+{
+}
+
+public java.util.List getTest2()
+{
+    return( null );
+} */
+
     /**
      *  Sets the project description which may be different than the
      *  module description.
      */
     public void setProjectDescription( String description )
     {
+System.out.println( "description:" + description );
         this.projectDescription = description;
     }
 
@@ -198,7 +224,8 @@ public class Project
 
     public String toString()
     {
-        return( "Project[" + name + "]" );
+        return( "Project[" + name + ", file:" + projectFile + ", work:" + workDirectory
+                            + ", source:" + sourceDirectory + ", build:" + buildDirectory + "]" );
     }
 }
 
