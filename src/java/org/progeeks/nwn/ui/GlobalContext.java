@@ -32,8 +32,14 @@
 
 package org.progeeks.nwn.ui;
 
+import java.beans.IntrospectionException;
 import java.util.*;
 
+import org.progeeks.meta.*;
+import org.progeeks.meta.beans.*;
+import org.progeeks.meta.util.*;
+
+import org.progeeks.nwn.model.*;
 import org.progeeks.util.*;
 import org.progeeks.util.swing.*;
 
@@ -52,7 +58,39 @@ public class GlobalContext extends DefaultViewContext
 
     public GlobalContext()
     {
+        setupMetaClasses();
     }
+
+    public String getApplication()
+    {
+        return( "Pandora" );
+    }
+
+    public String getVersion()
+    {
+        return( "v 0.0.1" );
+    }
+
+    /**
+     *  Setup any meta-classes.
+     */
+    protected void setupMetaClasses()
+    {
+        try
+            {
+            // Ideally, we'd really load this from a configuration file
+            // somewhere.
+
+            List properties = BeanUtils.getBeanPropertyInfos( Project.class );
+            MetaObjectUtils.replacePropertyType( properties, "projectDescription", new LongStringType() );
+            MetaClassRegistry.getRootRegistry().createMetaClass( Project.class.getName(), properties );
+            }
+        catch( IntrospectionException e )
+            {
+            throw new RuntimeException( "Error building meta-class information", e );
+            }
+    }
+
 
     /**
      *  Provides direct access to the observable window context list.
