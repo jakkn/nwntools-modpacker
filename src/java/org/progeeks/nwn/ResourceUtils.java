@@ -118,6 +118,7 @@ public class ResourceUtils
         extensionMap.put( "hak", new Integer(0x080d) );
         extensionMap.put( "nwm", new Integer(0x080e) );
         extensionMap.put( "bik", new Integer(0x080f) );
+        extensionMap.put( "ndb", new Integer(0x0810) );
         extensionMap.put( "ptm", new Integer(0x0811) );
         extensionMap.put( "ptt", new Integer(0x0812) );
         extensionMap.put( "erf", new Integer(0x270d) );
@@ -271,6 +272,8 @@ public class ResourceUtils
                 return( "NWM" );
             case 0x080F:
                 return( "BIK" );
+            case 0x0810:
+                return( "NDB" );
             case 0x0811:
                 return( "PTM" );
             case 0x0812:
@@ -282,6 +285,6 @@ public class ResourceUtils
             case 0x270F:
                 return( "KEY" );
             }
-        return( null );
+        throw new RuntimeException( "Unknown file type:" + type + "  0x" + Integer.toHexString( type ) );
     }
 }

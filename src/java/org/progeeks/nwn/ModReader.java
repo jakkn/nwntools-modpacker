@@ -131,6 +131,7 @@ public class ModReader
             if( ri.type == 0 )
                 {
                 System.out.println( "Warning: empty resource entry at index:" + i );
+                System.out.println( "         name:" + ri.name );
                 ri.index = i;
                 }
 
