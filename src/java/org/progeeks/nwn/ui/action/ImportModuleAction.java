@@ -283,6 +283,10 @@ public class ImportModuleAction extends AbstractAction
                     File f = ri.getSource().getFile( project );
                     pr.setMessage( "Storing: " + f.getName() );
                     writeGffXml( f, struct, key );
+
+                    // Go ahead and make the source and target times the same
+                    File df = ri.getDestination().getFile( project );
+                    df.setLastModified( f.lastModified() );
                     }
                 else
                     {
