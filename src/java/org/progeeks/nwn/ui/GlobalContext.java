@@ -35,6 +35,7 @@ package org.progeeks.nwn.ui;
 import java.beans.IntrospectionException;
 import java.util.*;
 
+import org.progeeks.cmd.swing.SwingCommandProcessor;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
 import org.progeeks.meta.util.*;
@@ -59,6 +60,8 @@ public class GlobalContext extends DefaultViewContext
 
     private ResourceManager resourceMgr = new ResourceManager();
 
+    private SwingCommandProcessor cmdProc = new SwingCommandProcessor();
+
     public GlobalContext()
     {
         setupMetaClasses();
@@ -77,6 +80,11 @@ public class GlobalContext extends DefaultViewContext
     public ResourceManager getResourceManager()
     {
         return( resourceMgr );
+    }
+
+    public SwingCommandProcessor getCommandProcessor()
+    {
+        return( cmdProc );
     }
 
     /**

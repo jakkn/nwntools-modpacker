@@ -38,6 +38,8 @@ import java.util.*;
 import java.util.regex.*;
 import javax.swing.*;
 
+import org.progeeks.cmd.*;
+import org.progeeks.cmd.swing.*;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
 import org.progeeks.meta.swing.*;
@@ -460,44 +462,7 @@ System.out.println( "Processing:" + name );
             rules.add( new ResourceRegexRule( "sei_.*", "Tools/Subraces" ) );
             rules.add( new StandardTypeFilterRule() );
 
-            // Create a FileIndex for the build directory so that we can
-            // tell the resource indexes where they should go.
-            //File buildDir = project.getBuildDirectory();
-            //String bs = buildDir.getCanonicalPath();
-            //String ps = projectDirectory.getCanonicalPath();
-            //bs = bs.substring( ps.length() );
-            //FileIndex targetDir = new FileIndex( bs );
-            File buildDir = project.getBuildDirectory().getFile( project );
-
-            // Make sure the build directory exists
-            if( !buildDir.exists() )
-                buildDir.mkdirs();
-
-            // The import process should go as follows:
-            // 1) extract the module to the build directory.
-            // 2) move/convert the appropriate resources and put
-            //    them in the source directory... creating the
-            //    file graph as we go.
-            //
-            // It would be nice to do them in one step, but it would
-            // require that we push the data to two different writers
-            // rather than doing the standard read/write loop.
-            //
-            // Plus, by doing the processing separately, it makes it
-            // easier to do things like update the source from the
-            // binaries and such.
-            //
-            // And we can use are existing mod reading stuff to
-            // just extract the module... really we need a version
-            // that can give us status updates.
-            ModReader.extractModule( module, buildDir, true );
-
-            // Now go through all of the resources and add them too
-            // This should probably be moved to a separate class.
-            convertResources( module, project, rules );
-
-            //System.out.println( "Graph:" + graph );
-            context.getFileTreeModel().setFileTreeView( new FileTreeView( graph ) );
+            context.getCommandProcessor().execute( new ImportCommand( project, module, rules ), false );
             }
         catch( IOException e )
             {
@@ -518,6 +483,64 @@ System.out.println( "Processing:" + name );
         {
             buttonFlags |= MetaWizardDialog.BUTTON_FINISH;
             return( buttonFlags );
+        }
+    }
+
+    private class ImportCommand extends AbstractViewCommand
+    {
+        private Project project;
+        private File module;
+        private List rules;
+
+        public ImportCommand( Project project, File module, List rules )
+        {
+            super( false );
+
+            this.project = project;
+            this.module = module;
+            this.rules = rules;
+        }
+
+        public Result execute( Environment env )
+        {
+            try
+                {
+                File buildDir = project.getBuildDirectory().getFile( project );
+
+                // Make sure the build directory exists
+                if( !buildDir.exists() )
+                    buildDir.mkdirs();
+
+                // Go through all of the resources and add them to the source
+                // directories.
+                // This should probably be moved to a separate class.
+                convertResources( module, project, rules );
+
+                // Extract the module resources into the build directory.
+                ModReader.extractModule( module, buildDir, true );
+
+                // Update the context with the new file tree
+                context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
+
+                // It would be nice to do the above two operations in one step,
+                // but it would require that we push the data to two different writers
+                // rather than doing the standard read/write loop.
+                //
+                // Plus, by doing the processing separately, it makes it
+                // easier to do things like update the source from the
+                // binaries and such.
+                }
+            catch( IOException e )
+                {
+                context.getRequestHandler().requestShowMessage( "Error loading module file:" + module
+                                                                + "\n" + e.getMessage() );
+                }
+            catch( RuntimeException e )
+                {
+                log.error( "Error importing module", e );
+                context.getRequestHandler().requestShowMessage( "Error importing module:\n" + e.getMessage() );
+                }
+            return( null );
         }
     }
 }

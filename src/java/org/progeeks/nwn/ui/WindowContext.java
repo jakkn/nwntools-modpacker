@@ -36,6 +36,7 @@ import java.util.*;
 import javax.swing.Action;
 import javax.swing.tree.TreeModel;
 
+import org.progeeks.cmd.swing.SwingCommandProcessor;
 import org.progeeks.util.*;
 import org.progeeks.util.swing.*;
 
@@ -170,6 +171,11 @@ public class WindowContext extends DefaultViewContext
     public ResourceManager getResourceManager()
     {
         return( ((GlobalContext)getParentContext()).getResourceManager() );
+    }
+
+    public SwingCommandProcessor getCommandProcessor()
+    {
+        return( ((GlobalContext)getParentContext()).getCommandProcessor() );
     }
 
     /**
