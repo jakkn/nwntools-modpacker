@@ -48,6 +48,7 @@ public class ScriptReader
     private Reader in;
     private StreamTokenizer st;
     private boolean endOfFile = false;
+    private ScriptBlock lastBlock = null;
 
     public ScriptReader( InputStream in ) throws IOException
     {
@@ -195,11 +196,32 @@ public class ScriptReader
      */
     public ScriptBlock readNextBlock() throws IOException
     {
-        ScriptBlock block = readSingleBlock();
-        if( block == null )
-            return( null );
+        ScriptBlock result = lastBlock;
 
-        return( block );
+        if( endOfFile )
+            {
+            lastBlock = null;
+            return( result );
+            }
+
+        if( result == null )
+            result = lastBlock = readSingleBlock();
+
+        ScriptBlock block = readSingleBlock();
+
+        // See if the last block and the current block can be merged
+        if( result.getType() == ScriptBlock.WHITESPACE
+            || result.getType() == ScriptBlock.COMMENT )
+            {
+            while( block != null && result.getType() == block.getType() )
+                {
+                result.appendBlock( block );
+                block = readSingleBlock();
+                }
+            }
+
+        lastBlock = block;
+        return( result );
     }
 
     public void close() throws IOException
@@ -214,14 +236,12 @@ public class ScriptReader
             ScriptReader r = new ScriptReader( new FileReader( new File(args[i]) ) );
             try
                 {
-                //r.readScript();
                 ScriptBlock block = null;
                 while( (block = r.readNextBlock()) != null )
                     {
 //                    System.out.print( "Line:" + block.getBlockText() );
 //                    System.out.print( block );
                     System.out.print( block.getBlockText() );
-//                    System.out.print( line );
                     }
                 }
             finally
