@@ -57,6 +57,8 @@ public class ErfPackerTask extends MatchingTask
     private File baseDir;
     private String description;
     private List lines = new ArrayList();
+    private String minGameVersion = "1.64";
+    private int expansionPacks = 3;
 
     public void setBasedir( File base )
     {
@@ -66,6 +68,27 @@ public class ErfPackerTask extends MatchingTask
     public void setErffile( File target )
     {
         this.target = target;
+    }
+
+    /**
+     *  Sets the minimum game version for use when generating plain
+     *  .erf files.
+     */
+    public void setMinGameVersion( String version )
+    {
+        this.minGameVersion = version;
+    }
+
+    /**
+     *  Sets the expansion pack flags used when packing plain .erf files.
+     *  1 for SoU, 2 for HotU and 3 for both.
+     *  This should really probably be nested elements or something with more
+     *  user-friendly values.
+     *  Defaults to 3.
+     */
+    public void setExpansionPacks( int flags )
+    {
+        expansionPacks = flags;
     }
 
     /**
@@ -186,9 +209,8 @@ public class ErfPackerTask extends MatchingTask
         // separate set of classes for GFF types.
         Struct root = new Struct( -1 );
 
-        // These should be configurable
-        root.addValue( new StringElement( "Mod_MinGameVer", Element.TYPE_STRING, "1.64" ) );
-        root.addValue( new IntElement( "Expansion_Pack", Element.TYPE_UINT16, 3 ) );
+        root.addValue( new StringElement( "Mod_MinGameVer", Element.TYPE_STRING, minGameVersion ) );
+        root.addValue( new IntElement( "Expansion_Pack", Element.TYPE_UINT16, expansionPacks ) );
         root.addValue( new StringElement( "Comments", Element.TYPE_STRING, description ) );
 
         // Turns out we don't really need anything else.  The toolset seems
