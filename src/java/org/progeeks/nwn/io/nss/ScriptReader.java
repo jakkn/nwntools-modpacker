@@ -72,6 +72,7 @@ public class ScriptReader
         st.wordChars( '#', '#' );
         st.wordChars( '/', '/' );
         st.wordChars( '*', '*' );
+        st.wordChars( '_', '_' );
     }
 
     /**
@@ -125,6 +126,11 @@ public class ScriptReader
                             block.setType( ScriptBlock.INCLUDE );
                             closeAtEol = true;
                             }
+                        else if( st.sval.equals( "const" ) )
+                            {
+                            block.setType( ScriptBlock.CONSTANT );
+                            closeAtEol = false;
+                            }
                         else
                             {
                             block.setType( ScriptBlock.CODE );
@@ -155,33 +161,34 @@ public class ScriptReader
                     break;
                 default:
                     line.append( (char)token );
-                    if( block.getType() == ScriptBlock.WHITESPACE )
+                    switch( block.getType() )
                         {
-                        if( token != ' ' && token != '\t' )
-                            {
-                            block.setType( ScriptBlock.CODE );
-                            closeAtEol = false;
-                            }
-                        }
-                    else if( block.getType() == ScriptBlock.CODE )
-                        {
-                        if( token == ';' && blockDepth == 0 )
-                            {
-                            closeAtEol = true;
-                            }
-                        else if( token == '{' )
-                            {
-                            blockDepth++;
-                            closeAtEol = false;
-                            }
-                        else if( token == '}' )
-                            {
-                            blockDepth--;
-                            if( blockDepth == 0 )
+                        case ScriptBlock.WHITESPACE:
+                            if( token != ' ' && token != '\t' )
+                                {
+                                block.setType( ScriptBlock.CODE );
+                                closeAtEol = false;
+                                }
+                            break;
+                        case ScriptBlock.CODE:
+                        case ScriptBlock.CONSTANT:
+                            if( token == ';' && blockDepth == 0 )
+                                {
                                 closeAtEol = true;
-                            }
+                                }
+                            else if( token == '{' )
+                                {
+                                blockDepth++;
+                                closeAtEol = false;
+                                }
+                            else if( token == '}' )
+                                {
+                                blockDepth--;
+                                if( blockDepth == 0 )
+                                    closeAtEol = true;
+                                }
+                            break;
                         }
-
                     break;
                 }
             }

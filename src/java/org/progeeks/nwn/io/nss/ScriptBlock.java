@@ -44,7 +44,8 @@ public class ScriptBlock
     public static final int WHITESPACE = 0;
     public static final int COMMENT = 1;
     public static final int INCLUDE = 2;
-    public static final int CODE = 3;
+    public static final int CONSTANT = 3;
+    public static final int CODE = 4;
 
     private int startLine;
     private int endLine;
@@ -127,6 +128,9 @@ public class ScriptBlock
                 break;
             case INCLUDE:
                 sb.append( "Include" );
+                break;
+            case CONSTANT:
+                sb.append( "Const" );
                 break;
             case CODE:
                 sb.append( "Code" );
