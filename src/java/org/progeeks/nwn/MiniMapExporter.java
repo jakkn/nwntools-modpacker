@@ -61,6 +61,7 @@ public class MiniMapExporter
     public static final String OPTION_DESTINATION = "-d";
     public static final String OPTION_SCALE = "-scale";
     public static final String OPTION_HAK = "-hak";
+    public static final String OPTION_USE_NAME = "-useAreaName";
 
     public static final String[] usage = new String[] {
             "Usage: MiniMapExport <options> <files>",
@@ -93,7 +94,13 @@ public class MiniMapExporter
             "                   sizes.",
             "",
             "   -hak <file>     Specifies a HAK file that should be used when",
-            "                   resolving tileset resources."
+            "                   resolving tileset resources.  You can have as",
+            "                   many -hak options as you need.",
+            "",
+            "   -useAreaName    When this is specified, the area's in-game name",
+            "                   will be used as the file name instead of its",
+            "                   cryptic resref.  Warning: resrefs have to be unique",
+            "                   but names don't."
         };
 
     private static ResourceManager resourceManager = new ResourceManager();
@@ -101,6 +108,7 @@ public class MiniMapExporter
     private File nwnDir = ResourceManager.DEFAULT_NWN_DIR;
     private File destinationDir = new File( "." );
     private double scale = 1.0;
+    private boolean useAreaName = false;
     private List hakFiles = new ArrayList();
     private List areaFiles = new ArrayList();
     private List modFiles = new ArrayList();
@@ -163,8 +171,25 @@ public class MiniMapExporter
         System.out.println( "Loading area:" + areaName );
         Struct areaStruct = readArea( in );
 
-        String name = areaName.toLowerCase();
-        name = name.replaceAll( "\\.are", "\\.png" );
+        String name;
+        if( useAreaName )
+            {
+            name = areaStruct.getString( "Name" );
+
+            // Ok... we'll make an attempt remove some non
+            // file characters
+            name = name.replaceAll( ":", "-" );
+            name = name.replaceAll( "\\\\", "-" );
+            name = name.replaceAll( "/", "-" );
+
+            name += ".png";
+            }
+        else
+            {
+            name = areaName.toLowerCase();
+            name = name.replaceAll( "\\.are", "\\.png" );
+            }
+
         File export = new File( destinationDir, name );
         System.out.println( "    output image:" + export );
 
@@ -262,6 +287,10 @@ public class MiniMapExporter
         System.out.println( "    using NWN in:" + ((nwnDir == null)?"/NeverwinterNights/NWN":nwnDir.toString()) );
         System.out.println( "    writing images to:" + destinationDir );
         System.out.println( "    scale: " + scale );
+        if( useAreaName )
+            System.out.println( "    using in-game area names for created files." );
+        else
+            System.out.println( "    using area resref IDs for created files." );
         if( hakFiles.size() > 0 )
             System.out.println( "    HAK files: " + hakFiles );
 
@@ -289,6 +318,9 @@ public class MiniMapExporter
             File mod = (File)i.next();
             ModuleInfo info = (ModuleInfo)modInfos.get(mod);
             info.exportMiniMaps();
+
+            // Hint to the GC that we can take a pause
+            System.gc();
             }
     }
 
@@ -367,6 +399,10 @@ public class MiniMapExporter
                     {
                     exporter.hakFiles.add( new File( args[i + 1] ) );
                     i++;
+                    }
+                else if( OPTION_USE_NAME.equals( arg ) )
+                    {
+                    exporter.useAreaName = true;
                     }
                 else
                     {
