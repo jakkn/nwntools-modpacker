@@ -123,6 +123,14 @@ public class WindowContext extends DefaultViewContext
     }
 
     /**
+     *  Convenience method for accessing the global context.
+     */
+    public GlobalContext getGlobalContext()
+    {
+        return( (GlobalContext)getParentContext() );
+    }
+
+    /**
      *  Sets the title of this context.  This should appear in any window
      *  title bars or other appropriate areas.
      */
@@ -145,7 +153,7 @@ public class WindowContext extends DefaultViewContext
      */
     public String getFullTitle()
     {
-        GlobalContext parent = (GlobalContext)getParentContext();
+        GlobalContext parent = getGlobalContext();
 
         if( getTitle() == null )
             return( parent.getApplication() + " " + parent.getVersion() );
@@ -170,12 +178,12 @@ public class WindowContext extends DefaultViewContext
 
     public ResourceManager getResourceManager()
     {
-        return( ((GlobalContext)getParentContext()).getResourceManager() );
+        return( getGlobalContext().getResourceManager() );
     }
 
     public SwingCommandProcessor getCommandProcessor()
     {
-        return( ((GlobalContext)getParentContext()).getCommandProcessor() );
+        return( getGlobalContext().getCommandProcessor() );
     }
 
     /**

@@ -566,6 +566,9 @@ public class ImportModuleAction extends AbstractAction
                 // Plus, by doing the processing separately, it makes it
                 // easier to do things like update the source from the
                 // binaries and such.
+
+                // Try to save the project
+                context.getGlobalContext().saveProject( project );
                 }
             catch( IOException e )
                 {

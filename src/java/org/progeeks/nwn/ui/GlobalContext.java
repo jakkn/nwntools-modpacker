@@ -33,12 +33,14 @@
 package org.progeeks.nwn.ui;
 
 import java.beans.IntrospectionException;
+import java.io.*;
 import java.util.*;
 
 import org.progeeks.cmd.swing.SwingCommandProcessor;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
 import org.progeeks.meta.util.*;
+import org.progeeks.meta.xml.*;
 
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
@@ -61,6 +63,13 @@ public class GlobalContext extends DefaultViewContext
     private ResourceManager resourceMgr = new ResourceManager();
 
     private SwingCommandProcessor cmdProc = new SwingCommandProcessor();
+
+    private MetaKit metaKit = BeanUtils.getMetaKit();
+
+    /**
+     *  Xml rendering engine that can write out project files, etc..
+     */
+    private XmlRenderingEngine xmlRenderer;
 
     public GlobalContext()
     {
@@ -104,6 +113,10 @@ public class GlobalContext extends DefaultViewContext
             MetaObjectUtils.replacePropertyType( properties, "sourceDirectory", new FileType( true, true ) );
 
             MetaClassRegistry.getRootRegistry().createMetaClass( Project.class.getName(), properties );
+
+            BeanUtils.createBeanMetaClass( FileIndex.class );
+
+            xmlRenderer = new XmlRenderingEngine();
             }
         catch( IntrospectionException e )
             {
@@ -111,6 +124,26 @@ public class GlobalContext extends DefaultViewContext
             }
     }
 
+    /**
+     *  Temporary method.
+     */
+    public void saveProject( Project project ) throws IOException
+    {
+        File f = project.getProjectFile();
+
+        MetaClass cProject = metaKit.getMetaClassForObject( project );
+        MetaObject mProject = metaKit.wrapObject( project, cProject );
+
+        FileWriter out = new FileWriter( f );
+        try
+            {
+            xmlRenderer.renderXml( mProject, out );
+            }
+        finally
+            {
+            out.close();
+            }
+    }
 
     /**
      *  Provides direct access to the observable window context list.
