@@ -36,6 +36,8 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import javax.swing.AbstractAction;
 
+import org.progeeks.cmd.*;
+import org.progeeks.cmd.swing.*;
 import org.progeeks.util.log.*;
 import org.progeeks.util.*;
 
@@ -70,24 +72,46 @@ public class OpenProjectAction extends AbstractAction
             return;
 
         System.out.println( "Open:" + projectFile );
-        try
-            {
-            Project project = context.getGlobalContext().loadProject( projectFile );
+        context.getCommandProcessor().execute( new LoadProjectCommand( projectFile ), false );
+    }
 
-            // Set the current project to the newly loaded one
-            context.setProject( project );
-            }
-        catch( IOException e )
-            {
-            context.getRequestHandler().requestShowMessage( "Error loading project file:" + projectFile
-                                                            + "\n" + e.getMessage() );
-            }
-        catch( RuntimeException e )
-            {
-            log.error( "Error loading project", e );
-            context.getRequestHandler().requestShowMessage( "Error loading project:\n" + e.getMessage() );
-            }
+    private class LoadProjectCommand extends AbstractViewCommand
+    {
+        private File projectFile;
 
+        public LoadProjectCommand( File projectFile )
+        {
+            super( false );
+
+            this.projectFile = projectFile;
+        }
+
+        public Result execute( Environment env )
+        {
+            try
+                {
+                UserRequestHandler reqHandler = context.getRequestHandler();
+                ProgressReporter pr;
+                pr = reqHandler.requestProgressReporter( "Open Project:" + projectFile.getName(),
+                                                         "Loading...", 0, 10 );
+                Project project = context.getGlobalContext().loadProject( projectFile, pr );
+                pr.done();
+
+                // Set the current project to the newly loaded one
+                context.setProject( project );
+                }
+            catch( IOException e )
+                {
+                context.getRequestHandler().requestShowMessage( "Error loading project file:" + projectFile
+                                                                + "\n" + e.getMessage() );
+                }
+            catch( RuntimeException e )
+                {
+                log.error( "Error loading project", e );
+                context.getRequestHandler().requestShowMessage( "Error loading project:\n" + e.getMessage() );
+                }
+            return( null );
+        }
     }
 }
 

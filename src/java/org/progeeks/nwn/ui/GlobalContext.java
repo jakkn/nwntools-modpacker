@@ -208,10 +208,13 @@ public class GlobalContext extends DefaultViewContext
     /**
      *  Loads the data for a project and returns it.
      */
-    public Project loadProject( File f ) throws IOException
+    public Project loadProject( File f, ProgressReporter pr ) throws IOException
     {
         long start = System.currentTimeMillis();
-        BufferedReader in = new BufferedReader( new FileReader( f ), 32767 );
+
+        FileReader fIn = new FileReader( f );
+        Reader rIn = new ProgressReporterReader( fIn, pr, f.length() );
+        BufferedReader in = new BufferedReader( rIn, 32767 );
 
         try
             {

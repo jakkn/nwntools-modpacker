@@ -568,8 +568,11 @@ public class ImportModuleAction extends AbstractAction
                 // easier to do things like update the source from the
                 // binaries and such.
 
+                pr = reqHandler.requestProgressReporter( "Importing module:" + module.getName(),
+                                                         "Saving project:" + project.getName(), 0, 100 );
                 // Try to save the project
                 context.getGlobalContext().saveProject( project );
+                pr.done();
                 }
             catch( IOException e )
                 {
