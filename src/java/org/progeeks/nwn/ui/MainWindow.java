@@ -34,6 +34,7 @@ package org.progeeks.nwn.ui;
 
 import java.beans.*;
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.progeeks.util.log.*;
 import org.progeeks.util.swing.*;
@@ -70,6 +71,27 @@ public class MainWindow extends JFrame
         getContentPane().add( main, "Center" );
 
         JTree tree = new JTree( context.getFileTreeModel() );
+
+        // This could probably be done with a Format-based
+        // thing added to Meta-JB.  We'll hard-code for now.
+        tree.setCellRenderer( new DefaultTreeCellRenderer()
+                {
+                    public java.awt.Component getTreeCellRendererComponent( JTree tree,
+                                                                            Object value,
+                                                                            boolean sel,
+                                                                            boolean expanded,
+                                                                            boolean leaf,
+                                                                            int row,
+                                                                            boolean hasFocus )
+                    {
+                        if( value instanceof java.io.File )
+                            value = ((java.io.File)value).getName();
+
+                        return( super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf,
+                                                                    row, hasFocus ) );
+                    }
+                } );
+
         main.setLeftComponent( new JScrollPane( tree ) );
 
         setSize( 1024, 768 );
