@@ -78,6 +78,11 @@ public class FileIndex implements Comparable
      */
     public void setFullPath( String path )
     {
+        if( file != null )
+            {
+            throw new RuntimeException( "The path has already been set for this object." );
+            }
+
         // Parse out multiple directories as needed.
         StringTokenizer st = new StringTokenizer( path, "/\\" );
 
