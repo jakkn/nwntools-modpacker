@@ -53,6 +53,11 @@ public class FileTreeModel extends AbstractTreeModel
 {
     private FileTreeView tree;
 
+    // Implements a simple child caching scheme based on the
+    // fact the requests will usually be contigous.
+    private Object lastParent = null;
+    private List   lastChildren = null;
+
     public FileTreeModel()
     {
     }
@@ -77,22 +82,39 @@ public class FileTreeModel extends AbstractTreeModel
         return( null );
     }
 
-    public int getChildCount( Object parent )
+    public List getChildList( Object parent )
     {
         if( tree == null )
-            return( 0 );
+            return( Collections.EMPTY_LIST );
 
-        // Ickily slow... but what are you going to do?
-        int count = 0;
-        for( Iterator i = getChildIterator( parent ); i.hasNext(); count++ )
-            i.next();
+        if( lastParent == parent )
+            return( lastChildren );
 
-        return( count );
+        lastChildren = new ArrayList();
+        for( Iterator i = tree.childTraverser( parent ); i.hasNext(); )
+            lastChildren.add( i.next() );
+        lastParent = parent;
+
+        return( lastChildren );
     }
 
-    public Iterator getChildIterator( Object parent )
+    /**
+     *  Returns true if the specified node is a leaf.
+     */
+    public boolean isLeaf( Object node )
     {
-        return( tree.childTraverser( parent ) );
+        if( tree == null )
+            return( false );
+
+        // Quick and dirty optimization since currently
+        // we know what is being stored inside of us.
+        if( node instanceof java.io.File )
+            return( tree.isLeaf( node ) );
+        else if( node instanceof Project )
+            return( tree.isLeaf( node ) );
+
+        // Only files contain other things right now
+        return( true );
     }
 
 }
