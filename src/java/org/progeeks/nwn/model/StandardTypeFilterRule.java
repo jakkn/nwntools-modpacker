@@ -52,6 +52,8 @@ public class StandardTypeFilterRule implements MappingRule
         switch( key.getType() )
             {
             case ResourceTypes.TYPE_ARE:
+            case ResourceTypes.TYPE_GIC: // area comments
+            case ResourceTypes.TYPE_GIT: // area items
                 subDir = "Areas";
                 break;
             case ResourceTypes.TYPE_NSS:
@@ -91,8 +93,6 @@ public class StandardTypeFilterRule implements MappingRule
             // Ignored types
             case ResourceTypes.TYPE_NCS: // compiled script files
             case ResourceTypes.TYPE_NDB: // debug files
-            case ResourceTypes.TYPE_GIC: // area comments
-            case ResourceTypes.TYPE_GIT: // area items
             case ResourceTypes.TYPE_IFO: // module info file
             case ResourceTypes.TYPE_ITP: // palette files
             case ResourceTypes.TYPE_FAC: // factions
