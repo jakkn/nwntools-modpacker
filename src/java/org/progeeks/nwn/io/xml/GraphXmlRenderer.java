@@ -66,38 +66,93 @@ public class GraphXmlRenderer implements XmlPropertyRenderer
         throw new UnsupportedOperationException( "Value cannot be retrieved as an attribute." );
     }
 
-    protected void renderNode( Object node, MetaClass graphClass, MetaKit metaKit, XmlRenderContext context )
+    protected void renderObject( Object obj, boolean register, MetaClassRegistry registry,MetaKit metaKit,
+                                 XmlRenderContext context )
     {
-System.out.println( "writing node:" + node );
+        Object original = obj;
+
         // Need to do a little guessing about the node type.
-        MetaClass mClass = metaKit.getMetaClassForObject( node, graphClass.getClassRegistry() );
+        MetaClass mClass = metaKit.getMetaClassForObject( obj, registry );
         PropertyType type;
         if( mClass != null )
             {
-            node = metaKit.wrapObject( node, mClass );
+            obj = metaKit.wrapObject( obj, mClass );
             type = new MetaClassPropertyType( mClass );
             }
         else
             {
-            type = new ClassPropertyType( node.getClass() );
+            type = new ClassPropertyType( obj.getClass() );
             }
-System.out.println( "      type:" + type );
 
-        XmlPropertyRenderer renderer = context.getRenderer( type, node );
+        XmlPropertyRenderer renderer = context.getRenderer( type, obj );
         if( renderer.isAttribute() )
-            return;
-
-        /*out.pushTag( name );
-
-        if( graph.degree( node ) > 0 )
             {
-            // Then something else refers to it
-            out.printAttribute( MetaXmlReader.OID_DIRECTIVE, context.registerObject( node ) );
-            }*/
+            // Need extra wrapping for now.  Attribute renderers should be
+            // able to render themselves as objects too.
+            context.getWriter().printTag( obj.getClass().getName() );
+            context.getWriter().printAttribute( "_ctor", renderer.getAsAttribute( obj, type, context ) );
+            return;
+            }
 
-        renderer.render( node, type, context );
+        if( register )
+            {
+            // Then something else refers to it so register the object
+            // and hope that it's renderer is smart enough to stick in the
+            // OID directive.  We register both objects since the
+            // tail and source writing short-circuits the standard renderering.
+            // The internal cache handles mutliple objects with the same id.
+            String oid = context.registerObject( original );
+            context.registerObject( oid, obj );
+            }
 
-        //out.popTag();
+        renderer.render( obj, type, context );
+    }
+
+    protected void renderNode( Object node, Graph graph, MetaClass graphClass, MetaKit metaKit,
+                               XmlRenderContext context )
+    {
+        if( graph.degree( node ) > 0 )
+            renderObject( node, true, graphClass.getClassRegistry(), metaKit, context );
+        else
+            renderObject( node, false, graphClass.getClassRegistry(), metaKit, context );
+    }
+
+    protected void renderEdge( Graph.Edge edge, Graph graph, MetaClass graphClass, MetaKit metaKit,
+                               XmlRenderContext context )
+    {
+        XmlPrintWriter out = context.getWriter();
+
+        out.pushTag( "edge" );
+        out.printAttribute( "directed", String.valueOf( edge.isDirected() ) );
+
+        Object uObj = edge.getUserObject();
+        if( uObj != null )
+            {
+            if( uObj instanceof String )
+                {
+                out.printAttribute( "object", (String)uObj );
+                }
+            else
+                {
+                out.pushTag( "object" );
+                renderObject( uObj, false, graphClass.getClassRegistry(), metaKit, context );
+                out.popTag();
+                }
+            }
+
+        String oid;
+        out.pushTag( "head" );
+        // We cheat because we know that the node should already be in the cache
+        oid = context.getObjectId( edge.getHead() );
+        out.printAttribute( MetaXmlReader.REFERENCE_DIRECTIVE, oid );
+        out.popTag();
+
+        out.pushTag( "tail" );
+        oid = context.getObjectId( edge.getTail() );
+        out.printAttribute( MetaXmlReader.REFERENCE_DIRECTIVE, oid );
+        out.popTag();
+
+        out.popTag();
     }
 
     /**
@@ -127,7 +182,7 @@ System.out.println( "      type:" + type );
         for( Iterator i = graph.nodeIterator(); i.hasNext(); )
             {
             Object node = i.next();
-            renderNode( node, mValue.getMetaClass(), metaKit, context );
+            renderNode( node, graph, mValue.getMetaClass(), metaKit, context );
             }
         out.popTag();
 
@@ -135,7 +190,8 @@ System.out.println( "      type:" + type );
         // Render the edges
         for( Iterator i = graph.edgeIterator(); i.hasNext(); )
             {
-            Object edge = i.next();
+            Graph.Edge edge = (Graph.Edge)i.next();
+            renderEdge( edge, graph, mValue.getMetaClass(), metaKit, context );
             }
         out.popTag();
 
