@@ -42,6 +42,7 @@ import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.gff.*;
 import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.resource.*;
+import org.progeeks.util.StringUtils;
 import org.progeeks.util.thread.*;
 
 
@@ -78,7 +79,9 @@ public class GffToXml
             }
 
         int type = ResourceUtils.getTypeForFileName( f.getName() );
-        if( type == ResourceTypes.TYPE_MOD )
+        if( type == ResourceTypes.TYPE_MOD
+            || type == ResourceTypes.TYPE_ERF
+            || type == ResourceTypes.TYPE_HAK )
             {
             processModFile( f );
             return;
@@ -161,6 +164,18 @@ public class GffToXml
         try
             {
             ModReader m = new ModReader( in );
+
+            // If it has a description and is a HAK file then write the description
+            // to a special file since .haks don't normally have anything like that.
+            String fileType = m.getType();
+            String description = m.getDescription();
+            if( "HAK".equals(fileType) && description != null && description.length() > 0 )
+                {
+                String name = fileType.toLowerCase() + ".description";
+                File descFile = getOutputFile( name, -1 );
+                System.out.println( "Including " + name + " file containing the description." );
+                StringUtils.writeFile( description, descFile );
+                }
 
             ModReader.ResourceInputStream rIn = null;
             while( (rIn = m.nextResource()) != null )

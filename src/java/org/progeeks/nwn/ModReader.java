@@ -38,6 +38,7 @@ import java.util.*;
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.resource.*;
 import org.progeeks.util.ProgressReporter;
+import org.progeeks.util.StringUtils;
 import org.progeeks.util.thread.*;
 
 /**
@@ -82,6 +83,16 @@ public class ModReader
         return( resources.size() );
     }
 
+    public String getDescription()
+    {
+        return( description );
+    }
+
+    public String getType()
+    {
+        return( new String(type).trim() );
+    }
+
     private void readHeader() throws IOException
     {
         in.readFully( type );
@@ -114,7 +125,13 @@ public class ModReader
             byte[] data = new byte[length];
             in.readFully( data );
 
-            strings.add( new String(data) );
+            String s = new String(data);
+
+            // The only reliable way to get the description.
+            if( description == null )
+                description = s;
+
+            strings.add( s );
             }
     }
 
@@ -267,6 +284,17 @@ public class ModReader
             File root = destination;
 
             ModReader m = new ModReader( in );
+
+            // If it has a description and is a HAK file then write the description
+            // to a special file since .haks don't normally have anything like that.
+            String type = m.getType();
+            String description = m.getDescription();
+            if( "HAK".equals(type) && description != null && description.length() > 0 )
+                {
+                String name = type.toLowerCase() + ".description";
+                System.out.println( "Including " + name + " file containing the description." );
+                StringUtils.writeFile( description, new File( root, name ) );
+                }
 
             ResourceInputStream rIn = null;
             while( (rIn = m.nextResource()) != null )

@@ -57,6 +57,11 @@ public class ModPacker
     private BinaryDataOutputStream out;
 
     /**
+     *  The type string for the type of file we're writing: HAK, ERF, or MOD
+     */
+    private String type;
+
+    /**
      *  The description string that will be stored with the module.
      */
     private String description;
@@ -91,6 +96,27 @@ public class ModPacker
         this.module = module;
         this.description = description;
         this.reporter = pr;
+
+        // Get the file extension for the type
+        String fileName = module.getName();
+        int split = fileName.lastIndexOf( '.' );
+        if( split > 0 )
+            {
+            type = fileName.substring( split + 1 ).toUpperCase();
+            // Check to make sure it's a valid type
+            if( !"MOD".equals( type ) && !"ERF".equals( type ) && !"HAK".equals(type)
+                && !"SAV".equals( type ) )
+                {
+                // Not a valid type
+                System.out.println( "Unknown type:" + type "  Treating it as a MOD file." );
+                type = null;
+                }
+            }
+
+        if( type == null || type.length() < 3 )
+            {
+            type = "MOD";
+            }
     }
 
     public void addFile( File f )
@@ -148,8 +174,9 @@ public class ModPacker
 
     private void writeHeader() throws IOException
     {
-        byte[] type = new byte[] { 'M', 'O', 'D', ' ' };
-        out.write( type );
+        byte[] temp = type.getBytes();
+        byte[] typeBytes = new byte[] { temp[0], temp[1], temp[2], ' ' };
+        out.write( typeBytes );
 
         byte[] ver = new byte[] { 'V', '1', '.', '0' };
         out.write( ver );
@@ -367,15 +394,24 @@ public class ModPacker
 
         // Check for the module.ifo resource
         File ifo = new File( root, "module.ifo" );
+        File hakDesc = new File( root, "hak.description" );
         String description = "Test: Module packed with ModPacker.";
         if( ifo.exists() )
+            {
             description = getModuleDescription( ifo );
+            }
+        else if( hakDesc.exists() )
+            {
+            description = StringUtils.readFile( hakDesc );
+            }
 
         ModPacker packer = new ModPacker( module, description );
         File[] list = root.listFiles();
         for( int i = 0; i < list.length; i++ )
             {
             if( list[i].isDirectory() )
+                continue;
+            if( "hak.description".equals( list[i].getName() ) )
                 continue;
             packer.addFile( list[i] );
             }
