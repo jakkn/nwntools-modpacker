@@ -115,7 +115,7 @@ public class ResourceStreamer implements Cloneable
                     {
                     KeyReader.KeyEntry key = (KeyReader.KeyEntry)j.next();
 
-                    resources.put( key.getKey(), new BifIndex( new File( parent, file.getFileName() ),
+                    resources.put( key.getKey(), new BifIndex( new File( parent, fileName ),
                                                                key.getResourceId() ) );
                     }
                 }
