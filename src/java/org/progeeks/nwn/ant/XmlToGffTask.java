@@ -40,11 +40,7 @@ import org.apache.tools.ant.taskdefs.*;
 import org.apache.tools.ant.types.*;
 import org.apache.tools.ant.util.*;
 
-import org.progeeks.util.ErrorInfo;
-import org.progeeks.util.ErrorListener;
-
 import org.progeeks.nwn.*;
-import org.progeeks.nwn.model.ScriptCompiler;
 
 /**
  *  ANT task for executing the XmlToGff utility to "compile"
