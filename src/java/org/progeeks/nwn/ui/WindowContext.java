@@ -49,6 +49,11 @@ import org.progeeks.nwn.ui.action.*;
 public class WindowContext extends DefaultViewContext
 {
     /**
+     *  The window title property.
+     */
+    public static final String PROP_TITLE = "title";
+
+    /**
      *  Constant associated with the file menu action list.
      */
     public static final String ACTIONS_FILE = "File";
@@ -105,6 +110,36 @@ public class WindowContext extends DefaultViewContext
     public UserRequestHandler getRequestHandler()
     {
         return( requestHandler );
+    }
+
+    /**
+     *  Sets the title of this context.  This should appear in any window
+     *  title bars or other appropriate areas.
+     */
+    public void setTitle( String title )
+    {
+        setStringProperty( PROP_TITLE, title );
+    }
+
+    /**
+     *  Returns the title of this context.
+     */
+    public String getTitle()
+    {
+        return( getStringProperty( PROP_TITLE, null ) );
+    }
+
+    /**
+     *  Returns the full title of this context, including application
+     *  and version.
+     */
+    public String getFullTitle()
+    {
+        GlobalContext parent = (GlobalContext)getParentContext();
+
+        if( getTitle() == null )
+            return( parent.getApplication() + " " + parent.getVersion() );
+        return( getTitle() + " - " + parent.getApplication() + " " + parent.getVersion() );
     }
 
     /**

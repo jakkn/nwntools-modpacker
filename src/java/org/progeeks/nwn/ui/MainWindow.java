@@ -32,6 +32,7 @@
 
 package org.progeeks.nwn.ui;
 
+import java.beans.*;
 import javax.swing.*;
 
 import org.progeeks.util.log.*;
@@ -53,6 +54,9 @@ public class MainWindow extends JFrame
     {
         this.context = context;
         context.setRequestHandler( new SwingRequestHandler( this ) );
+        context.addPropertyChangeListener( new ContextListener() );
+
+        setTitle( context.getFullTitle() );
 
         setDefaultCloseOperation( DO_NOTHING_ON_CLOSE );
 
@@ -102,5 +106,17 @@ public class MainWindow extends JFrame
             {
             log.error( "Error starting appliction", e );
             }
+    }
+
+    private class ContextListener implements PropertyChangeListener
+    {
+        public void propertyChange( PropertyChangeEvent event )
+        {
+            String name = event.getPropertyName();
+            if( WindowContext.PROP_TITLE.equals( name ) )
+                {
+                setTitle( context.getFullTitle() );
+                }
+        }
     }
 }
