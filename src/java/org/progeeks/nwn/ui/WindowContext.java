@@ -87,6 +87,7 @@ public class WindowContext extends DefaultViewContext
     public static final String ACTION_OPEN_PROJECT = "Open Project";
     public static final String ACTION_SAVE_PROJECT = "Save Project";
     public static final String ACTION_IMPORT_MODULE = "Import Module";
+    public static final String ACTION_UPDATE_PROJECT = "Update Project";
     public static final String ACTION_EXIT = "Exit";
     public static final String ACTION_BUILD_MODULE = "Build Module";
 
@@ -307,6 +308,7 @@ public class WindowContext extends DefaultViewContext
         file.add( addAction( ACTION_SAVE_PROJECT, new SaveProjectAction( this ) ) );
         file.add( null );
         file.add( addAction( ACTION_IMPORT_MODULE, new ImportModuleAction( this ) ) );
+        file.add( addAction( ACTION_UPDATE_PROJECT, new UpdateFromModuleAction( this ) ) );
         file.add( null );
         file.add( addAction( ACTION_EXIT, new ExitAction( this ) ) );
 
