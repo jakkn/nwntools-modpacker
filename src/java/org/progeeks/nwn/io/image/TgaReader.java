@@ -73,8 +73,6 @@ public class TgaReader
         int idLen = in.readUnsignedByte();
         int cmapType = in.readUnsignedByte();
         int type = in.readUnsignedByte();
-        if( type != 2 )
-            throw new UnsupportedOperationException( "Only type 2 targa files are supported, type:" + type );
 
         int cmapOffset = in.readUnsignedShort();
         int cmapLength = in.readUnsignedShort();
@@ -86,6 +84,8 @@ public class TgaReader
         int height = in.readUnsignedShort();
 
         int pixelSize = in.readUnsignedByte();
+        if( pixelSize != 24 )
+            throw new RuntimeException( "Currently only support 24 bit images.  Read bit size:" + pixelSize );
         int descriptor = in.readUnsignedByte();
 
         byte[] idField = new byte[idLen];
@@ -99,7 +99,7 @@ public class TgaReader
 
         byte[] pixels = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
 
-        in.readFully( pixels );
+        readImageData( width, height, type, pixels );
 
         /*System.out.println( "Position:"+ in.getFilePosition() );
 
@@ -113,6 +113,120 @@ public class TgaReader
         System.out.println( "Image:" + xOrigin + ", " + yOrigin + "   " + width + " x " + height );
         System.out.println( "pixel size:" + pixelSize );
         System.out.println( "desciptor byte:" + Integer.toHexString( descriptor ) );*/
+
+    }
+
+    protected void readImageData( int width, int height, int type, byte[] pixels ) throws IOException
+    {
+        switch( type )
+            {
+            case 2:
+                in.readFully( pixels );
+                break;
+            case 10:
+                readCompressedImage( width, height, type, pixels );
+                break;
+            default:
+                throw new UnsupportedOperationException( "Only type 2 and type 10 targa files"
+                                                         + " are supported, read type:" + type );
+            }
+    }
+
+    protected void readCompressedImage( int width, int height, int type, byte[] pixels ) throws IOException
+    {
+        // We only support 24 bit imagery at the moment
+        byte[] color = new byte[3];
+
+        int bPos = 0;
+        while( bPos < pixels.length )
+            {
+            int b = in.readByte();
+            int packetType = b & 0x80; // high order bit
+            int count = (b & 0x7f) + 1;
+
+            if( packetType > 0 )
+                {
+                // Run-length encoded packet
+                in.readFully( color );
+                for( int i = 0; i < count; i++ )
+                    {
+                    pixels[bPos++] = color[0];
+                    pixels[bPos++] = color[1];
+                    pixels[bPos++] = color[2];
+                    }
+                }
+            else
+                {
+                // Raw unencoded packet
+                for( int i = 0; i < count; i++ )
+                    {
+                    in.readFully( color );
+                    pixels[bPos++] = color[0];
+                    pixels[bPos++] = color[1];
+                    pixels[bPos++] = color[2];
+                    }
+                }
+            }
+        /*
+        Image Data Field.
+
+        This field specifies (width) x (height) pixels.  The
+        RGB color information for the pixels is stored in
+        packets.  There are two types of packets:  Run-length
+        encoded packets, and raw packets.  Both have a 1-byte
+        header, identifying the type of packet and specifying a
+        count, followed by a variable-length body.
+        The high-order bit of the header is "1" for the
+        run length packet, and "0" for the raw packet.
+
+        For the run-length packet, the header consists of:
+            __________________________________________________
+            | 1 bit |   7 bit repetition count minus 1.      |
+            |   ID  |   Since the maximum value of this      |
+            |       |   field is 127, the largest possible   |
+            |       |   run size would be 128.               |
+            |-------|----------------------------------------|
+            |   1   |  C     C     C     C     C     C    C  |
+            --------------------------------------------------
+
+        For the raw packet, the header consists of:
+            __________________________________________________
+            | 1 bit |   7 bit number of pixels minus 1.      |
+            |   ID  |   Since the maximum value of this      |
+            |       |   field is 127, there can never be     |
+            |       |   more than 128 pixels per packet.     |
+            |-------|----------------------------------------|
+            |   0   |  N     N     N     N     N     N    N  |
+            --------------------------------------------------
+
+
+        For the run length packet, the header is followed by
+        a single color value, which is assumed to be repeated
+        the number of times specified in the header.  The
+        packet may cross scan lines ( begin on one line and end
+        on the next ).
+
+        For the raw packet, the header is followed by
+        the number of color values specified in the header.
+
+        The color entries themselves are two bytes, three bytes,
+        or four bytes ( for Targa 16, 24, and 32 ), and are
+        broken down as follows:
+
+        The 2 byte entry -
+        ARRRRRGG GGGBBBBB, where each letter represents a bit.
+        But, because of the lo-hi storage order, the first byte
+        coming from the file will actually be GGGBBBBB, and the
+        second will be ARRRRRGG. "A" represents an attribute bit.
+
+        The 3 byte entry contains 1 byte each of blue, green,
+        and red.
+
+        The 4 byte entry contains 1 byte each of blue, green,
+        red, and attribute.  For faster speed (because of the
+        hardware of the Targa board itself), Targa 24 image are
+        sometimes stored as Targa 32 images.
+        */
 
     }
 
