@@ -159,12 +159,23 @@ public class ResourceStreamer
 
     public void loadDefaultKeys() throws IOException
     {
-        long startTime = System.currentTimeMillis();
-
         // Check for the default location of standard NWN key files
         // FIXME - this check should be a bit more advanced, maybe check
         //         user preferences.
         File nwn = new File( "/NeverwinterNights/NWN" );
+        loadDefaultKeys( nwn );
+    }
+
+    /**
+     *  Loads the key files from the specified neverwinter
+     *  nights directory.  This is the location of the NeverwinterNights/NWN
+     *  directory.
+     */
+    public void loadDefaultKeys( File nwn ) throws IOException
+    {
+        long startTime = System.currentTimeMillis();
+
+        // Check for the default location of standard NWN key files
         if( nwn.exists() && nwn.isDirectory() )
             {
             System.out.println( "Indexing Neverwinter Nights key files..." );
