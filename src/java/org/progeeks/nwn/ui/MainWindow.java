@@ -49,6 +49,7 @@ public class MainWindow extends JFrame
     static Log log = Log.getLog( MainWindow.class );
 
     private WindowContext context;
+    private JSplitPane main;
 
     public MainWindow( WindowContext context )
     {
@@ -64,6 +65,12 @@ public class MainWindow extends JFrame
         ActionList root = context.getRootActionList();
         JMenuBar bar = ActionUtils.createActionMenuBar( root );
         setJMenuBar( bar );
+
+        main = new JSplitPane();
+        getContentPane().add( main, "Center" );
+
+        JTree tree = new JTree( context.getFileTreeModel() );
+        main.setLeftComponent( new JScrollPane( tree ) );
 
         setSize( 1024, 768 );
     }

@@ -34,6 +34,7 @@ package org.progeeks.nwn.ui;
 
 import java.util.*;
 import javax.swing.Action;
+import javax.swing.tree.TreeModel;
 
 import org.progeeks.util.*;
 import org.progeeks.util.swing.*;
@@ -83,6 +84,11 @@ public class WindowContext extends DefaultViewContext
     private UserRequestHandler requestHandler;
 
     /**
+     *  The file-based tree model.
+     */
+    private FileTreeModel fileTreeModel;
+
+    /**
      *  Creates a new WindowContext as a child of the specified global
      *  context.
      */
@@ -92,6 +98,8 @@ public class WindowContext extends DefaultViewContext
 
         setupMetaClasses();
         setupActionLists();
+
+        fileTreeModel = new FileTreeModel();
     }
 
     /**
@@ -148,6 +156,14 @@ public class WindowContext extends DefaultViewContext
     public ActionList getRootActionList()
     {
         return( rootActionList );
+    }
+
+    /**
+     *  Returns the project file-based tree model.
+     */
+    public FileTreeModel getFileTreeModel()
+    {
+        return( fileTreeModel );
     }
 
     /**

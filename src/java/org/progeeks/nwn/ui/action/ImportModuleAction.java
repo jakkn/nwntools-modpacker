@@ -259,6 +259,7 @@ public class ImportModuleAction extends AbstractAction
                 }
 
             System.out.println( "Graph:" + graph );
+            context.getFileTreeModel().setFileTreeView( new FileTreeView( graph ) );
             }
         catch( IOException e )
             {
