@@ -57,10 +57,16 @@ public class XmlToGff
     private File outDir;
     private byte[] transferBuff = new byte[65536];
     private GffXmlReader xmlReader = new GffXmlReader();
+    private boolean compressGff = false;
 
     public XmlToGff( File outDir )
     {
         this.outDir = outDir;
+    }
+
+    public void setCompressGff( boolean flag )
+    {
+        this.compressGff = flag;
     }
 
     public File getOutputFile( String name, int type )
@@ -106,6 +112,7 @@ public class XmlToGff
                 FileOutputStream fOut = new FileOutputStream( outFile );
                 BufferedOutputStream bOut = new BufferedOutputStream( fOut, 65536 );
                 GffWriter out = new GffWriter( xmlReader.getType(), xmlReader.getVersion(), bOut );
+                out.setShouldCompress( compressGff );
                 out.writeStruct( root );
                 }
             finally
@@ -233,13 +240,18 @@ public class XmlToGff
     {
         if( args.length < 2 )
             {
-            System.out.println( "Usage: XmlToGff <destionation dir> <files>" );
+            System.out.println( "Usage: XmlToGff [options] <destionation dir> <files>" );
             System.out.println();
-            System.out.println( "Where: <destionation dir> is the output directory." );
-            System.out.println( "<files> is a collection of modules files that will be converted" );
-            System.out.println( "differently depending on their extension.  XML files will be" );
-            System.out.println( "converted to GFF and any non-XML files will be copied." );
-            System.out.println( "Sub-directories are currently ignored." );
+            System.out.println( "Options:" );
+            System.out.println( "    -compress  Will conslidate redundant elements within the file to" );
+            System.out.println( "               reduce the resulting file size." );
+            System.out.println();
+            System.out.println( "Arguments:" );
+            System.out.println( "    <destionation dir> is the output directory." );
+            System.out.println( "    <files> is a collection of modules files that will be converted" );
+            System.out.println( "        differently depending on their extension.  XML files will be" );
+            System.out.println( "        converted to GFF and any non-XML files will be copied." );
+            System.out.println( "        Sub-directories are currently ignored." );
             return;
             }
 
@@ -249,10 +261,24 @@ public class XmlToGff
 
         long start = System.currentTimeMillis();
 
-        File outDir = new File( args[0] );
-        XmlToGff converter = new XmlToGff( outDir );
+        boolean compress = false;
+        int index;
+        for( index = 0; index < args.length; index++ )
+            {
+            if( !args[index].startsWith( "-" ) )
+                break;
 
-        for( int i = 1; i < args.length; i++ )
+            if( "-compress".equals( args[index] ) )
+                {
+                System.out.println( "Compression: on." );
+                compress = true;
+                }
+            }
+        File outDir = new File( args[index] );
+        XmlToGff converter = new XmlToGff( outDir );
+        converter.setCompressGff( compress );
+
+        for( int i = index; i < args.length; i++ )
             {
             converter.processFile( new File( args[i] ) );
             }

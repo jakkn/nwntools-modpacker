@@ -60,6 +60,12 @@ public class GffWriter
     private List elementStubs = new ArrayList();
     private List listStubs = new ArrayList();
 
+    /**
+     *  Set to true if the writer should attempt to consolidate
+     *  redundant elements.
+     */
+    private boolean compress = false;
+
     public GffWriter( String type, OutputStream out )
     {
         this( type, GFF_VERSION, out );
@@ -77,6 +83,24 @@ public class GffWriter
             this.type[i] = t[i];
             this.version[i] = v[i];
             }
+    }
+
+    /**
+     *  Set to true to have the writer attempt to consolidate redundant
+     *  elements.
+     */
+    public void setShouldCompress( boolean compress )
+    {
+        this.compress = compress;
+    }
+
+    /**
+     *  Returns true if the writer will attempt to consolidate redundant
+     *  elements.
+     */
+    public boolean getShouldCompress()
+    {
+        return( compress );
     }
 
     protected Object getLastItem( List items )
@@ -129,14 +153,20 @@ public class GffWriter
     protected int addElement( Element el )
     {
         int i;
-        // Uncomment the lines below if it ever turns out elements are
-        // actually reused within a file.
-        //i = elements.indexOf( el );
-        //if( i >= 0 )
-        //    {
-        //    System.out.println( "******** Reusing Element index:" + i );
-        //    return( i );
-        //    }
+
+        // If we're attempting to do extra compression then
+        // reuse elements if possible.
+        if( compress )
+            {
+            i = elements.indexOf( el );
+            if( i >= 0 )
+                {
+                //System.out.println( "******** Reusing Element index:" + i );
+                //System.out.println( "Adding:" + el );
+                //System.out.println( "Reusing:" + elements.get( i ) );
+                return( i );
+                }
+            }
 
         i = elements.size();
         elements.add( el );

@@ -56,6 +56,7 @@ public class GffToGff
 {
     private File outDir;
     private byte[] transferBuff = new byte[65536];
+    private boolean compressGff = false;
 
     public GffToGff( File outDir )
     {
@@ -65,6 +66,11 @@ public class GffToGff
     public File getOutputFile( String name, int type )
     {
         return( new File( outDir, name ) );
+    }
+
+    public void setCompressGff( boolean flag )
+    {
+        this.compressGff = flag;
     }
 
     public void processFile( File f ) throws IOException
@@ -137,6 +143,7 @@ public class GffToGff
         GffWriter out = new GffWriter( reader.getHeader().getType(),
                                        reader.getHeader().getVersion(),
                                        bOut );
+        out.setShouldCompress( compressGff );
         try
             {
             out.writeStruct( reader.readRootStruct() );
@@ -203,25 +210,44 @@ public class GffToGff
     {
         if( args.length < 2 )
             {
-            System.out.println( "Usage: GffToGff <destionation dir> <files>" );
+            System.out.println( "Usage: GffToGff [options] <destionation dir> <files>" );
             System.out.println();
-            System.out.println( "Where: <destionation dir> is the output directory." );
-            System.out.println( "<files> is a collection of modules files that will be" );
-            System.out.println( "differently depending on their extension.  Any module files" );
-            System.out.println( "will be extracted into individual XML files as if they were " );
-            System.out.println( "passed on the command line.  GFF files will be converted to XML." );
-            System.out.println( "All other files will be copied." );
+            System.out.println( "Options:" );
+            System.out.println( "    -compress  Will conslidate redundant elements within the file to" );
+            System.out.println( "               reduce the resulting file size." );
+            System.out.println();
+            System.out.println( "Arguments:" );
+            System.out.println( "    <destionation dir> is the output directory." );
+            System.out.println( "    <files> is a collection of modules files that will be" );
+            System.out.println( "        differently depending on their extension.  Any module files" );
+            System.out.println( "        will be extracted into individual XML files as if they were " );
+            System.out.println( "        passed on the command line.  GFF files will be converted to XML." );
+            System.out.println( "        All other files will be copied." );
             return;
             }
 
-        System.out.println( "--- Gff To XML version 0.1 ---" );
+        System.out.println( "--- Gff To XML version 0.5 ---" );
 
         long start = System.currentTimeMillis();
 
-        File outDir = new File( args[0] );
-        GffToGff converter = new GffToGff( outDir );
+        boolean compress = false;
+        int index;
+        for( index = 0; index < args.length; index++ )
+            {
+            if( !args[index].startsWith( "-" ) )
+                break;
 
-        for( int i = 1; i < args.length; i++ )
+            if( "-compress".equals( args[index] ) )
+                {
+                System.out.println( "Compression: on." );
+                compress = true;
+                }
+            }
+        File outDir = new File( args[index] );
+        GffToGff converter = new GffToGff( outDir );
+        converter.setCompressGff( compress );
+
+        for( int i = index; i < args.length; i++ )
             {
             converter.processFile( new File( args[i] ) );
             }
