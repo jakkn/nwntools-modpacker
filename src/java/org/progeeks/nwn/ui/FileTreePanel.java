@@ -33,6 +33,7 @@
 package org.progeeks.nwn.ui;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.tree.*;
 
 /**
@@ -57,6 +58,29 @@ public class FileTreePanel extends JScrollPane
         // thing added to Meta-JB.  We'll hard-code for now.
         tree.setCellRenderer( new FileTreeCellRenderer() );
 
+        tree.addTreeSelectionListener( new SelectionListener() );
+
         setViewportView( tree );
     }
+
+    private class SelectionListener implements TreeSelectionListener
+    {
+        public void valueChanged( TreeSelectionEvent event )
+        {
+            TreePath[] paths = event.getPaths();
+            for( int i = 0; i < paths.length; i++ )
+                {
+                Object o = paths[i].getLastPathComponent();
+                if( event.isAddedPath( i ) )
+                    {
+                    context.getSelectedObjects().add( o );
+                    }
+                else
+                    {
+                    context.getSelectedObjects().remove( o );
+                    }
+                }
+        }
+    }
 }
+
