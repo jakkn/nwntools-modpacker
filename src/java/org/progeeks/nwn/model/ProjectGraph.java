@@ -32,6 +32,8 @@
 
 package org.progeeks.nwn.model;
 
+import java.io.File;
+
 import com.phoenixst.plexus.*;
 
 /**
@@ -66,5 +68,24 @@ public class ProjectGraph extends DefaultGraph
     public Project getProject()
     {
         return( project );
+    }
+
+    /**
+     *  Utility method for adding a directory to the graph.
+     */
+    public void addDirectory( File directory )
+    {
+        if( containsNode( directory ) )
+            return;
+
+        // We go ahead and use recursion because it's just so easy
+        Object p = directory.getParentFile();
+        if( p.equals( project.getProjectFile().getParentFile() ) )
+            p = project;
+        else
+            addDirectory( (File)p );
+
+        addNode( directory );
+        addEdge( EDGE_FILE, p, directory, true );
     }
 }

@@ -35,6 +35,7 @@ package org.progeeks.nwn.ui.action;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 import javax.swing.*;
 
 import org.progeeks.meta.*;
@@ -60,6 +61,22 @@ import org.progeeks.nwn.ui.*;
 public class ImportModuleAction extends AbstractAction
 {
     static Log log = Log.getLog( ImportModuleAction.class );
+
+    private static String[] defaultStructure = new String[] {
+                                                    "Areas",
+                                                    "Blueprints",
+                                                    "Blueprints/Creatures",
+                                                    "Blueprints/Doors",
+                                                    "Blueprints/Encounters",
+                                                    "Blueprints/Items",
+                                                    "Blueprints/Merchants",
+                                                    "Blueprints/Placeables",
+                                                    "Blueprints/Sounds",
+                                                    "Blueprints/Triggers",
+                                                    "Blueprints/Waypoints",
+                                                    "Conversations",
+                                                    "Scripts"
+                                                };
 
     private WindowContext context;
 
@@ -252,199 +269,59 @@ public class ImportModuleAction extends AbstractAction
             if( dlg.isCanceled() )
                 return;
 
-            // Build out the resource graph as a test.
-            File areaDir = new File( projectDirectory, "Areas" );
-            File scriptDir = new File( projectDirectory, "Scripts" );
-            File dialogDir = new File( projectDirectory, "Conversations" );
-            File blueprintDir = new File( projectDirectory, "Blueprints" );
-            File merchantDir = new File( blueprintDir, "Merchants" );
-            File soundDir = new File( blueprintDir, "Sounds" );
-            File encounterDir = new File( blueprintDir, "Encounters" );
-            File placeableDir = new File( blueprintDir, "Placeables" );
-            File itemDir = new File( blueprintDir, "Items" );
-            File creatureDir = new File( blueprintDir, "Creatures" );
-            File waypointDir = new File( blueprintDir, "Waypoints" );
-            File triggerDir = new File( blueprintDir, "Triggers" );
-            File doorDir = new File( blueprintDir, "Doors" );
-
             ProjectGraph graph = project.getProjectGraph();
-            graph.addNode( areaDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, project, areaDir, true );
-            graph.addNode( scriptDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, project, scriptDir, true );
-            graph.addNode( dialogDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, project, dialogDir, true );
-            graph.addNode( blueprintDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, project, blueprintDir, true );
-            graph.addNode( merchantDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, merchantDir, true );
-            graph.addNode( soundDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, soundDir, true );
-            graph.addNode( encounterDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, encounterDir, true );
-            graph.addNode( placeableDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, placeableDir, true );
-            graph.addNode( itemDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, itemDir, true );
-            graph.addNode( creatureDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, creatureDir, true );
-            graph.addNode( waypointDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, waypointDir, true );
-            graph.addNode( triggerDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, triggerDir, true );
-            graph.addNode( doorDir );
-            graph.addEdge( ProjectGraph.EDGE_FILE, blueprintDir, doorDir, true );
+
+            // Build out the resource graph as a test.
+            /*for( int i = 0; i < defaultStructure.length; i++ )
+                {
+                File f = new File( projectDirectory, defaultStructure[i] );
+                graph.addDirectory( f );
+                }*/
+
+            List rules = new ArrayList();
+            rules.add( new ResourceRegexRule( "ats_.*", "Tools/ATS Tradeskills" ) );
+            rules.add( new ResourceRegexRule( "cohort.*", "Tools/Cohort System" ) );
+            rules.add( new ResourceRegexRule( "dlg_.*", "Tools/Dialog Utils" ) );
+            rules.add( new ResourceRegexRule( "dmw_.*", "Tools/Dungeon Master Wand" ) );
+            rules.add( new ResourceRegexRule( "ew_.*", "Tools/Emote Wand" ) );
+            rules.add( new ResourceRegexRule( "fxw_.*", "Tools/FX Wand" ) );
+            rules.add( new ResourceRegexRule( "hc_.*", "Tools/Hard-core Rules" ) );
+            rules.add( new ResourceRegexRule( "hcr.*", "Tools/Hard-core Rules" ) );
+            rules.add( new ResourceRegexRule( "hchtf_.*", "Tools/Hard-core Rules" ) );
+            rules.add( new ResourceRegexRule( "cb_.*", "Tools/Memetic Toolkit" ) );
+            rules.add( new ResourceRegexRule( "h_.*", "Tools/Memetic Toolkit" ) );
+            rules.add( new ResourceRegexRule( "lib_.*", "Tools/Memetic Toolkit" ) );
+            rules.add( new ResourceRegexRule( "nw_.*", "Tools/Overrides" ) );
+            rules.add( new ResourceRegexRule( "sei_.*", "Tools/Subraces" ) );
+            rules.add( new ResourceTypeFilterRule() );
 
             // Now go through all of the resources and add them too
             List resources = getModuleResourceList( module );
             for( Iterator i = resources.iterator(); i.hasNext(); )
                 {
                 ResourceKey key = (ResourceKey)i.next();
-                switch( key.getType() )
+                File currentParent = projectDirectory;
+
+                // For some testing, run through some sample rules
+                for( Iterator j = rules.iterator(); j.hasNext(); )
                     {
-                    case ResourceKey.TYPE_ARE:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, areaDir, key, true );
-                        break;
+                    MappingRule rule = (MappingRule)j.next();
+                    currentParent = (File)rule.getParent( currentParent, key );
+                    }
+                if( currentParent == null )
+                    {
+                    // This one has been skipped
+                    continue;
+                    }
 
-                    case ResourceKey.TYPE_NSS:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, scriptDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_DLG:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, dialogDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTM:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, merchantDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTS:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, soundDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTP:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, placeableDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTE:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, encounterDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTI:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, itemDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTC:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, creatureDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTW:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, waypointDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTT:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, triggerDir, key, true );
-                        break;
-
-                    case ResourceKey.TYPE_UTD:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, doorDir, key, true );
-                        break;
-
-                    // Ignored types
-                    case ResourceKey.TYPE_NCS: // compiled script files
-                    case ResourceKey.TYPE_NDB: // debug files
-                    case ResourceKey.TYPE_GIC: // area comments
-                    case ResourceKey.TYPE_GIT: // area items
-                    case ResourceKey.TYPE_IFO: // module info file
-                    case ResourceKey.TYPE_ITP: // palette files
-                    case ResourceKey.TYPE_FAC: // factions
-                    case ResourceKey.TYPE_JRL: // journal
-                        break;
-
-                    case ResourceKey.TYPE_BTC:
-                    case ResourceKey.TYPE_RES:
-                    case ResourceKey.TYPE_BMP:
-                    case ResourceKey.TYPE_MVE:
-                    case ResourceKey.TYPE_TGA:
-                    case ResourceKey.TYPE_WAV:
-                    case ResourceKey.TYPE_PLT:
-                    case ResourceKey.TYPE_INI:
-                    case ResourceKey.TYPE_BMU:
-                    case ResourceKey.TYPE_MPG:
-                    case ResourceKey.TYPE_TXT:
-                    case ResourceKey.TYPE_PLH:
-                    case ResourceKey.TYPE_TEX:
-                    case ResourceKey.TYPE_MDL:
-                    case ResourceKey.TYPE_THG:
-                    case ResourceKey.TYPE_FNT:
-                    case ResourceKey.TYPE_LUA:
-                    case ResourceKey.TYPE_SLT:
-                    case ResourceKey.TYPE_MOD:
-                    case ResourceKey.TYPE_SET:
-                    case ResourceKey.TYPE_BIC:
-                    case ResourceKey.TYPE_WOK:
-                    case ResourceKey.TYPE_2DA:
-                    case ResourceKey.TYPE_TLK:
-                    case ResourceKey.TYPE_TXI:
-                    case ResourceKey.TYPE_BTI:
-                    case ResourceKey.TYPE_BTT:
-                    case ResourceKey.TYPE_DDS:
-                    case ResourceKey.TYPE_LTR:
-                    case ResourceKey.TYPE_GFF:
-                    case ResourceKey.TYPE_BTE:
-                    case ResourceKey.TYPE_BTD:
-                    case ResourceKey.TYPE_BTP:
-                    case ResourceKey.TYPE_DTF:
-                    case ResourceKey.TYPE_GUI:
-                    case ResourceKey.TYPE_CSS:
-                    case ResourceKey.TYPE_CCS:
-                    case ResourceKey.TYPE_BTM:
-                    case ResourceKey.TYPE_DWK:
-                    case ResourceKey.TYPE_PWK:
-                    case ResourceKey.TYPE_BTG:
-                    case ResourceKey.TYPE_UTG:
-                    case ResourceKey.TYPE_SAV:
-                    case ResourceKey.TYPE_4PC:
-                    case ResourceKey.TYPE_SSF:
-                    case ResourceKey.TYPE_HAK:
-                    case ResourceKey.TYPE_NWM:
-                    case ResourceKey.TYPE_BIK:
-                    case ResourceKey.TYPE_PTM:
-                    case ResourceKey.TYPE_PTT:
-                    case ResourceKey.TYPE_270C:
-                    case ResourceKey.TYPE_ERF:
-                    case ResourceKey.TYPE_BIF:
-                    case ResourceKey.TYPE_KEY:
-                    default:
-                        graph.addNode( key );
-                        graph.addEdge( ProjectGraph.EDGE_FILE, project, key, true );
-                        break;
+                if( currentParent != projectDirectory )
+                    {
+                    graph.addDirectory( currentParent );
+                    graph.addNode( key );
+                    graph.addEdge( ProjectGraph.EDGE_FILE, currentParent, key, true );
+                    continue;
                     }
                 }
-
-            // Just the areas for now
-            //List areas = (List)info.getList( "Mod_Area_list" );
-            //for( Iterator i = areas.iterator(); i.hasNext(); )
-            //    {
-            //    Struct a = (Struct)i.next();
-            //    String areaName = a.getString( "Area_Name" );
-            //    ResourceKey key = new ResourceKey( areaName, ResourceUtils.RES_ARE );
-            //    System.out.println( "   :" + key );
-            //    graph.addNode( key );
-            //    graph.addEdge( ProjectGraph.EDGE_FILE, areaDir, key, true );
-            //    }
 
             //System.out.println( "Graph:" + graph );
             context.getFileTreeModel().setFileTreeView( new FileTreeView( graph ) );
@@ -468,6 +345,122 @@ public class ImportModuleAction extends AbstractAction
         {
             buttonFlags |= MetaWizardDialog.BUTTON_FINISH;
             return( buttonFlags );
+        }
+    }
+
+    // Temporarily put here for ease of developmenr
+    private static interface MappingRule
+    {
+        /**
+         *  Returns the appropriate parent for the specified node,
+         *  or currentParent if this mapping rule does not apply.
+         *  It is assumed that the caller will know how to add and
+         *  parents that don't already exist in the graph.
+         *  If this method returns null, it means the node cannot
+         *  be added to the graph.
+         */
+        public Object getParent( Object currentParent, Object newNode );
+    }
+
+    /**
+     *  Rule for moving the resource into a sub-directory if its
+     *  name fits the specified regex.
+     */
+    private static class ResourceRegexRule implements MappingRule
+    {
+        private String regex;
+        private String subdirectory;
+        private Pattern pattern;
+
+        public ResourceRegexRule( String regex, String subdirectory )
+        {
+            this.regex = regex;
+            this.subdirectory = subdirectory;
+            this.pattern = Pattern.compile( regex );
+        }
+
+        public Object getParent( Object currentParent, Object newNode )
+        {
+            ResourceKey key = (ResourceKey)newNode;
+            Matcher m = pattern.matcher( key.getName() );
+            //System.out.println( "Key:" + key.getName() + "  Regex:" + regex );
+            if( m.matches() )
+                {
+                //System.out.println( "  Matches." );
+                return( new File( (File)currentParent, subdirectory ) );
+                }
+            return( currentParent );
+        }
+    }
+
+    /**
+     *  Rule for moving the resource into a type-specific sub-directory.
+     */
+    private static class ResourceTypeFilterRule implements MappingRule
+    {
+        public Object getParent( Object currentParent, Object newNode )
+        {
+            ResourceKey key = (ResourceKey)newNode;
+            String subDir = null;
+
+            switch( key.getType() )
+                {
+                case ResourceKey.TYPE_ARE:
+                    subDir = "Areas";
+                    break;
+                case ResourceKey.TYPE_NSS:
+                    subDir = "Scripts";
+                    break;
+                case ResourceKey.TYPE_DLG:
+                    subDir = "Conversations";
+                    break;
+                case ResourceKey.TYPE_UTM:
+                    subDir = "Blueprints/Merchants";
+                    break;
+                case ResourceKey.TYPE_UTS:
+                    subDir = "Blueprints/Sounds";
+                    break;
+                case ResourceKey.TYPE_UTP:
+                    subDir = "Blueprints/Placeables";
+                    break;
+                case ResourceKey.TYPE_UTE:
+                    subDir = "Blueprints/Encounters";
+                    break;
+                case ResourceKey.TYPE_UTI:
+                    subDir = "Blueprints/Items";
+                    break;
+                case ResourceKey.TYPE_UTC:
+                    subDir = "Blueprints/Creatures";
+                    break;
+                case ResourceKey.TYPE_UTW:
+                    subDir = "Blueprints/Waypoints";
+                    break;
+                case ResourceKey.TYPE_UTT:
+                    subDir = "Blueprints/Triggers";
+                    break;
+                case ResourceKey.TYPE_UTD:
+                    subDir = "Blueprints/Doors";
+                    break;
+
+                // Ignored types
+                case ResourceKey.TYPE_NCS: // compiled script files
+                case ResourceKey.TYPE_NDB: // debug files
+                case ResourceKey.TYPE_GIC: // area comments
+                case ResourceKey.TYPE_GIT: // area items
+                case ResourceKey.TYPE_IFO: // module info file
+                case ResourceKey.TYPE_ITP: // palette files
+                case ResourceKey.TYPE_FAC: // factions
+                case ResourceKey.TYPE_JRL: // journal
+                    return( null );
+
+                default:
+                    break;
+                }
+
+            if( subDir == null )
+                return( currentParent );
+
+            return( new File( (File)currentParent, subDir ) );
         }
     }
 }
