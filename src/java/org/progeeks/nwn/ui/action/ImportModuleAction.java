@@ -394,7 +394,8 @@ public class ImportModuleAction extends AbstractAction
             // Plugins can then add their own page configurations to correspond to the
             // project configuration objects they added.
 
-            MetaWizardDialog dlg = new MetaWizardDialog( null, "Import Module", true );
+            MetaWizardDialog dlg = new MetaWizardDialog( null, "Import Module", true,
+                                                         context.getGlobalContext().getFactoryRegistry() );
             dlg.setSize( 700, 450 );
 
             MetaKit kit = BeanUtils.getMetaKit();

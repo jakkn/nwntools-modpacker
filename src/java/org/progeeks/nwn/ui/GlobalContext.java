@@ -39,6 +39,7 @@ import java.util.*;
 import org.progeeks.cmd.swing.SwingCommandProcessor;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
+import org.progeeks.meta.swing.*;
 import org.progeeks.meta.util.*;
 import org.progeeks.meta.xml.*;
 
@@ -64,6 +65,7 @@ public class GlobalContext extends DefaultViewContext
 
     private SwingCommandProcessor cmdProc = new SwingCommandProcessor();
 
+    private FactoryRegistry factories = new FactoryRegistry();
     private MetaKit metaKit = BeanUtils.getMetaKit();
 
     /**
@@ -96,6 +98,11 @@ public class GlobalContext extends DefaultViewContext
         return( cmdProc );
     }
 
+    public FactoryRegistry getFactoryRegistry()
+    {
+        return( factories );
+    }
+
     /**
      *  Setup any meta-classes.
      */
@@ -108,20 +115,32 @@ public class GlobalContext extends DefaultViewContext
 
             List properties = BeanUtils.getBeanPropertyInfos( Project.class );
             MetaObjectUtils.replacePropertyType( properties, "projectDescription", new LongStringType() );
-            MetaObjectUtils.replacePropertyType( properties, "buildDirectory", new FileType( true, true ) );
-            MetaObjectUtils.replacePropertyType( properties, "workDirectory", new FileType( true, true ) );
-            MetaObjectUtils.replacePropertyType( properties, "sourceDirectory", new FileType( true, true ) );
 
             MetaClassRegistry.getRootRegistry().createMetaClass( Project.class.getName(), properties );
 
-            BeanUtils.createBeanMetaClass( FileIndex.class );
+            MetaClass fiClass = BeanUtils.createBeanMetaClass( FileIndex.class );
 
             xmlRenderer = new XmlRenderingEngine();
+
+            // Register a custom editor for the FileIndex.
+            // Right now, we don't use a correct one, but this keeps the
+            // UI from looking and acting screwey.
+            List fields = new ArrayList();
+            fields.add( "fullPath" );
+            registerForm( fiClass, fields );
             }
         catch( IntrospectionException e )
             {
             throw new RuntimeException( "Error building meta-class information", e );
             }
+    }
+
+    protected void registerForm( MetaClass metaClass, List fields )
+    {
+        MultiColumnPanelUIFactory factory = new MultiColumnPanelUIFactory( metaClass, fields );
+
+        factories.registerEditorFactory( metaClass, factory );
+        factories.registerRendererFactory( metaClass, factory );
     }
 
     /**
