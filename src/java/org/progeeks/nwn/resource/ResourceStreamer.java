@@ -47,7 +47,7 @@ import org.progeeks.util.log.*;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ResourceStreamer
+public class ResourceStreamer implements Cloneable
 {
     static Log log = Log.getLog( ResourceStreamer.class );
 
@@ -55,6 +55,16 @@ public class ResourceStreamer
      *  Maps resource keys to specific stream implementations.
      */
     private Map resources = new HashMap();
+
+    /**
+     *  Returns a clone of this streamer.
+     */
+    public Object clone()
+    {
+        ResourceStreamer clone = new ResourceStreamer();
+        clone.resources.putAll( resources );
+        return( clone );
+    }
 
     /**
      *  Returns the InputStream for the specified resource key.
@@ -203,8 +213,7 @@ public class ResourceStreamer
         // Check for the default location of standard NWN key files
         // FIXME - this check should be a bit more advanced, maybe check
         //         user preferences.
-        File nwn = new File( "/NeverwinterNights/NWN" );
-        loadDefaultKeys( nwn );
+        loadDefaultKeys( ResourceManager.DEFAULT_NWN_DIR );
     }
 
     /**

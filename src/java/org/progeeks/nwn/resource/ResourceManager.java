@@ -45,9 +45,11 @@ import org.progeeks.util.log.*;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ResourceManager
+public class ResourceManager implements Cloneable
 {
     static Log log = Log.getLog( ResourceManager.class );
+
+    public static final File DEFAULT_NWN_DIR = new File( "/NeverwinterNights/NWN" );
 
     /**
      *  Maps loaders to resource types.
@@ -62,6 +64,19 @@ public class ResourceManager
     public ResourceManager()
     {
         setupDefaultLoaders();
+    }
+
+    /**
+     *  Returns a clone of this resource manager and the map of
+     *  handlers/resource loaders.
+     */
+    public Object clone()
+    {
+        ResourceManager clone = new ResourceManager();
+        clone.loaderMap.putAll( loaderMap );
+        clone.streamer = (ResourceStreamer)streamer.clone();
+
+        return( clone );
     }
 
     /**
