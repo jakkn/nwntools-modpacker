@@ -169,7 +169,6 @@ public class ResourceUtils
 
     public static ResourceKey getKeyForFileName( String name )
     {
-System.out.println( "getKeyForFileName(" + name + ")" );
         String ext = "";
         int split = name.lastIndexOf( '.' );
         if( split >= 0 )
@@ -177,9 +176,7 @@ System.out.println( "getKeyForFileName(" + name + ")" );
             ext = name.substring( split + 1 );
             name = name.substring( 0, split );
             }
-System.out.println( "Name:" + name + "   ext:" + ext );
         ResourceKey key = new ResourceKey( name, getTypeForExtension( ext.toLowerCase() ) );
-System.out.println( "  key:" + key );
         return( key );
     }
 

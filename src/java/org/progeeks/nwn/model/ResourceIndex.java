@@ -67,7 +67,6 @@ public class ResourceIndex implements Comparable
      */
     public ResourceIndex( String name, ResourceKey key, FileIndex source, FileIndex destination )
     {
-System.out.println( "KEY:" + key );
         this.name = name;
         this.key = key;
         this.source = source;
@@ -79,7 +78,6 @@ System.out.println( "KEY:" + key );
      */
     public ResourceIndex( String name, ResourceKey key )
     {
-System.out.println( "KEY:" + key );
         this.name = name;
         this.key = key;
     }
@@ -104,7 +102,6 @@ System.out.println( "KEY:" + key );
 
     public void setKey( ResourceKey key )
     {
-System.out.println( "KEY:" + key );
         this.key = key;
     }
 
