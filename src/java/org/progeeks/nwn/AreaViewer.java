@@ -125,6 +125,7 @@ System.out.println( "Res:" + res );
         System.out.println( "Size:" + width + " x " + height );
 
         image = new BufferedImage( (width * 16) * 2, (height * 16) * 2, BufferedImage.TYPE_INT_ARGB );
+        //image = new BufferedImage( (width * 17) * 2, (height * 17) * 2, BufferedImage.TYPE_INT_ARGB );
 
         String tilesetName = areaStruct.getString( "Tileset" );
         System.out.println( "Tileset:" + tilesetName );
@@ -146,6 +147,8 @@ System.out.println( "Res:" + res );
                 int orient = tile.getInt( "Tile_Orientation" );
                 int tileX = x * 16 + 8;
                 int tileY = y * 16 + 8 - (height * 16);
+                //int tileX = x * 17 + 8;
+                //int tileY = y * 17 + 8 - (height * 17);
 
                 double rads = 0;
                 switch( orient )
