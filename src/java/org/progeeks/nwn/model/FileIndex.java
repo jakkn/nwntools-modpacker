@@ -47,6 +47,7 @@ public class FileIndex implements Comparable
     private FileIndex parent;
     private String file;
     private String fullPath;
+    private long   lastModified;
 
     public FileIndex( FileIndex parent, String file )
     {
@@ -109,6 +110,34 @@ public class FileIndex implements Comparable
     public String getFullPath()
     {
         return( fullPath );
+    }
+
+    /**
+     *  Sets the time this file was last modified.  This is cached
+     *  in this object separately from the actual file so that
+     *  changes can be detected that happened outside of the tool.
+     */
+    public void setLastModified( long lastModified )
+    {
+        this.lastModified = lastModified;
+    }
+
+    /**
+     *  Returns the last modified time that has been cached in
+     *  this object.
+     */
+    public long getLastModified()
+    {
+        return( lastModified );
+    }
+
+    /**
+     *  Updates the cached last modified time by synching it with the
+     *  physical file.
+     */
+    public void updateLastModified( Project project )
+    {
+        lastModified = getFile( project ).lastModified();
     }
 
     /**
