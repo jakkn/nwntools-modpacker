@@ -276,7 +276,7 @@ public class ImportModuleAction extends AbstractAction
             // starting folder set, for now, this will do.
             for( int i = 0; i < defaultStructure.length; i++ )
                 {
-                File f = new File( projectDirectory, defaultStructure[i] );
+                FileIndex f = new FileIndex( defaultStructure[i] );
                 graph.addDirectory( f );
                 }
 
@@ -305,7 +305,7 @@ public class ImportModuleAction extends AbstractAction
             for( Iterator i = resources.iterator(); i.hasNext(); )
                 {
                 ResourceKey key = (ResourceKey)i.next();
-                File currentParent = projectDirectory;
+                FileIndex currentParent = null;
 
                 // For some testing, run through some sample rules
                 for( Iterator j = rules.iterator(); j.hasNext(); )
@@ -315,11 +315,11 @@ public class ImportModuleAction extends AbstractAction
                     if( result == null )
                         {
                         // The rule swallowed it
-                        currentParent = null;
+                        key = null;
                         break;
                         }
 
-                    currentParent = (File)result.getParent();
+                    currentParent = (FileIndex)result.getParent();
 
                     if( result.shouldTerminate() )
                         {
@@ -328,13 +328,13 @@ public class ImportModuleAction extends AbstractAction
                         }
                     }
 
-                if( currentParent == null )
+                if( key == null )
                     {
                     // This one has been skipped
                     continue;
                     }
 
-                if( currentParent != projectDirectory )
+                if( currentParent != null )
                     {
                     graph.addDirectory( currentParent );
                     graph.addNode( key );

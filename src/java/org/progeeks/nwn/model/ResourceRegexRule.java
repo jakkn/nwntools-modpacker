@@ -63,7 +63,7 @@ public class ResourceRegexRule implements MappingRule
         Matcher m = pattern.matcher( key.getName() );
 
         if( m.matches() )
-            return( new MappingResult( new File( (File)currentParent, subdirectory ), false ) );
+            return( new MappingResult( new FileIndex( (FileIndex)currentParent, subdirectory ), false ) );
         return( new MappingResult( currentParent, false ) );
     }
 }

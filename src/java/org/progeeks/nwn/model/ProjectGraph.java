@@ -73,17 +73,17 @@ public class ProjectGraph extends DefaultGraph
     /**
      *  Utility method for adding a directory to the graph.
      */
-    public void addDirectory( File directory )
+    public void addDirectory( FileIndex directory )
     {
         if( containsNode( directory ) )
             return;
 
         // We go ahead and use recursion because it's just so easy
-        Object p = directory.getParentFile();
-        if( p.equals( project.getProjectFile().getParentFile() ) )
+        Object p = directory.getParent();
+        if( p == null )
             p = project;
         else
-            addDirectory( (File)p );
+            addDirectory( (FileIndex)p );
 
         addNode( directory );
         addEdge( EDGE_FILE, p, directory, true );

@@ -106,7 +106,7 @@ public class StandardTypeFilterRule implements MappingRule
         if( subDir == null )
             return( new MappingResult( currentParent, false ) );
 
-        return( new MappingResult( new File( (File)currentParent, subDir ), false ) );
+        return( new MappingResult( new FileIndex( (FileIndex)currentParent, subDir ), false ) );
     }
 }
 

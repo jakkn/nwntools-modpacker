@@ -39,6 +39,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.progeeks.util.log.*;
 import org.progeeks.util.swing.*;
 
+import org.progeeks.nwn.model.*;
+
 /**
  *  The main window for the IDE.
  *
@@ -84,8 +86,8 @@ public class MainWindow extends JFrame
                                                                             int row,
                                                                             boolean hasFocus )
                     {
-                        if( value instanceof java.io.File )
-                            value = ((java.io.File)value).getName();
+                        if( value instanceof FileIndex )
+                            value = ((FileIndex)value).getName();
 
                         return( super.getTreeCellRendererComponent( tree, value, sel, expanded, leaf,
                                                                     row, hasFocus ) );

@@ -107,14 +107,14 @@ public class FileTreeModel extends AbstractTreeModel
     public boolean isLeaf( Object node )
     {
         if( tree == null )
-            return( false );
+            return( true );
 
         // Quick and dirty optimization since currently
         // we know what is being stored inside of us.
-        if( node instanceof java.io.File )
-            return( tree.isLeaf( node ) );
+        if( node instanceof FileIndex )
+            return( false );
         else if( node instanceof Project )
-            return( tree.isLeaf( node ) );
+            return( false );
 
         // Only files contain other things right now
         return( true );
