@@ -58,6 +58,25 @@ public class ObjectElement extends Element
         return( value );
     }
 
+    public void setStringValue( String value )
+    {
+    }
+
+    public String getStringValue()
+    {
+        if( value instanceof byte[] )
+            {
+            StringBuffer sb = new StringBuffer( "byte[]" );
+            byte[] buff = (byte[])value;
+            for( int i = 0; i < buff.length; i++ )
+                {
+                sb.append( "[" + Integer.toHexString( buff[i] & 0xff ) + "(" + (char)buff[i] + ")]" );
+                }
+            return( sb.toString() );
+            }
+        return( String.valueOf( value ) );
+    }
+
     public String toString()
     {
         if( value instanceof byte[] )

@@ -94,4 +94,8 @@ public abstract class Element
     {
         return( type );
     }
+
+    public abstract void setStringValue( String value );
+
+    public abstract String getStringValue();
 }

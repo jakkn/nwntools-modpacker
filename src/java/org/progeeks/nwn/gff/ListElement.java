@@ -65,6 +65,15 @@ public class ListElement extends Element
         this.value = value;
     }
 
+    public void setStringValue( String value )
+    {
+    }
+
+    public String getStringValue()
+    {
+        return( String.valueOf( value ) );
+    }
+
     public String toString()
     {
         return( getName() + " = " + TYPES[getType()] + ":" + value );

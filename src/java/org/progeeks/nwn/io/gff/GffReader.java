@@ -301,7 +301,7 @@ public class GffReader
                     }
                 }
 
-            structs.set( stub.entryNumber, new Struct( list ) );
+            structs.set( stub.entryNumber, new Struct( stub.type, list ) );
             }
 
     }

@@ -53,6 +53,15 @@ public class FloatElement extends Element
         return( value );
     }
 
+    public void setStringValue( String value )
+    {
+    }
+
+    public String getStringValue()
+    {
+        return( String.valueOf( value ) );
+    }
+
     public String toString()
     {
         return( getName() + " = " + value );

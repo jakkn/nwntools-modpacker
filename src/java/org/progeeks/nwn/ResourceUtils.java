@@ -217,6 +217,18 @@ public class ResourceUtils
         return( i.intValue() );
     }
 
+    public static int getTypeForFileName( String name )
+    {
+        String ext = "";
+        int split = name.lastIndexOf( '.' );
+        if( split >= 0 )
+            {
+            ext = name.substring( split + 1 );
+            name = name.substring( 0, split );
+            }
+        return( getTypeForExtension( ext ) );
+    }
+
     public static String getExtensionForType( int type )
     {
         switch( type )

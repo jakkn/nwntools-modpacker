@@ -61,6 +61,15 @@ public class StructElement extends Element
         return( struct );
     }
 
+    public void setStringValue( String value )
+    {
+    }
+
+    public String getStringValue()
+    {
+        return( String.valueOf( struct ) );
+    }
+
     public String toString()
     {
         return( getName() + " = " + TYPES[getType()] + ":" + struct );

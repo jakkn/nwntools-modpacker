@@ -53,6 +53,15 @@ public class StringElement extends Element
         return( value );
     }
 
+    public void setStringValue( String value )
+    {
+    }
+
+    public String getStringValue()
+    {
+        return( value );
+    }
+
     public String toString()
     {
         return( getName() + " = " + TYPES[getType()] + ":" + value );

@@ -1,5 +1,10 @@
 <project name="NWN Tools Development" default="build" basedir=".">
 
+    <!-- See "build.properties.sample" in the top level directory for all     -->
+    <!-- property values you must customize for successful building!!!        -->
+    <property file="build.properties"/>
+    <property file="${user.home}/build.properties"/>
+
     <!-- set global properties for this build -->
     <property name="src"           value="src"/>
     <property name="src.java"      value="${src}/java" />

@@ -42,11 +42,18 @@ import java.util.*;
  */
 public class Struct
 {
+    private int id;
     private Map elements = new LinkedHashMap();
 
-    public Struct( List values )
+    public Struct( int id, List values )
     {
+        this.id = id;
         setValues( values );
+    }
+
+    public int getId()
+    {
+        return( id );
     }
 
     public void setValues( List values )
