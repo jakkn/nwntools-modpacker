@@ -59,12 +59,12 @@ public class GffReader
 
         header = new Header( this.in );
 //System.out.println( "Header:" + header );
-        List structStubs = readStubBlock( header.getStructs() );
-        List fieldStubs = readStubBlock( header.getFields() );
+        Stub[] structStubs = readStubBlock( header.getStructs() );
+        Stub[] fieldStubs = readStubBlock( header.getFields() );
 
         // Now sort based on the data elements
-        Collections.sort( fieldStubs );
-        Collections.sort( structStubs, new IndexComparator() );
+        Arrays.sort( fieldStubs );
+        Arrays.sort( structStubs, new IndexComparator() );
 
         readLabels( header.getLabels() );
 
@@ -131,16 +131,15 @@ public class GffReader
             }
     }
 
-    private List readStubBlock( BlockIndex block ) throws IOException
+    private Stub[] readStubBlock( BlockIndex block ) throws IOException
     {
         int count = block.getSize();
-        ArrayList results = new ArrayList( count );
+        Stub[] results = new Stub[count];
         in.gotoPosition( block.getOffset() );
 
         for( int i = 0; i < count; i++ )
             {
-            Stub s = new Stub(i, in);
-            results.add( s );
+            results[i] = new Stub(i, in);
             }
 
         return( results );
@@ -164,7 +163,7 @@ public class GffReader
     /**
      *  Resolves all but the list-based fields.
      */
-    private void resolveFields( List fieldStubs ) throws IOException
+    private void resolveFields( Stub[] fieldStubs ) throws IOException
     {
         // We make the assumption that the fields are sorted
         // such that we don't have to jump back and forth through
@@ -172,17 +171,17 @@ public class GffReader
         // based elements.
 
         // Make sure the fields list has the right number of entries
-        fields = new ArrayList( fieldStubs.size() );
-        for( int i = 0; i < fieldStubs.size(); i++ )
+        fields = new ArrayList( fieldStubs.length );
+        for( int i = 0; i < fieldStubs.length; i++ )
             {
             fields.add( null );
             }
 
         int dataOffset = header.getValues().getOffset();
 //System.out.println( "Data offset:" + dataOffset );
-        for( Iterator i = fieldStubs.iterator(); i.hasNext(); )
+        for( int i = 0; i < fieldStubs.length; i++ )
             {
-            Stub stub = (Stub)i.next();
+            Stub stub = fieldStubs[i];
             String name = (String)labels.get(stub.index);
 //System.out.println( "Name:" + name + "  type:" + stub.type + "  index:" + stub.index + "  data:" + stub.data + "      offset:" + in.getFilePosition() );
             Element el = null;
@@ -280,20 +279,20 @@ public class GffReader
             }
     }
 
-    private void resolveFieldIndices( List structStubs ) throws IOException
+    private void resolveFieldIndices( Stub[] structStubs ) throws IOException
     {
         int multimapOffset = header.getFieldIndices().getOffset();
 
         // Make sure the structs list has the right number of entries
-        structs = new ArrayList( structStubs.size() );
-        for( int i = 0; i < structStubs.size(); i++ )
+        structs = new ArrayList( structStubs.length );
+        for( int i = 0; i < structStubs.length; i++ )
             {
             structs.add( null );
             }
 
-        for( Iterator i = structStubs.iterator(); i.hasNext(); )
+        for( int i = 0; i < structStubs.length; i++ )
             {
-            Stub stub = (Stub)i.next();
+            Stub stub = structStubs[i];
             ArrayList list = new ArrayList();
 
 //System.out.println( "  Stub DataOrDataOffset:" + stub.index + "   count:" + stub.data );
@@ -330,11 +329,11 @@ public class GffReader
 
     }
 
-    private void resolveStructReferences( List fieldStubs )
+    private void resolveStructReferences( Stub[] fieldStubs )
     {
-        for( Iterator i = fieldStubs.iterator(); i.hasNext(); )
+        for( int i = 0; i < fieldStubs.length; i++ )
             {
-            Stub stub = (Stub)i.next();
+            Stub stub = fieldStubs[i];
             if( stub.type != Element.TYPE_STRUCTREF )
                 continue;
             StructElement el = (StructElement)fields.get( stub.entryNumber );
@@ -343,14 +342,14 @@ public class GffReader
             }
     }
 
-    private void resolveLists( List fieldStubs ) throws IOException
+    private void resolveLists( Stub[] fieldStubs ) throws IOException
     {
         long listOffset = header.getLists().getOffset();
 
         // And resolve
-        for( Iterator i = fieldStubs.iterator(); i.hasNext(); )
+        for( int i = 0; i < fieldStubs.length; i++ )
             {
-            Stub stub = (Stub)i.next();
+            Stub stub = fieldStubs[i];
             if( stub.type != Element.TYPE_LIST )
                 continue;
 
@@ -359,7 +358,7 @@ public class GffReader
             in.gotoPosition( listOffset + stub.data );
 
             // Get the original index
-            int index = stub.entryNumber; //fieldStubs.indexOf( stub );
+            int index = stub.entryNumber;
 
             // And thus the original position of the real element
             ListElement el = (ListElement)fields.get(index);
