@@ -306,12 +306,12 @@ public class MiniMapExporter
         for( Iterator i = areaFiles.iterator(); i.hasNext(); )
             {
             File f = (File)i.next();
-            paths.add( f.getParentFile().getAbsoluteFile() );
+            paths.add( f.getAbsoluteFile().getParentFile() );
             }
         for( Iterator i = modFiles.iterator(); i.hasNext(); )
             {
             File f = (File)i.next();
-            paths.add( f.getParentFile().getAbsoluteFile() );
+            paths.add( f.getAbsoluteFile().getParentFile() );
             }
 
         for( Iterator i = paths.iterator(); i.hasNext(); )
