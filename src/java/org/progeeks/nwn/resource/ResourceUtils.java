@@ -167,7 +167,7 @@ public class ResourceUtils
         return( getTypeForExtension( ext ) );
     }
 
-    public static ResourceKey getKeyForFilename( String name )
+    public static ResourceKey getKeyForFileName( String name )
     {
         String ext = "";
         int split = name.lastIndexOf( '.' );

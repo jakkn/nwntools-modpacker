@@ -74,6 +74,15 @@ public class ResourceIndex implements Comparable
     }
 
     /**
+     *  Creates a resource index that points to the specified resource.
+     */
+    public ResourceIndex( String name, ResourceKey key )
+    {
+        this.name = name;
+        this.key = key;
+    }
+
+    /**
      *  Sets the user-friendly name of this resource.  Null causes
      *  getName() to return key.getName().
      */

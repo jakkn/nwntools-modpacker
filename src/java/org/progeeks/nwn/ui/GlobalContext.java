@@ -39,9 +39,11 @@ import java.util.*;
 import org.progeeks.cmd.swing.SwingCommandProcessor;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
+import org.progeeks.meta.format.*;
 import org.progeeks.meta.swing.*;
 import org.progeeks.meta.util.*;
 import org.progeeks.meta.xml.*;
+import org.progeeks.util.xml.*;
 
 import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.model.*;
@@ -73,6 +75,11 @@ public class GlobalContext extends DefaultViewContext
      *  Xml rendering engine that can write out project files, etc..
      */
     private XmlRenderingEngine xmlRenderer;
+
+    /**
+     *  Xml reader for project files.
+     */
+    private ObjectXmlReader xmlReader;
 
     public GlobalContext()
     {
@@ -126,6 +133,7 @@ public class GlobalContext extends DefaultViewContext
 
             xmlRenderer = new XmlRenderingEngine();
 
+            xmlRenderer.setFormatRegistry( factories.getFormatRegistry() );
             xmlRenderer.registerRenderer( graphClass, new GraphXmlRenderer() );
 
             // Register a custom editor for the FileIndex.
@@ -134,6 +142,28 @@ public class GlobalContext extends DefaultViewContext
             List fields = new ArrayList();
             fields.add( "fullPath" );
             registerForm( fiClass, fields );
+
+            factories.getFormatRegistry().registerDefaultFormat( ResourceKey.class,
+                            new AbstractPropertyFormat()
+                                {
+                                    public String format( Object obj )
+                                    {
+                                        ResourceKey key = (ResourceKey)obj;
+                                        return( key.getFileName() );
+                                    }
+
+                                    public Object parseObject( String source, int index )
+                                    {
+                                        return( null );
+                                    }
+                                } );
+
+            xmlReader = new ObjectXmlReader();
+            GraphObjectHandler graphHandler = new GraphObjectHandler();
+            graphHandler.addHandledClass( ProjectGraph.class );
+            xmlReader.addObjectHandler( graphHandler );
+            xmlReader.addObjectHandler( new ResourceIndexHandler() );
+            xmlReader.addObjectHandler( new BeanObjectHandler() );
             }
         catch( IntrospectionException e )
             {
@@ -167,6 +197,24 @@ public class GlobalContext extends DefaultViewContext
         finally
             {
             out.close();
+            }
+    }
+
+    /**
+     *  Temporary method.
+     */
+    public void loadProject( File f ) throws IOException
+    {
+        FileReader in = new FileReader( f );
+
+        try
+            {
+            Object obj = xmlReader.readObject( in );
+System.out.println(" Obj:" + obj );
+            }
+        finally
+            {
+            in.close();
             }
     }
 
