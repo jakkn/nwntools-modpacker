@@ -156,6 +156,32 @@ System.out.println( "     decoded:" + getStringValue() );
             }
     }
 
+    public int hashCode()
+    {
+        if( value == null )
+            return( 0 );
+        return( value.hashCode() );
+    }
+
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return( false );
+
+        if( !getClass().equals( obj.getClass() ) )
+            return( false );
+
+        ObjectElement el = (ObjectElement)obj;
+
+        if( getType() != el.getType() )
+            return( false );
+
+        if( !getName().equals( el.getName() ) )
+            return( false );
+
+        return( value == el.value || (value != null && value.equals( el.value )) );
+    }
+
     public String toString()
     {
         if( value instanceof byte[] )

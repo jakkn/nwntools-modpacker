@@ -63,6 +63,30 @@ public class IntElement extends Element
         return( String.valueOf( value ) );
     }
 
+    public int hashCode()
+    {
+        return( value );
+    }
+
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return( false );
+
+        if( !getClass().equals( obj.getClass() ) )
+            return( false );
+
+        IntElement el = (IntElement)obj;
+
+        if( getType() != el.getType() )
+            return( false );
+
+        if( !getName().equals( el.getName() ) )
+            return( false );
+
+        return( el.value == value );
+    }
+
     public String toString()
     {
         return( getName() + " = " + value );

@@ -62,6 +62,30 @@ public class FloatElement extends Element
         return( String.valueOf( value ) );
     }
 
+    public int hashCode()
+    {
+        return( (int)value );
+    }
+
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return( false );
+
+        if( !getClass().equals( obj.getClass() ) )
+            return( false );
+
+        FloatElement el = (FloatElement)obj;
+
+        if( getType() != el.getType() )
+            return( false );
+
+        if( !getName().equals( el.getName() ) )
+            return( false );
+
+        return( value == el.value );
+    }
+
     public String toString()
     {
         return( getName() + " = " + value );

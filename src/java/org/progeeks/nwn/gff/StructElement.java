@@ -70,6 +70,33 @@ public class StructElement extends Element
         return( String.valueOf( struct ) );
     }
 
+    public int hashCode()
+    {
+        if( struct == null )
+            return( 0 );
+        return( struct.hashCode() );
+    }
+
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return( false );
+
+        if( !getClass().equals( obj.getClass() ) )
+            return( false );
+
+        StructElement el = (StructElement)obj;
+
+        if( getType() != el.getType() )
+            return( false );
+
+        if( !getName().equals( el.getName() ) )
+            return( false );
+
+        return( struct == el.struct || (struct != null && struct.equals( el.struct ) ) );
+    }
+
+
     public String toString()
     {
         return( getName() + " = " + TYPES[getType()] + ":" + struct );

@@ -80,6 +80,31 @@ public class ListElement extends Element
         return( String.valueOf( value ) );
     }
 
+    public int hashCode()
+    {
+        // Not ideal, but good enough
+        return( getName().hashCode() );
+    }
+
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return( false );
+
+        if( !getClass().equals( obj.getClass() ) )
+            return( false );
+
+        ListElement el = (ListElement)obj;
+
+        if( getType() != el.getType() )
+            return( false );
+
+        if( !getName().equals( el.getName() ) )
+            return( false );
+
+        return( value.equals( el.value ) );
+    }
+
     public String toString()
     {
         return( getName() + " = " + TYPES[getType()] + ":" + value );

@@ -124,6 +124,27 @@ public class Struct
         return( null );
     }
 
+    public int hashCode()
+    {
+        return( id + elements.hashCode() );
+    }
+
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return( false );
+
+        if( !getClass().equals( obj.getClass() ) )
+            return( false );
+
+        Struct s = (Struct)obj;
+
+        if( id != s.id )
+            return( false );
+
+        return( elements == s.elements || (elements != null && elements.equals( s.elements )) );
+    }
+
     public String toString()
     {
         return( "Struct[" + elements + "]" );

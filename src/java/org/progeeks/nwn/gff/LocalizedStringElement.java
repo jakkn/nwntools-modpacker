@@ -116,6 +116,36 @@ public class LocalizedStringElement extends Element
         return( value );
     }
 
+    public int hashCode()
+    {
+        return( getLocalStrings().hashCode() );
+    }
+
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return( false );
+
+        if( !getClass().equals( obj.getClass() ) )
+            return( false );
+
+        LocalizedStringElement el = (LocalizedStringElement)obj;
+
+        if( getType() != el.getType() )
+            return( false );
+
+        if( !getName().equals( el.getName() ) )
+            return( false );
+
+        if( refId != el.refId )
+            return( false );
+
+        if( value != el.value && value != null && !value.equals(el.value) )
+            return( false );
+
+        return( getLocalStrings().equals( el.getLocalStrings() ) );
+    }
+
     public String toString()
     {
         return( getName() + " = " + TYPES[getType()] + ":" + value );
