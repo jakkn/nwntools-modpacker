@@ -257,7 +257,7 @@ public class XmlToGff
 
         //org.progeeks.util.log.Log.initialize();
 
-        System.out.println( "--- XML To GFF version 0.5 ---" );
+        System.out.println( "--- XML To GFF version 0.6 ---" );
 
         long start = System.currentTimeMillis();
 

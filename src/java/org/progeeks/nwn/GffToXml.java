@@ -231,7 +231,7 @@ public class GffToXml
             return;
             }
 
-        System.out.println( "--- Gff To XML version 0.5 ---" );
+        System.out.println( "--- Gff To XML version 0.6 ---" );
 
         long start = System.currentTimeMillis();
 

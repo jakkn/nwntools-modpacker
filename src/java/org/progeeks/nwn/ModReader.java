@@ -119,8 +119,21 @@ public class ModReader
         for( int i = 0; i < stringCount; i++ )
             {
             int lang = in.readInt();
-
             int length = in.readInt();
+
+            if( length + in.getFilePosition() > resourceOffset )
+                {
+                int oldLength = length;
+                length = (int)(resourceOffset - in.getFilePosition());
+                System.out.println( "Warning: File is corrupt.  String table does not fit in string block." );
+                System.out.println( "         String[" + i + "] has been truncated from:" + oldLength + " to:"
+                                    + length );
+                }
+            if( length == 0 )
+                {
+                System.out.println( "Warning: End of string table reached early." );
+                return;
+                }
 
             byte[] data = new byte[length];
             in.readFully( data );
@@ -341,7 +354,7 @@ public class ModReader
             return;
             }
 
-        System.out.println( "--- Module Unpacker version 0.5 ---" );
+        System.out.println( "--- Module Unpacker version 0.6 ---" );
 
         long start = System.currentTimeMillis();
 
