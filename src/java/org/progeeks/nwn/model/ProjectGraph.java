@@ -37,6 +37,9 @@ import java.util.*;
 
 import com.phoenixst.plexus.*;
 
+import org.progeeks.graph.*;
+import org.progeeks.util.*;
+
 import org.progeeks.nwn.resource.*;
 
 /**
@@ -46,7 +49,7 @@ import org.progeeks.nwn.resource.*;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ProjectGraph extends DefaultGraph
+public class ProjectGraph extends DefaultEnhancedGraph
 {
     /**
      *  Shows that two nodes have a file-system based relationship.
@@ -97,6 +100,28 @@ public class ProjectGraph extends DefaultGraph
     public ResourceIndex getResourceIndex( ResourceKey key )
     {
         return( (ResourceIndex)nodeCache.get( key ) );
+    }
+
+    public Iterator nodeIterator( NodeFilter filter )
+    {
+        if( filter instanceof ResourceLocator )
+            {
+            Object o = getNode( filter );
+            if( o == null )
+                return( Collections.EMPTY_LIST.iterator() );
+            return( new SingletonIterator( o ) );
+            }
+        return( super.nodeIterator( filter ) );
+    }
+
+    public Object getNode( NodeFilter filter )
+    {
+        if( filter instanceof ResourceLocator )
+            {
+            ResourceKey key = ((ResourceLocator)filter).getResourceKey();
+            return( getResourceIndex( key ) );
+            }
+        return( super.getNode( filter ) );
     }
 
     /**
