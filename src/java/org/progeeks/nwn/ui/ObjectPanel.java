@@ -40,6 +40,7 @@ import javax.swing.*;
 import org.progeeks.util.*;
 
 import org.progeeks.nwn.model.*;
+import org.progeeks.nwn.resource.*;
 
 /**
  *  The main viewer panel that will show the views of
@@ -82,6 +83,19 @@ public class ObjectPanel extends JScrollPane
                 boolean stale = ri.makeDestinationCurrent( context.getProject() );
                 stale = ri.makeSourceCurrent( context.getProject() );
                 System.out.println( "Was stale:" + stale );
+
+                // Just some temporary code
+                if( ri.getKey().getType() == ResourceTypes.TYPE_NSS )
+                    {
+                    // We could load the script here...
+
+
+                    temporary.setText( ri.getName() );
+                    }
+                else
+                    {
+                    temporary.setText( ri.getName() );
+                    }
                 }
         }
 

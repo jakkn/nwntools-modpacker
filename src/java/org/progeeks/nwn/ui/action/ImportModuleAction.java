@@ -277,7 +277,7 @@ public class ImportModuleAction extends AbstractAction
                     ResourceLoader loader = context.getResourceManager().getLoader( key.getType() );
                     Struct struct = (Struct)loader.loadResource( key, rIn );
                     ri = ResourceIndexFactory.createResourceIndex( key, struct, destination,
-                                                                   project.getBuildDirectory() );
+                                                                   project.getModuleFilesDirectory() );
 
                     // Now write out the struct
                     File f = ri.getSource().getFile( project );
@@ -298,7 +298,7 @@ public class ImportModuleAction extends AbstractAction
                         {
                         // Just copy the file
                         ri = ResourceIndexFactory.createResourceIndex( key, destination,
-                                                                       project.getBuildDirectory() );
+                                                                       project.getModuleFilesDirectory() );
 
                         File f = ri.getSource().getFile( project );
                         pr.setMessage( "Storing: " + f.getName() );
@@ -533,11 +533,11 @@ public class ImportModuleAction extends AbstractAction
         {
             try
                 {
-                File buildDir = project.getBuildDirectory().getFile( project );
+                File unpackedDir = project.getModuleFilesDirectory().getFile( project );
 
                 // Make sure the build directory exists
-                if( !buildDir.exists() )
-                    buildDir.mkdirs();
+                if( !unpackedDir.exists() )
+                    unpackedDir.mkdirs();
 
                 // Make sure the work directory exists
                 File workDir = project.getWorkDirectory().getFile( project );
@@ -550,7 +550,7 @@ public class ImportModuleAction extends AbstractAction
                                                          "Extracting files...", 0, 100 );
 
                 // Extract the module resources into the build directory.
-                ModReader.extractModule( module, buildDir, pr );
+                ModReader.extractModule( module, unpackedDir, pr );
                 if( pr.isCanceled() )
                     throw new RuntimeException( "Operation Canceled" );
                 pr.done();

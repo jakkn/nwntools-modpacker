@@ -166,7 +166,7 @@ public class BuildAction extends AbstractAction
             return( false );
         }
 
-        protected void compileScripts( ProgressReporter pr, File buildDir ) throws IOException
+        protected void compileScripts( ProgressReporter pr, File compileDir ) throws IOException
         {
             if( scriptCount == 0 )
                 return;
@@ -209,7 +209,7 @@ public class BuildAction extends AbstractAction
                 ri.makeAllUpToDate( project );
 
                 // Compile the script
-                scriptCompiler.compileScript( ri.getKey().getFileName(), buildDir );
+                scriptCompiler.compileScript( ri.getKey().getFileName(), compileDir );
 
                 i.remove();
                 }
@@ -252,6 +252,7 @@ public class BuildAction extends AbstractAction
             int nodeCount = graph.nodeSize();
 
             File buildDir = project.getBuildDirectory().getFile( project );
+            File unpackedDir = project.getModuleFilesDirectory().getFile( project );
 
             String prName = "Build Module:" + project.getTargetModuleName();
             UserRequestHandler reqHandler = context.getRequestHandler();
@@ -314,7 +315,7 @@ public class BuildAction extends AbstractAction
             pr = reqHandler.requestProgressReporter( prName, "Compiling scripts...", 0, scriptCount );
             try
                 {
-                compileScripts( pr, buildDir );
+                compileScripts( pr, unpackedDir );
                 }
             catch( IOException e )
                 {

@@ -48,6 +48,7 @@ public class Project
     private String moduleName;
     private File   projectFile;
     private FileIndex buildDirectory;
+    private FileIndex unpackedDirectory;
     private FileIndex workDirectory;
     private FileIndex sourceDirectory;
     private ProjectGraph graph;
@@ -140,22 +141,31 @@ public class Project
     }
 
     /**
-     *  Sets the location of converted module binaries that will
-     *  be combined into the .mod file.  This is the target of the
-     *  XML -> GFF conversion process and the script compilation
-     *  process.
+     *  Sets the location of base build directory.
      */
     public void setBuildDirectory( FileIndex buildDirectory )
     {
         this.buildDirectory = buildDirectory;
+        unpackedDirectory = new FileIndex( buildDirectory, "unpacked" );
     }
 
     /**
-     *  Returns the location of the converted module binaries.
+     *  Returns the location of the base build directory.
      */
     public FileIndex getBuildDirectory()
     {
         return( buildDirectory );
+    }
+
+    /**
+     *  Returns the location of converted module binaries that will
+     *  be combined into the .mod file.  This is the target of the
+     *  XML -> GFF conversion process and the script compilation
+     *  process.  This is always a child of the build directory.
+     */
+    public FileIndex getModuleFilesDirectory()
+    {
+        return( unpackedDirectory );
     }
 
     /**
