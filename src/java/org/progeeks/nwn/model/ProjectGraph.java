@@ -35,6 +35,7 @@ package org.progeeks.nwn.model;
 import java.io.File;
 import java.util.*;
 
+import com.phoenixst.collections.TruePredicate;
 import com.phoenixst.plexus.*;
 
 import org.progeeks.graph.*;
@@ -136,7 +137,7 @@ public class ProjectGraph extends CompositeGraph
      */
     public void clearErrors( ResourceIndex ri )
     {
-        TraverserFilter filter = new DefaultTraverserFilter( GraphUtils.TRUE, EDGE_ERROR,
+        TraverserFilter filter = new DefaultTraverserFilter( TruePredicate.INSTANCE, EDGE_ERROR,
                                                              GraphUtils.DIRECTED_OUT_MASK );
         for( Traverser t = traverser( ri, filter ); t.hasNext(); )
             {

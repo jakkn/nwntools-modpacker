@@ -32,6 +32,7 @@
 
 package org.progeeks.nwn.model;
 
+import com.phoenixst.collections.TruePredicate;
 import com.phoenixst.plexus.*;
 
 /**
@@ -46,9 +47,9 @@ public class FileTreeView extends DefaultRootedTreeView
     public FileTreeView( Graph graph, Object root )
     {
         super( graph, root,
-               new DefaultTraverserFilter( GraphUtils.TRUE, ProjectGraph.EDGE_FILE,
+               new DefaultTraverserFilter( TruePredicate.INSTANCE, ProjectGraph.EDGE_FILE,
                                            GraphUtils.DIRECTED_IN_MASK ),
-               new DefaultTraverserFilter( GraphUtils.TRUE, ProjectGraph.EDGE_FILE,
+               new DefaultTraverserFilter( TruePredicate.INSTANCE, ProjectGraph.EDGE_FILE,
                                            GraphUtils.DIRECTED_OUT_MASK ) );
     }
 
