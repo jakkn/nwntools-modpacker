@@ -300,6 +300,14 @@ public class ImportModuleAction extends AbstractAction
             rules.add( new ResourceRegexRule( "sei_.*", "Tools/Subraces" ) );
             rules.add( new StandardTypeFilterRule() );
 
+            // Create a FileIndex for the build directory so that we can
+            // tell the resource indexes where they should go.
+            File buildDir = project.getBuildDirectory();
+            String bs = buildDir.getCanonicalPath();
+            String ps = projectDirectory.getCanonicalPath();
+            bs = bs.substring( ps.length() );
+            FileIndex targetDir = new FileIndex( bs );
+
             // Now go through all of the resources and add them too
             List resources = getModuleResourceList( module );
             for( Iterator i = resources.iterator(); i.hasNext(); )
@@ -337,9 +345,8 @@ public class ImportModuleAction extends AbstractAction
                 if( currentParent != null )
                     {
                     graph.addDirectory( currentParent );
-                    ResourceIndex ri = new ResourceIndex( key,
-                                                          new FileIndex( currentParent, key.getName() ),
-                                                          new FileIndex( "build/" + key.getName() ) );
+
+                    ResourceIndex ri = ResourceIndexFactory.createResourceIndex( key, currentParent, targetDir );
                     graph.addNode( ri );
                     graph.addEdge( ProjectGraph.EDGE_FILE, currentParent, ri, true );
                     continue;

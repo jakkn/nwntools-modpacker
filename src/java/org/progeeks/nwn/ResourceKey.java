@@ -150,6 +150,16 @@ public class ResourceKey implements java.io.Serializable, Comparable
         return( type );
     }
 
+    public boolean isGffType()
+    {
+        return( ResourceUtils.isGffType( type ) );
+    }
+
+    public String getTypeString()
+    {
+        return( ResourceUtils.getTypeString( type ) );
+    }
+
     public int hashCode()
     {
         return( name.hashCode() + type );

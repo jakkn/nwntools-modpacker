@@ -128,7 +128,7 @@ public class ResourceIndex implements Comparable
 
     public String toString()
     {
-        return( "ResourceIndex[" + name + ", " + key + "]" );
+        return( "ResourceIndex[" + name + ", " + key + ", " + source + ", " + destination + "]" );
     }
 }
 
