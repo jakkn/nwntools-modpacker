@@ -65,7 +65,7 @@ public class GraphObjectHandler extends DefaultObjectHandler
     public boolean canHandle( String tag )
     {
         // Check for the edge tag first.
-        if( "edge".equals( tag ) )
+        if( "edge".equals( tag ) || "e".equals( tag ) )
             return( true );
 
         return( super.canHandle( tag ) );
@@ -148,7 +148,7 @@ public class GraphObjectHandler extends DefaultObjectHandler
      */
     public Object createObject( String tag, AttributeList atts, ObjectXmlReader reader )
     {
-        if( !"edge".equals( tag ) )
+        if( !"edge".equals( tag ) && !"e".equals( tag ) )
             return( super.createObject( tag, atts, reader ) );
 
         EdgeHolder edge = new EdgeHolder();
@@ -156,16 +156,24 @@ public class GraphObjectHandler extends DefaultObjectHandler
         // We'll handle all edge properties ourselves since we
         // know exactly what they are.
         String tailId = atts.getValue( "tail" );
+        if( tailId == null )
+            tailId = atts.getValue( "t" );
         edge.tail = reader.getReferenceObject( tailId );
 
         String headId = atts.getValue( "head" );
+        if( headId == null )
+            headId = atts.getValue( "h" );
         edge.head = reader.getReferenceObject( headId );
 
         String directed = atts.getValue( "directed" );
+        if( directed == null )
+            directed = atts.getValue( "d" );
         if( directed != null )
             setTextProperty( edge, "directed", directed, reader );
 
         String userObject = atts.getValue( "object" );
+        if( userObject == null )
+            userObject = atts.getValue( "o" );
         if( userObject != null )
             setTextProperty( edge, "object", userObject, reader );
 

@@ -122,44 +122,31 @@ public class GraphXmlRenderer extends XmlMetaObjectRenderer
     {
         XmlPrintWriter out = context.getWriter();
 
-        out.pushTag( "edge" );
-        out.printAttribute( "directed", String.valueOf( edge.isDirected() ) );
+        out.pushTag( "e" );
+        out.printAttribute( "d", String.valueOf( edge.isDirected() ) );
 
         // Since we know the tail and head will have already been stored in
         // the object cache... and since we know that the loader code is custom
         // anyway, we can decrease our XML size by folding the IDs into attributes.
         String oid = context.getObjectId( edge.getHead() );
-        out.printAttribute( "head", oid );
+        out.printAttribute( "h", oid );
         oid = context.getObjectId( edge.getTail() );
-        out.printAttribute( "tail", oid );
+        out.printAttribute( "t", oid );
 
         Object uObj = edge.getUserObject();
         if( uObj != null )
             {
             if( uObj instanceof String )
                 {
-                out.printAttribute( "object", (String)uObj );
+                out.printAttribute( "o", (String)uObj );
                 }
             else
                 {
-                out.pushTag( "object" );
+                out.pushTag( "o" );
                 renderObject( uObj, false, graphClass.getClassRegistry(), metaKit, context );
                 out.popTag();
                 }
             }
-
-/*
-        String oid;
-        out.pushTag( "head" );
-        // We cheat because we know that the node should already be in the cache
-        oid = context.getObjectId( edge.getHead() );
-        out.printAttribute( MetaXmlReader.REFERENCE_DIRECTIVE, oid );
-        out.popTag();
-
-        out.pushTag( "tail" );
-        oid = context.getObjectId( edge.getTail() );
-        out.printAttribute( MetaXmlReader.REFERENCE_DIRECTIVE, oid );
-        out.popTag();*/
 
         out.popTag();
     }
