@@ -40,10 +40,10 @@ import org.progeeks.util.swing.*;
 
 import org.progeeks.nwn.model.*;
 
-
+/*
 import com.phoenixst.plexus.*;
 import org.progeeks.graph.*;
-import org.progeeks.nwn.resource.*;
+import org.progeeks.nwn.resource.*;*/
 
 /**
  *  The main window for the IDE.
