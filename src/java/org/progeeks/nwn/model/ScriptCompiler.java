@@ -33,6 +33,7 @@
 package org.progeeks.nwn.model;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 import org.progeeks.util.log.*;
@@ -83,7 +84,7 @@ public class ScriptCompiler
     /**
      *  Builds the specified script that resides in the specified directory.
      */
-    public void compileScript( String script, File directory )
+    public void compileScript( String script, File directory, ErrorListener listener )
     {
         try
             {
@@ -91,7 +92,7 @@ public class ScriptCompiler
             Process p = Runtime.getRuntime().exec( new String[] { "nwnnsscomp", script }, null,
                                                    directory );
             //runningCompiles.add( p );
-            watcher.addCompiler( "nwnnsscomp " + script, p );
+            watcher.addCompiler( script, "nwnnsscomp " + script, p, listener );
             }
         catch( IOException e )
             {
@@ -107,6 +108,55 @@ public class ScriptCompiler
         watcher.waitForAll();
     }
 
+    protected void processErrors( CompilerInfo info )
+    {
+        StringBuffer results = info.results;
+
+        if( info.errors.length() > 0 )
+            {
+            // I've never actually seen this happen.
+            System.out.println( "Errors:\n" + info.errors );
+            }
+
+        if( results.indexOf( "Error:" ) < 0
+            && results.indexOf( "Warning:" ) > 0 )
+            {
+            return;
+            }
+
+        MessageFormat errorFormat = new MessageFormat( "{0}({1,number}): Error: {2}" );
+        if( info.listener == null )
+            {
+            System.out.println( "Output:\n" + results );
+            return;
+            }
+
+        StringTokenizer st = new StringTokenizer( results.toString(), "\r\n" );
+        while( st.hasMoreTokens() )
+            {
+            String token = st.nextToken();
+            if( token.indexOf( "Error:" ) > 0 )
+                {
+                try
+                    {
+                    Object[] objs = errorFormat.parse( token );
+                    Number num = (Number)objs[1];
+
+                    CompileError err = new CompileError( String.valueOf(objs[2]), String.valueOf(objs[0]),
+                                                         num.intValue() );
+                    info.listener.error( info.script, err );
+                    }
+                catch( ParseException e )
+                    {
+                    System.out.println( "Bad string:" + token );
+                    }
+                }
+            else
+                {
+                //System.out.println( "Token:" + token );
+                }
+            }
+    }
 
     /**
      *  Watches all of the running compiles to see when they
@@ -119,7 +169,7 @@ public class ScriptCompiler
         private boolean go = true;
         private int waiters = 0;
 
-        public synchronized void addCompiler( String command, Process p )
+        public synchronized void addCompiler( String script, String command, Process p, ErrorListener listener )
         {
             while( compilers.size() > MAX_COMPILERS )
                 {
@@ -136,7 +186,7 @@ public class ScriptCompiler
                 waiters--;
                 }
 
-            compilers.add( new CompilerInfo( command, p ) );
+            compilers.add( new CompilerInfo( script, command, p, listener ) );
             pause.setFalse();
         }
 
@@ -169,13 +219,7 @@ public class ScriptCompiler
                                     {
                                     System.out.println( p.command + " finished:" + p.p.exitValue() );
                                     p.cleanup();
-                                    if( p.results.indexOf( "Error:" ) >= 0
-                                        || p.results.indexOf( "Warning:" ) >= 0 )
-                                        {
-                                        System.out.println( "Output:\n" + p.results );
-                                        }
-                                    if( p.errors.length() > 0 )
-                                        System.out.println( "Errors:\n" + p.errors );
+                                    processErrors( p );
                                     i.remove();
                                     }
                                 }
@@ -207,8 +251,10 @@ public class ScriptCompiler
 
     private class CompilerInfo
     {
+        String script;
         String command;
         Process p;
+        ErrorListener listener;
         long started;
         InputStream in;
         OutputStream out;
@@ -220,11 +266,13 @@ public class ScriptCompiler
         StringBuffer results = new StringBuffer();
         StringBuffer errors = new StringBuffer();
 
-        public CompilerInfo( String command, Process p )
+        public CompilerInfo( String script, String command, Process p, ErrorListener listener )
         {
+            this.script = script;
             this.started = System.currentTimeMillis();
             this.command = command;
             this.p = p;
+            this.listener = listener;
             in = p.getInputStream();
             out = p.getOutputStream();
             err = p.getErrorStream();

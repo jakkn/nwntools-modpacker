@@ -81,10 +81,12 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
         icons[ICON_ERROR] = new ImageIcon( root.getResource( "icons/Exclamation.gif" ) );
     }
 
+    private WindowContext context;
     private CompositeIcon combined;
 
-    public FileTreeCellRenderer()
+    public FileTreeCellRenderer( WindowContext context )
     {
+        this.context = context;
         combined = new CompositeIcon();
     }
 
@@ -155,8 +157,11 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
                 setForeground( java.awt.Color.red );
 
             // If has errors
-                //combined.setIconB( icons[ICON_ERROR] );
-                //combined.setOffset( combined.getIconA().getIconWidth(), 0 );
+            if( context.getProject().getProjectGraph().hasErrors( ri ) )
+                {
+                combined.setIconB( icons[ICON_ERROR] );
+                combined.setOffset( combined.getIconA().getIconWidth(), 0 );
+                }
             }
 
         return( retVal );

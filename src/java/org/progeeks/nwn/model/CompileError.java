@@ -30,57 +30,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.progeeks.nwn.ui;
+package org.progeeks.nwn.model;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
 
 /**
- *  Wraps a JTree in a JScrollPanel and sets up the model
- *  dependent hook-ups.
+ *  Specialization of ErrorInfo containing script compile error
+ *  information.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class FileTreePanel extends JScrollPane
+public class CompileError extends ErrorInfo
 {
-    private WindowContext context;
-    private JTree tree;
+    private String scriptName;
+    private int line;
 
-    public FileTreePanel( WindowContext context )
+    public CompileError( String message, String scriptName, int line )
     {
-        this.context = context;
-
-        tree = new JTree( context.getFileTreeModel() );
-
-        // This could probably be done with a Format-based
-        // thing added to Meta-JB.  We'll hard-code for now.
-        tree.setCellRenderer( new FileTreeCellRenderer( context ) );
-
-        tree.addTreeSelectionListener( new SelectionListener() );
-
-        setViewportView( tree );
+        super( "Compiling", message );
+        this.scriptName = scriptName;
+        this.line = line;
     }
 
-    private class SelectionListener implements TreeSelectionListener
+    public String getScriptName()
     {
-        public void valueChanged( TreeSelectionEvent event )
-        {
-            TreePath[] paths = event.getPaths();
-            for( int i = 0; i < paths.length; i++ )
-                {
-                Object o = paths[i].getLastPathComponent();
-                if( event.isAddedPath( i ) )
-                    {
-                    context.getSelectedObjects().add( o );
-                    }
-                else
-                    {
-                    context.getSelectedObjects().remove( o );
-                    }
-                }
-        }
+        return( scriptName );
+    }
+
+    public int getLineNumber()
+    {
+        return( line );
+    }
+
+    public String toString()
+    {
+        return( "Error " + getTask() + ":" + scriptName + "(" + line + "):" + getMessage() );
     }
 }
-

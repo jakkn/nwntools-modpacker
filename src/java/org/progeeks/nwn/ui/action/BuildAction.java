@@ -182,6 +182,38 @@ public class BuildAction extends AbstractAction
 
             boolean hasCompiler = scriptCompiler.hasCompiler();
 
+            ErrorListener errorListener = new ErrorListener()
+                {
+                    public void error( Object source, ErrorInfo error )
+                    {
+                        System.out.println( source + "  Error: " + error );
+                        CompileError err = (CompileError)error;
+
+                        // Find the resource for the source and the
+                        // resouce for the script.
+
+                        ResourceKey sourceKey = ResourceUtils.getKeyForFileName( (String)source );
+                        ResourceKey otherKey = ResourceUtils.getKeyForFileName( (String)err.getScriptName() );
+
+                        ResourceIndex s = graph.getResourceIndex( sourceKey );
+                        ResourceIndex o = graph.getResourceIndex( otherKey );
+
+                        // Add the error to the graph
+                        graph.addNode( error );
+
+                        if( s != null )
+                            {
+                            s.makeDirty( project );
+                            graph.addEdge( ProjectGraph.EDGE_ERROR, s, error, true );
+                            }
+                        if( o != null )
+                            {
+                            o.makeDirty( project );
+                            graph.addEdge( ProjectGraph.EDGE_ERROR, o, error, true );
+                            }
+                    }
+                };
+
             // Compile the scripts first
             for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
                 {
@@ -189,7 +221,7 @@ public class BuildAction extends AbstractAction
                 if( ri.getKey().getType() != ResourceTypes.TYPE_NSS )
                     continue;
 
-                if( !hasCompiler )
+                if( !hasCompiler || pr.isCanceled() )
                     {
                     ri.makeDirty( project );
                     continue;
@@ -211,11 +243,17 @@ public class BuildAction extends AbstractAction
                 // added to the graph or resource or something.
                 ri.makeAllUpToDate( project );
 
+                // Clear any errors this resource may have.
+                graph.clearErrors( ri );
+
                 // Compile the script
-                scriptCompiler.compileScript( ri.getKey().getFileName(), compileDir );
+                scriptCompiler.compileScript( ri.getKey().getFileName(), compileDir, errorListener );
 
                 i.remove();
                 }
+
+            if( pr.isCanceled() )
+                throw new RuntimeException( "User canceled." );
 
             try
                 {
@@ -411,7 +449,7 @@ public class BuildAction extends AbstractAction
                 }
             catch( RuntimeException e )
                 {
-                log.error( "Erro building", e );
+                log.error( "Error building", e );
                 reqHandler.requestShowError( "Build Aborted", e.getMessage() );
                 }
             catch( IOException e )

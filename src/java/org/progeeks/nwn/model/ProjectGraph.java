@@ -63,6 +63,11 @@ public class ProjectGraph extends DefaultEnhancedGraph
      */
     public static final String EDGE_AGGREGATE = "Agg";
 
+    /**
+     *  Edge indicating an attached error or some kind.
+     */
+    public static final String EDGE_ERROR = "Error";
+
     private ProjectRoot root;
 
     private HashMap nodeCache = new HashMap();
@@ -161,5 +166,42 @@ public class ProjectGraph extends DefaultEnhancedGraph
 
         addNode( directory );
         addEdge( EDGE_FILE, p, directory, true );
+    }
+
+    /**
+     *  Utility method for clearing all of the errors for a given
+     *  node.
+     */
+    public void clearErrors( ResourceIndex ri )
+    {
+        TraverserFilter filter = new DefaultTraverserFilter( GraphUtils.TRUE, EDGE_ERROR,
+                                                             GraphUtils.DIRECTED_IN_MASK );
+        for( Traverser t = traverser( ri, filter ); t.hasNext(); )
+            {
+            Object node = t.next();
+            // See if we're the only attached node or not
+            if( inDegree( node ) > 1 )
+                {
+                System.out.println( "Remove edge:" + t.getEdge() );
+                // Just remove the edge
+                t.removeEdge();
+                }
+            else
+                {
+                System.out.println( "Remove node:" + node );
+                // Else remove the node too
+                t.remove();
+                }
+            }
+    }
+
+    /**
+     *  Returns true if the specified resource has errors associated with it.
+     */
+    public boolean hasErrors( ResourceIndex ri )
+    {
+        TraverserFilter filter = new DefaultTraverserFilter( GraphUtils.TRUE, EDGE_ERROR,
+                                                             GraphUtils.DIRECTED_OUT_MASK );
+        return( traverser( ri, filter ).hasNext() );
     }
 }

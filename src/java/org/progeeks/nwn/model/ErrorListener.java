@@ -30,57 +30,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.progeeks.nwn.ui;
+package org.progeeks.nwn.model;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
 
 /**
- *  Wraps a JTree in a JScrollPanel and sets up the model
- *  dependent hook-ups.
+ *  Notified when an error occurs for a given object.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class FileTreePanel extends JScrollPane
+public interface ErrorListener
 {
-    private WindowContext context;
-    private JTree tree;
-
-    public FileTreePanel( WindowContext context )
-    {
-        this.context = context;
-
-        tree = new JTree( context.getFileTreeModel() );
-
-        // This could probably be done with a Format-based
-        // thing added to Meta-JB.  We'll hard-code for now.
-        tree.setCellRenderer( new FileTreeCellRenderer( context ) );
-
-        tree.addTreeSelectionListener( new SelectionListener() );
-
-        setViewportView( tree );
-    }
-
-    private class SelectionListener implements TreeSelectionListener
-    {
-        public void valueChanged( TreeSelectionEvent event )
-        {
-            TreePath[] paths = event.getPaths();
-            for( int i = 0; i < paths.length; i++ )
-                {
-                Object o = paths[i].getLastPathComponent();
-                if( event.isAddedPath( i ) )
-                    {
-                    context.getSelectedObjects().add( o );
-                    }
-                else
-                    {
-                    context.getSelectedObjects().remove( o );
-                    }
-                }
-        }
-    }
+    public void error( Object source, ErrorInfo error );
 }
-

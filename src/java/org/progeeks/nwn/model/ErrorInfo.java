@@ -30,57 +30,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.progeeks.nwn.ui;
+package org.progeeks.nwn.model;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
 
 /**
- *  Wraps a JTree in a JScrollPanel and sets up the model
- *  dependent hook-ups.
+ *  Object containing information about a specific error.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class FileTreePanel extends JScrollPane
+public class ErrorInfo
 {
-    private WindowContext context;
-    private JTree tree;
+    private String task;
+    private String message;
 
-    public FileTreePanel( WindowContext context )
+    public ErrorInfo( String task, String message )
     {
-        this.context = context;
-
-        tree = new JTree( context.getFileTreeModel() );
-
-        // This could probably be done with a Format-based
-        // thing added to Meta-JB.  We'll hard-code for now.
-        tree.setCellRenderer( new FileTreeCellRenderer( context ) );
-
-        tree.addTreeSelectionListener( new SelectionListener() );
-
-        setViewportView( tree );
+        this.task = task;
+        this.message = message;
     }
 
-    private class SelectionListener implements TreeSelectionListener
+    public String getTask()
     {
-        public void valueChanged( TreeSelectionEvent event )
-        {
-            TreePath[] paths = event.getPaths();
-            for( int i = 0; i < paths.length; i++ )
-                {
-                Object o = paths[i].getLastPathComponent();
-                if( event.isAddedPath( i ) )
-                    {
-                    context.getSelectedObjects().add( o );
-                    }
-                else
-                    {
-                    context.getSelectedObjects().remove( o );
-                    }
-                }
-        }
+        return( task );
+    }
+
+    public String getMessage()
+    {
+        return( message );
+    }
+
+    public String toString()
+    {
+        return( "Error " + task + ":" + message );
     }
 }
-
