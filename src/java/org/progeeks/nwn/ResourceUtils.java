@@ -113,9 +113,12 @@ public class ResourceUtils
     public static final int RES_NDB = 0x0810;
     public static final int RES_PTM = 0x0811;
     public static final int RES_PTT = 0x0812;
+    public static final int RES_270C = 0x270C;
     public static final int RES_ERF = 0x270D;
     public static final int RES_BIF = 0x270E;
     public static final int RES_KEY = 0x270F;
+
+    private static final String WILDCARD = "*";
 
     /**
      *  Maps file extensions to the appropriate resource type code.
@@ -195,6 +198,7 @@ public class ResourceUtils
         extensionMap.put( "ndb", new Integer(0x0810) );
         extensionMap.put( "ptm", new Integer(0x0811) );
         extensionMap.put( "ptt", new Integer(0x0812) );
+        extensionMap.put( "270C", new Integer(0x270c) );
         extensionMap.put( "erf", new Integer(0x270d) );
         extensionMap.put( "bif", new Integer(0x270e) );
         extensionMap.put( "key", new Integer(0x270f) );
@@ -229,7 +233,7 @@ public class ResourceUtils
         return( getTypeForExtension( ext ) );
     }
 
-    public static String getExtensionForType( int type )
+    public static String getTypeString( int type )
     {
         switch( type )
             {
@@ -373,6 +377,8 @@ public class ResourceUtils
                 return( "PTM" );
             case RES_PTT:
                 return( "PTT" );
+            case RES_270C:
+                return( "270C" );
             case RES_ERF:
                 return( "ERF" );
             case RES_BIF:
@@ -380,9 +386,19 @@ public class ResourceUtils
             case RES_KEY:
                 return( "KEY" );
             }
-        String ext = "0x" + Integer.toHexString( type );
 
+        return( WILDCARD );
+    }
+
+    public static String getExtensionForType( int type )
+    {
+        String ext = getTypeString( type );
+        if( ext != WILDCARD )
+            return( ext );
+
+        ext = "0x" + Integer.toHexString( type );
         System.out.println( "Warning: encountered unknown type:" + type + "  Using extension:" + ext );
+
         return( ext );
     }
 
