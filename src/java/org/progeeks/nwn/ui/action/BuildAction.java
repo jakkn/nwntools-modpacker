@@ -42,6 +42,8 @@ import org.progeeks.cmd.swing.*;
 import org.progeeks.util.log.*;
 import org.progeeks.util.*;
 
+import org.progeeks.nwn.gff.*;
+import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.nss.*;
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
@@ -198,8 +200,8 @@ public class BuildAction extends AbstractAction
                 File src = ri.getSource().getFile( project );
                 File dest = ri.getDestination().getFile( project );
 
-                log.debug( "Copying:" + src + " to:" + dest );
-                FileUtils.copyFile( src, dest );
+                //log.debug( "Copying:" + src + " to:" + dest );
+                //FileUtils.copyFile( src, dest );
 
                 // Errors have to be handled a different way, but at this
                 // point the src and destination _are_ up-to-date since the
@@ -226,6 +228,31 @@ public class BuildAction extends AbstractAction
             if( !hasCompiler )
                 {
                 log.error( "No compiler configured." );
+                }
+        }
+
+        protected void convertGffResources( ProgressReporter pr ) throws IOException
+        {
+            int index = 0;
+            for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
+                {
+                pr.setProgress( index );
+                ResourceIndex ri = (ResourceIndex)i.next();
+                if( !ri.getKey().isGffType() )
+                    continue;
+
+                File src = ri.getSource().getFile( project );
+                File dest = ri.getDestination().getFile( project );
+                log.debug( "Converting:" + src + " to:" + dest );
+                pr.setMessage( "Converting:" + ri.getKey().getFileName() );
+
+                // Easy, load the XML.
+                Struct gff = GffUtils.readGffXml( src );
+
+                // Save the GFF
+                GffUtils.writeGff( ri.getKey(), gff, dest );
+
+                i.remove();
                 }
         }
 
@@ -281,20 +308,15 @@ public class BuildAction extends AbstractAction
                 }
 
             // Convert the XML first
-            pr = reqHandler.requestProgressReporter( prName, "Converting XML...", 0, xmlCount );
+            pr = reqHandler.requestProgressReporter( prName, "Converting XML...", 0, staleResources.size() );
             System.out.println( "Converting..." );
             try
                 {
-                int index = 0;
-                for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
-                    {
-                    pr.setProgress( index );
-                    ResourceIndex ri = (ResourceIndex)i.next();
-                    if( !ri.getKey().isGffType() )
-                        continue;
-                    System.out.println( "Need to convert XML for:" + ri.getName() );
-                    i.remove();
-                    }
+                convertGffResources( pr );
+                }
+            catch( IOException e )
+                {
+                log.error( "Error converting XML resources", e );
                 }
             finally
                 {
@@ -316,7 +338,7 @@ public class BuildAction extends AbstractAction
                 pr.done();
                 }
 
-            pr = reqHandler.requestProgressReporter( prName, "Compiling scripts...", 0, scriptCount );
+            pr = reqHandler.requestProgressReporter( prName, "Compiling scripts...", 0, staleResources.size() );
             try
                 {
                 compileScripts( pr, unpackedDir );

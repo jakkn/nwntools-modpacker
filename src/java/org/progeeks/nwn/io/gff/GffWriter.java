@@ -47,6 +47,8 @@ import org.progeeks.nwn.gff.*;
  */
 public class GffWriter
 {
+    public static final String GFF_VERSION = "V3.2";
+
     private byte[] type = new byte[4];
     private byte[] version = new byte[4];
     private BinaryDataOutputStream out;
@@ -57,6 +59,11 @@ public class GffWriter
     private List elements = new ArrayList();
     private List elementStubs = new ArrayList();
     private List listStubs = new ArrayList();
+
+    public GffWriter( String type, OutputStream out )
+    {
+        this( type, GFF_VERSION, out );
+    }
 
     public GffWriter( String type, String version, OutputStream out )
     {

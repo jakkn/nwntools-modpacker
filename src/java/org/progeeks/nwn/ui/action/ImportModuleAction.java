@@ -174,7 +174,7 @@ public class ImportModuleAction extends AbstractAction
     protected void writeGffXml( File f, Struct struct, ResourceKey key ) throws IOException
     {
         String type = key.getTypeString() + " ";
-        String version = "V3.2";
+        String version = GffWriter.GFF_VERSION;
 
         FileWriter fOut = new FileWriter( f );
         BufferedWriter bOut = new BufferedWriter( fOut, 65536 );
