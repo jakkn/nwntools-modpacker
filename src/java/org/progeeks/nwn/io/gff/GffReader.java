@@ -49,9 +49,9 @@ public class GffReader
 {
     private BinaryDataInputStream in;
     private Header header;
-    private List structs = new ArrayList();
-    private List fields = new ArrayList();
-    private List labels = new ArrayList();
+    private List structs;
+    private List fields;
+    private List labels;
 
     public GffReader( InputStream in ) throws IOException
     {
@@ -133,9 +133,9 @@ public class GffReader
 
     private List readStubBlock( BlockIndex block ) throws IOException
     {
-        ArrayList results = new ArrayList();
-        in.gotoPosition( block.getOffset() );
         int count = block.getSize();
+        ArrayList results = new ArrayList( count );
+        in.gotoPosition( block.getOffset() );
 
         for( int i = 0; i < count; i++ )
             {
@@ -150,6 +150,7 @@ public class GffReader
     {
         in.gotoPosition( block.getOffset() );
         int count = block.getSize();
+        labels = new ArrayList( count );
 
         byte[] buff = new byte[16];
         for( int i = 0; i < count; i++ )
@@ -171,6 +172,7 @@ public class GffReader
         // based elements.
 
         // Make sure the fields list has the right number of entries
+        fields = new ArrayList( fieldStubs.size() );
         for( int i = 0; i < fieldStubs.size(); i++ )
             {
             fields.add( null );
@@ -283,6 +285,7 @@ public class GffReader
         int multimapOffset = header.getFieldIndices().getOffset();
 
         // Make sure the structs list has the right number of entries
+        structs = new ArrayList( structStubs.size() );
         for( int i = 0; i < structStubs.size(); i++ )
             {
             structs.add( null );
@@ -373,7 +376,7 @@ public class GffReader
 
             int count = in.readInt();
 
-            ArrayList list = new ArrayList();
+            ArrayList list = new ArrayList( count );
             for( int t = 0; t < count; t++ )
                 {
                 int num = in.readInt();
