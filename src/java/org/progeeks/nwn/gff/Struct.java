@@ -98,6 +98,32 @@ public class Struct
         return( (Element)elements.get(name) );
     }
 
+    public int getInt( String name )
+    {
+        Element el = getValue( name );
+        if( el instanceof IntElement )
+            return( ((IntElement)el).getValue() );
+        return( -1 );
+    }
+
+    public String getString( String name )
+    {
+        Element el = getValue( name );
+        if( el instanceof StringElement )
+            return( ((StringElement)el).getValue() );
+        else if( el instanceof LocalizedStringElement )
+            return( ((LocalizedStringElement)el).getValue() );
+        return( null );
+    }
+
+    public List getList( String name )
+    {
+        Element el = getValue( name );
+        if( el instanceof ListElement )
+            return( ((ListElement)el).getValue() );
+        return( null );
+    }
+
     public String toString()
     {
         return( "Struct[" + elements + "]" );
