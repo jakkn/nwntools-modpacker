@@ -52,6 +52,7 @@ public class MainWindow extends JFrame
 
     private WindowContext context;
     private JSplitPane main;
+    private FileTreePanel treePanel;
 
     public MainWindow( WindowContext context )
     {
@@ -72,13 +73,16 @@ public class MainWindow extends JFrame
         main = new JSplitPane();
         getContentPane().add( main, "Center" );
 
-        JTree tree = new JTree( context.getFileTreeModel() );
+        treePanel = new FileTreePanel( context );
+
+        //JTree tree = new JTree( context.getFileTreeModel() );
 
         // This could probably be done with a Format-based
         // thing added to Meta-JB.  We'll hard-code for now.
-        tree.setCellRenderer( new FileTreeCellRenderer() );
+        //tree.setCellRenderer( new FileTreeCellRenderer() );
 
-        main.setLeftComponent( new JScrollPane( tree ) );
+        //main.setLeftComponent( new JScrollPane( tree ) );
+        main.setLeftComponent( treePanel );
 
         setSize( 1024, 768 );
     }

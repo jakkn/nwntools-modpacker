@@ -32,6 +32,7 @@
 
 package org.progeeks.nwn.ui;
 
+import java.beans.*;
 import java.util.*;
 import javax.swing.Action;
 import javax.swing.tree.TreeModel;
@@ -61,6 +62,11 @@ public class WindowContext extends DefaultViewContext
      *  The window's current project property.
      */
     public static final String PROP_PROJECT = "project";
+
+    /**
+     *  The window's current list of selected objects.
+     */
+    public static final String PROP_SELECTED_OBJECTS = "selectedObjects";
 
     /**
      *  Constant associated with the file menu action list.
@@ -98,6 +104,17 @@ public class WindowContext extends DefaultViewContext
     private FileTreeModel fileTreeModel;
 
     /**
+     *  The current list of selected objects within this window.
+     */
+    private ObservableList selectedObjects = new ObservableList( new ArrayList() );
+
+    /**
+     *  Listens to the lists to adapt their change events to the window context
+     *  listeners.
+     */
+    private ListListener listListener = new ListListener();
+
+    /**
      *  Creates a new WindowContext as a child of the specified global
      *  context.
      */
@@ -109,6 +126,8 @@ public class WindowContext extends DefaultViewContext
         setupActionLists();
 
         fileTreeModel = new FileTreeModel();
+
+        selectedObjects.addPropertyChangeListener( listListener );
     }
 
     /**
@@ -135,6 +154,14 @@ public class WindowContext extends DefaultViewContext
     public GlobalContext getGlobalContext()
     {
         return( (GlobalContext)getParentContext() );
+    }
+
+    /**
+     *  Returns the observable list of selected objects.
+     */
+    public ObservableList getSelectedObjects()
+    {
+        return( selectedObjects );
     }
 
     /**
@@ -248,4 +275,18 @@ public class WindowContext extends DefaultViewContext
         return( list );
     }
 
+    private class ListListener implements PropertyChangeListener
+    {
+        public void propertyChange( PropertyChangeEvent event )
+        {
+            Object source = event.getSource();
+            if( source == selectedObjects )
+                {
+                ListPropertyChangeEvent lce = new ListPropertyChangeEvent( WindowContext.this,
+                                                                           PROP_SELECTED_OBJECTS,
+                                                                           (ListPropertyChangeEvent)event );
+                firePropertyChange( lce );
+                }
+        }
+    }
 }
