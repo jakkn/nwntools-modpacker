@@ -354,21 +354,32 @@ public class GffWriter
                     break;
                 case Element.TYPE_STRREF:
                     LocalizedStringElement lse = (LocalizedStringElement)el;
-
-                    out.writeInt( lse.getSize() );
+//System.out.println( "File position:" + out.getFilePosition() );
+//System.out.println( "Write: Strref size:" + (lse.getSize() - 4) );
+                    // Have to take four off because the data structure on
+                    // disk doesn't include the size in the count.
+                    out.writeInt( lse.getSize() - 4 );
+//System.out.println( "Write: Strref id:" + lse.getReferenceId() );
                     out.writeInt( lse.getReferenceId() );
 
                     Map map = lse.getLocalStrings();
+//System.out.println( "Write: Strref lang count:" + map.size() );
                     out.writeInt( map.size() );
                     for( Iterator it = map.entrySet().iterator(); it.hasNext(); )
                         {
                         Map.Entry e = (Map.Entry)it.next();
+//System.out.println( "Write: Strref element lang ID:" + e.getKey() );
                         out.writeInt( ((Integer)e.getKey()).intValue() );
 
                         String val = (String)e.getValue();
                         sb = val.getBytes();
+//System.out.println( "Write: Strref element size:" + sb.length );
                         out.writeInt( sb.length );
+//System.out.print( "Write: Strref element data:" );
                         out.write( sb );
+//for( int j = 0; j < sb.length; j++ )
+//    System.out.print( (char)sb[j] );
+//System.out.println();
                         }
 
                     break;

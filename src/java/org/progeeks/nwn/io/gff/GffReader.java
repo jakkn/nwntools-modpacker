@@ -228,22 +228,33 @@ public class GffReader
                     break;
                 case Element.TYPE_STRREF:
                     in.gotoPosition( dataOffset + stub.data );
-
+//System.out.println( "File Position:" + in.getFilePosition() );
                     len = in.readInt();
+//int fullLength = len;
+//System.out.println( "Strref size:" + len );
                     int id = in.readInt();
+//System.out.println( "Strref id:" + id );
                     int langCount = in.readInt();
+//System.out.println( "Strref langCount:" + langCount );
 
                     el = new LocalizedStringElement( name, stub.type, id );
 
                     for( int t = 0; t < langCount; t++ )
                         {
                         int l = in.readInt();
+//System.out.println( "Strref lang[" + t + "]  langId:" + l );
                         len = in.readInt();
+//System.out.println( "Strref lang[" + t + "]  length:" + len );
                         buff = new byte[len];
                         in.readFully( buff );
-
+//System.out.print( "Strref lang[" + t + "]  contents:" );
+//for( int j = 0; j < buff.length; j++ )
+    //System.out.print( (char)buff[j] );
+//System.out.println();
                         ((LocalizedStringElement)el).addLocalString( l, new String( buff ) );
                         }
+
+//System.out.println( "Ending position:" + in.getFilePosition() + "   should be at:" + (dataOffset + stub.data + fullLength + 4) );
                     break;
                 case Element.TYPE_DATREF:
                     in.gotoPosition( dataOffset + stub.data );
