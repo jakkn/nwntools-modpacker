@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (c) 2003, Paul Speed
+ * Copyright (c) 2004, Paul Speed
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
