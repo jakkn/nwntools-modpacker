@@ -136,7 +136,7 @@ public class MainWindow extends JFrame
             else if( WindowContext.PROP_PROJECT.equals( name ) )
                 {
                 Project project = context.getProject();
-                context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
+                context.getFileTreeModel().setRootedTreeView( new FileTreeView( project.getProjectGraph() ) );
                 }
         }
     }
