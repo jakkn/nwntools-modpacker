@@ -108,7 +108,7 @@ public class ModPacker
                 && !"SAV".equals( type ) )
                 {
                 // Not a valid type
-                System.out.println( "Unknown type:" + type "  Treating it as a MOD file." );
+                System.out.println( "Unknown type:" + type + "  Treating it as a MOD file." );
                 type = null;
                 }
             }
@@ -421,7 +421,7 @@ public class ModPacker
         // And go
         long size = packer.writeModule();
         System.out.println( size + " bytes written from " + packer.getResourceCount()
-                            + " resources.                     " );
+                            + " resources.                                 " );
 
         long total = System.currentTimeMillis() - start;
         double secs = (double)total / 1000.0;
