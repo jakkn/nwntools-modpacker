@@ -35,6 +35,8 @@ package org.progeeks.nwn.ui;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import org.progeeks.util.swing.*;
+
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
 
@@ -56,7 +58,9 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
     private static final int ICON_CONVERSATION = 7;
     private static final int ICON_PLACEABLE = 8;
     private static final int ICON_ENCOUNTER = 9;
-    private static final int ICON_COUNT = 10;
+    private static final int ICON_CHANGED = 10;
+    private static final int ICON_ERROR = 11;
+    private static final int ICON_COUNT = 12;
 
     private static ImageIcon[] icons;
     static
@@ -73,6 +77,15 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
         icons[ICON_CONVERSATION] = new ImageIcon( root.getResource( "icons/Talk.gif" ) );
         icons[ICON_PLACEABLE] = new ImageIcon( root.getResource( "icons/Box.gif" ) );
         icons[ICON_ENCOUNTER] = new ImageIcon( root.getResource( "icons/Users.gif" ) );
+        icons[ICON_CHANGED] = new ImageIcon( root.getResource( "icons/Save.gif" ) );
+        icons[ICON_ERROR] = new ImageIcon( root.getResource( "icons/Exclamation.gif" ) );
+    }
+
+    private CompositeIcon combined;
+
+    public FileTreeCellRenderer()
+    {
+        combined = new CompositeIcon();
     }
 
     protected Icon getIcon( int type )
@@ -107,7 +120,8 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
                                                             boolean expanded, boolean leaf, int row,
                                                             boolean hasFocus )
     {
-        Icon icon = null;
+        combined.setIconA( null );
+        combined.setIconB( null );
 
         ResourceIndex ri = null;
 
@@ -118,11 +132,12 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
         else if( value instanceof ResourceIndex )
             {
             ri = (ResourceIndex)value;
-            icon = getIcon( ri.getKey().getType() );
+            Icon icon = getIcon( ri.getKey().getType() );
             if( icon != null )
                 {
                 // Then go ahead and use prettier text
                 value = ri.getName();
+                combined.setIconA( icon );
                 }
             else
                 {
@@ -134,11 +149,16 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
         java.awt.Component retVal = super.getTreeCellRendererComponent( tree, value, sel, expanded,
                                                                         leaf, row, hasFocus );
 //System.out.println( "retVal:" + retVal );
-        if( icon != null )
-            setIcon( icon );
-
         if( ri != null && ri.isSourceNewer() )
-            setForeground( java.awt.Color.red );
+            {
+            setIcon( combined );
+            if( ri.isSourceNewer() )
+                setForeground( java.awt.Color.red );
+
+            // If has errors
+                //combined.setIconB( icons[ICON_ERROR] );
+                //combined.setOffset( combined.getIconA().getIconWidth(), 0 );
+            }
 
         return( retVal );
     }
