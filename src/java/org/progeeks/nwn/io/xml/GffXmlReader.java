@@ -243,7 +243,8 @@ public class GffXmlReader extends XmlReader
                 case Element.TYPE_DATREF:
                     // We don't really handle this type correctly yet.
                     // Need to come up with a decent encoding scheme.
-                    el = new ObjectElement( label, type, atts.getValue( "value" ) );
+                    el = new ObjectElement( label, type );
+                    el.setStringValue( atts.getValue( "value" ) );
                     break;
                 case Element.TYPE_STRUCTREF:
                     // We'll pick up the struct as a nested tag
@@ -371,6 +372,7 @@ public class GffXmlReader extends XmlReader
 
         public LocalStringHolder( LocalizedStringElement el, int languageId )
         {
+            this.el = el;
             this.languageId = languageId;
         }
     }
