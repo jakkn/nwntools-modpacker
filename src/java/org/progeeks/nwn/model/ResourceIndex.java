@@ -149,7 +149,12 @@ public class ResourceIndex implements Comparable
         if( !(obj instanceof ResourceIndex) )
             return( 1 );
         ResourceIndex ri = (ResourceIndex)obj;
-        return( key.compareTo( ri.key ) );
+
+        // Compare them by name
+        String n1 = getName();
+        String n2 = ri.getName();
+
+        return( n1.compareToIgnoreCase( n2 ) );
     }
 
     public String toString()
