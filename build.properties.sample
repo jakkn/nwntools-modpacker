@@ -1,0 +1,16 @@
+# -----------------------------------------------------------------------------
+# build.properties
+#
+# Defines local build properties for customizing the environment.
+# -----------------------------------------------------------------------------
+
+
+# ----- Compile Control Flags -----
+javac.debug=on
+#javac.deprecation=on
+javac.optimize=on
+
+# ------ Javah control flags -----
+javah.verbose=on
+
+# ------ Additional build-specific stuff ----

@@ -179,6 +179,20 @@
         </zip>
     </target>
 
+    <target name="nwntools-src.zip" description="Project source distribution." >
+        <mkdir dir="${dist}" />
+
+        <zip destfile="${dist}/nwntools-src.zip" >
+            <fileset dir="${basedir}" >
+                <include name="build.xml" />
+                <include name="src/**" />
+                <exclude name="**/CVS" />
+                <exclude name="**/backups/**" />
+            </fileset>
+        </zip>
+
+    </target>
+
     <target name="clean">
         <!-- Delete the ${build} and ${dist} directory trees -->
         <delete dir="${build.classes}"/>
