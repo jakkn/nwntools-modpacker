@@ -35,6 +35,8 @@ package org.progeeks.nwn.model;
 import java.io.File;
 import java.util.*;
 
+import org.apache.commons.collections.Predicate;
+
 import com.phoenixst.plexus.*;
 
 import org.progeeks.graph.*;
@@ -49,7 +51,7 @@ import org.progeeks.nwn.resource.*;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ResourceGraph extends DefaultEnhancedGraph
+public class ResourceGraph extends DefaultGraph
 {
     /**
      *  Keep around a reference to the nodes by key so
@@ -122,20 +124,13 @@ public class ResourceGraph extends DefaultEnhancedGraph
     }
 
     /**
-     *  Custom implementation of nodeIterator that can take
+     *  Custom implementation of nodes() that can take
      *  advantage of the ResouceLocator filter to do a
      *  direct node lookup.
      */
-    public Iterator nodeIterator( NodeFilter filter )
+    public Collection nodes( Predicate filter )
     {
-        if( filter instanceof ResourceLocator )
-            {
-            Object o = getNode( filter );
-            if( o == null )
-                return( Collections.EMPTY_LIST.iterator() );
-            return( new SingletonIterator( o ) );
-            }
-        return( super.nodeIterator( filter ) );
+        return( new NodeCollection( filter ) );
     }
 
     /**
@@ -143,7 +138,7 @@ public class ResourceGraph extends DefaultEnhancedGraph
      *  advantage of the ResouceLocator filter to do a
      *  direct node lookup.
      */
-    public Object getNode( NodeFilter filter )
+    public Object getNode( Predicate filter )
     {
         if( filter instanceof ResourceLocator )
             {
@@ -187,4 +182,26 @@ public class ResourceGraph extends DefaultEnhancedGraph
         addEdge( ProjectGraph.EDGE_FILE, directory, resource, true );
     }
 
+    private class NodeCollection extends AbstractFilteredNodeCollection
+    {
+        public NodeCollection( Predicate filter )
+        {
+            super( filter, ResourceGraph.this );
+        }
+
+        public Iterator iterator()
+        {
+            Predicate filter = getFilter();
+
+            if( filter instanceof ResourceLocator )
+                {
+                Object o = getNode( filter );
+                if( o == null )
+                    return( Collections.EMPTY_LIST.iterator() );
+                return( new SingletonIterator( o ) );
+                }
+
+            return( ResourceGraph.super.nodes(filter).iterator() );
+        }
+    }
 }

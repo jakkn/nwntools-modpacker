@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.progeeks.nwn;
+package org.progeeks.nwn.ui;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -53,7 +53,7 @@ import org.progeeks.nwn.resource.*;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class AreaViewer extends JFrame
+public class TestAreaViewer extends JFrame
 {
     private static ResourceManager resMgr = new ResourceManager();
 
@@ -62,7 +62,7 @@ public class AreaViewer extends JFrame
     private List tileset;
     private List images = new ArrayList();
 
-    public AreaViewer( File area ) throws IOException
+    public TestAreaViewer( File area ) throws IOException
     {
         super( "Area Viewer" );
         setDefaultCloseOperation( EXIT_ON_CLOSE );
@@ -200,7 +200,7 @@ System.out.println( "Res:" + res );
         resMgr.loadDefaultKeys();
 
         File f = new File( args[0] );
-        AreaViewer viewer = new AreaViewer( f );
+        TestAreaViewer viewer = new TestAreaViewer( f );
         viewer.setVisible( true );
     }
 }

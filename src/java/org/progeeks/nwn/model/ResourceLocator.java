@@ -32,7 +32,7 @@
 
 package org.progeeks.nwn.model;
 
-import org.progeeks.graph.*;
+import org.apache.commons.collections.Predicate;
 
 import org.progeeks.nwn.resource.*;
 
@@ -43,7 +43,7 @@ import org.progeeks.nwn.resource.*;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ResourceLocator implements NodeFilter
+public class ResourceLocator implements Predicate
 {
     private ResourceKey key;
 

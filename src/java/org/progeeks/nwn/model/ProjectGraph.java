@@ -35,6 +35,8 @@ package org.progeeks.nwn.model;
 import java.io.File;
 import java.util.*;
 
+import org.apache.commons.collections.Predicate;
+
 import com.phoenixst.collections.TruePredicate;
 import com.phoenixst.plexus.*;
 
@@ -73,7 +75,7 @@ public class ProjectGraph extends CompositeGraph
     public static final String EDGE_ERROR = "Error";
 
     private ResourceGraph resources;
-    private DefaultEnhancedGraph errors;
+    private DefaultGraph  errors;
 
     public ProjectGraph( ProjectRoot root )
     {
@@ -91,7 +93,7 @@ public class ProjectGraph extends CompositeGraph
         // Setup the different subgraphs for which we
         // are a composite
         resources = new ResourceGraph();
-        errors = new DefaultEnhancedGraph();
+        errors = new DefaultGraph();
 
         addGraph( resources, new ResourceCoordinator() );
         addGraph( errors, new ErrorCoordinator() );
@@ -137,13 +139,16 @@ public class ProjectGraph extends CompositeGraph
      */
     public void clearErrors( ResourceIndex ri )
     {
-        TraverserFilter filter = new DefaultTraverserFilter( TruePredicate.INSTANCE, EDGE_ERROR,
-                                                             GraphUtils.DIRECTED_OUT_MASK );
+        Predicate filter = new DefaultTraverserPredicate( TruePredicate.INSTANCE, EDGE_ERROR,
+                                                          GraphUtils.DIRECTED_OUT_MASK );
+        Predicate inFilter = new DefaultTraverserPredicate( TruePredicate.INSTANCE, TruePredicate.INSTANCE,
+                                                            GraphUtils.DIRECTED_IN_MASK );
+
         for( Traverser t = traverser( ri, filter ); t.hasNext(); )
             {
             Object node = t.next();
             // See if we're the only attached node or not
-            if( inDegree( node ) > 1 )
+            if( degree( node, inFilter ) > 1 )
                 {
                 System.out.println( "Remove edge:" + t.getEdge() );
                 // Just remove the edge
@@ -201,7 +206,7 @@ public class ProjectGraph extends CompositeGraph
             return( false );
         }
 
-        public boolean hasPotentialNodes( NodeFilter filter )
+        public boolean hasPotentialNodes( Predicate filter )
         {
             // The error coordinator rejects the ResourceLocator filter
             // not because it can't handle it but because the other graphs
