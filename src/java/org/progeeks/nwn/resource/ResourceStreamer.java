@@ -99,6 +99,18 @@ public class ResourceStreamer implements Cloneable
             for( Iterator i = reader.getFiles().iterator(); i.hasNext(); )
                 {
                 KeyReader.FileEntry file = (KeyReader.FileEntry)i.next();
+
+                // Make sure the file name Bioware gives us is good for
+                // the current platform.  They encode \'s in the path which
+                // don't work everywhere.
+                String fileName = file.getFileName();
+                if( File.separatorChar != '\\' )
+                    {
+                    // Then we're on a more sane platform that doesn't use
+                    // escape characters for path delimiters.
+                    fileName = fileName.replaceAll( "\\\\", "/" );
+                    }
+
                 for( Iterator j = file.getKeyEntries().iterator(); j.hasNext(); )
                     {
                     KeyReader.KeyEntry key = (KeyReader.KeyEntry)j.next();
