@@ -117,4 +117,41 @@ public class FileTreeModel extends AbstractTreeModel
         return( true );
     }
 
+    protected void clearCache()
+    {
+        lastChildren = null;
+        lastParent = null;
+    }
+
+    protected void fireTreeNodesChanged( TreeModelEvent event )
+    {
+        // Clear the cache to be safe
+        clearCache();
+
+        super.fireTreeNodesChanged( event );
+    }
+
+    protected void fireTreeNodesInserted( TreeModelEvent event )
+    {
+        // Clear the cache to be safe
+        clearCache();
+
+        super.fireTreeNodesInserted( event );
+    }
+
+    protected void fireTreeNodesRemoved( TreeModelEvent event )
+    {
+        // Clear the cache to be safe
+        clearCache();
+
+        super.fireTreeNodesRemoved( event );
+    }
+
+    protected void fireTreeStructureChanged( TreeModelEvent event )
+    {
+        // Clear the cache to be safe
+        clearCache();
+
+        super.fireTreeStructureChanged( event );
+    }
 }
