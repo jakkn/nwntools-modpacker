@@ -143,6 +143,7 @@ public class GlobalContext extends DefaultViewContext
 
             xmlRenderer = new XmlRenderingEngine();
 
+            xmlRenderer.setDefaultIndent( "\t" );
             xmlRenderer.setFormatRegistry( factories.getFormatRegistry() );
             xmlRenderer.registerRenderer( graphClass, new GraphXmlRenderer() );
             xmlRenderer.importPackage( "org.progeeks.nwn.model" );
