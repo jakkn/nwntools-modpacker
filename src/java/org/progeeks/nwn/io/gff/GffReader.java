@@ -58,7 +58,7 @@ public class GffReader
         this.in = new BinaryDataInputStream(in);
 
         header = new Header( this.in );
-System.out.println( "Header:" + header );
+//System.out.println( "Header:" + header );
         List structStubs = readStubBlock( header.getStructs() );
         List fieldStubs = readStubBlock( header.getFields() );
 
@@ -177,12 +177,12 @@ System.out.println( "Header:" + header );
             }
 
         int dataOffset = header.getValues().getOffset();
-System.out.println( "Data offset:" + dataOffset );
+//System.out.println( "Data offset:" + dataOffset );
         for( Iterator i = fieldStubs.iterator(); i.hasNext(); )
             {
             Stub stub = (Stub)i.next();
             String name = (String)labels.get(stub.index);
-System.out.println( "Name:" + name + "  type:" + stub.type + "  index:" + stub.index + "  data:" + stub.data + "      offset:" + in.getFilePosition() );
+//System.out.println( "Name:" + name + "  type:" + stub.type + "  index:" + stub.index + "  data:" + stub.data + "      offset:" + in.getFilePosition() );
             Element el = null;
             int len;
             byte[] buff;
@@ -282,7 +282,7 @@ System.out.println( "Name:" + name + "  type:" + stub.type + "  index:" + stub.i
             Stub stub = (Stub)i.next();
             ArrayList list = new ArrayList();
 
-System.out.println( "  Stub DataOrDataOffset:" + stub.index + "   count:" + stub.data );
+//System.out.println( "  Stub DataOrDataOffset:" + stub.index + "   count:" + stub.data );
             if( stub.index < 0 )
                 {
                 // This seems a fairly normal way of defining an empty

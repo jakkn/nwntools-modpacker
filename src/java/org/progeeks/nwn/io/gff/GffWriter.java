@@ -104,7 +104,7 @@ public class GffWriter
     protected int addList( List values )
     {
         ListStub lastStub = (ListStub)getLastItem( listStubs );
-        ListStub stub = new ListStub( lastStub );
+        ListStub stub = new ListStub( values.size(), lastStub );
         listStubs.add( stub );
 
         for( Iterator i = values.iterator(); i.hasNext(); )
@@ -113,8 +113,6 @@ public class GffWriter
             stub.indices.add( new Integer( addStruct( s ) ) );
             }
 
-        // Because lists don't have dependent sub-lists or anything,
-        // then their offset is always accurate.
         return( stub.getOffset() );
     }
 
@@ -157,6 +155,10 @@ public class GffWriter
             {
             // The offset should be accurate here because we are the only
             // type of stub with an actual size... and we can't nest ourselves.
+            // This means that any previous stubs are either 0 in size or
+            // the same type as we are and therefore can accurately calculate
+            // their size.  This is not true for lists and structs which is why
+            // they take extra care.
             stub.data = stub.getOffset();
             stub.size = el.getSize();
             }
@@ -215,37 +217,37 @@ public class GffWriter
 
         // Structs
         int offset = headerSize;
-System.out.println( "Offset:" + offset + "   size:" + structStubs.size() + "  bytes:" + structSize );
+//System.out.println( "Offset:" + offset + "   size:" + structStubs.size() + "  bytes:" + structSize );
         out.writeInt( offset );
         out.writeInt( structStubs.size() );
         offset += structSize;
 
         // Fields
-System.out.println( "Offset:" + offset + "   size:" + elementStubs.size() + "  bytes:" + fieldSize );
+//System.out.println( "Offset:" + offset + "   size:" + elementStubs.size() + "  bytes:" + fieldSize );
         out.writeInt( offset );
         out.writeInt( elementStubs.size() );
         offset += fieldSize;
 
         // Labels
-System.out.println( "Offset:" + offset + "   size:" + labels.size() + "  bytes:" + labelSize );
+//System.out.println( "Offset:" + offset + "   size:" + labels.size() + "  bytes:" + labelSize );
         out.writeInt( offset );
         out.writeInt( labels.size() );
         offset += labelSize;
 
         // Field data
-System.out.println( "Offset:" + offset + "   size:" + dataBlockSize );
+//System.out.println( "Offset:" + offset + "   size:" + dataBlockSize );
         out.writeInt( offset );
         out.writeInt( dataBlockSize );
         offset += dataBlockSize;
 
         // Field index
-System.out.println( "Offset:" + offset + "   size:" + fieldIndexSize );
+//System.out.println( "Offset:" + offset + "   size:" + fieldIndexSize );
         out.writeInt( offset );
         out.writeInt( fieldIndexSize );
         offset += fieldIndexSize;
 
         // Lists
-System.out.println( "Offset:" + offset + "   size:" + listBlockSize );
+//System.out.println( "Offset:" + offset + "   size:" + listBlockSize );
         out.writeInt( offset );
         out.writeInt( listBlockSize );
     }
@@ -387,7 +389,6 @@ System.out.println( "Offset:" + offset + "   size:" + listBlockSize );
             if( stub.elementIndex.size() <= 1 )
                 continue;
 
-System.out.println( "Element count:" + stub.elementIndex.size() );
             for( Iterator j = stub.elementIndex.iterator(); j.hasNext(); )
                 {
                 Integer index = (Integer)j.next();
@@ -505,16 +506,23 @@ System.out.println( "Element count:" + stub.elementIndex.size() );
 
     private class ListStub extends Stub
     {
+        int indexSize = 0;
         List indices = new ArrayList();
 
-        public ListStub( Stub previous )
+        public ListStub( int indexSize, Stub previous )
         {
             super( previous );
+
+            // Set the index size up front since it is easy
+            // and means this stub can properly participate in
+            // offset calculations even though it doesn't have all
+            // of its list items yet.
+            this.indexSize = indexSize;
         }
 
         public int getSize()
         {
-            return( 4 + (indices.size() * 4) );
+            return( 4 + (indexSize * 4) );
         }
     }
 }
