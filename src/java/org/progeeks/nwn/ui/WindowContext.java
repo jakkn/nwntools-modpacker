@@ -177,6 +177,27 @@ public class WindowContext extends DefaultViewContext
     }
 
     /**
+     *  Returns true if it is safe to terminate this window.  If
+     *  fullCheck is false, then the user is only prompted if the
+     *  window context's data has not been saved.  Otherwise the window
+     *  context is closeable without question.
+     */
+    public boolean canTerminate( boolean fullCheck )
+    {
+        // Check for unsaved data
+
+        // otherwise
+        if( fullCheck )
+            {
+            Boolean b = getRequestHandler().requestConfirmation( "Close Window", "Close this window?",
+                                                             false );
+            return( b == Boolean.TRUE );
+            }
+
+        return( true );
+    }
+
+    /**
      *  Returns the observable list of selected objects.
      */
     public ObservableList getSelectedObjects()

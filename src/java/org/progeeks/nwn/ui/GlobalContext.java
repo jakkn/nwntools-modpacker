@@ -43,6 +43,7 @@ import org.progeeks.meta.format.*;
 import org.progeeks.meta.swing.*;
 import org.progeeks.meta.util.*;
 import org.progeeks.meta.xml.*;
+import org.progeeks.util.beans.*;
 import org.progeeks.util.xml.*;
 
 import org.progeeks.nwn.io.xml.*;
@@ -62,7 +63,7 @@ public class GlobalContext extends DefaultViewContext
 {
     public static final String PROP_WINDOWS = "windows";
 
-    private ObservableList windows = new ObservableList( new ArrayList() );
+    private ObservableList windows = new ObservableList( PROP_WINDOWS, new ArrayList() );
 
     private ResourceManager resourceMgr = new ResourceManager();
 
@@ -89,6 +90,10 @@ public class GlobalContext extends DefaultViewContext
     public GlobalContext()
     {
         setupMetaClasses();
+
+        // Register a listener to dispatch window list changes to
+        // reguler GlobalContext listeners.
+        windows.addPropertyChangeListener( new BeanChangeDelegate(this) );
     }
 
     public String getApplication()
@@ -290,10 +295,50 @@ public class GlobalContext extends DefaultViewContext
     }
 
     /**
-     *  Provides direct access to the observable window context list.
+     *  Returns a read-only list of the window contexts managed by this application.
      */
-    public ObservableList getWindowContexts()
+    public List getWindowContexts()
     {
-        return( windows );
+        return( Collections.unmodifiableList( windows ) );
+    }
+
+    /**
+     *  Adds a window context as a child of this application.
+     */
+    public void addWindowContext( WindowContext context )
+    {
+        windows.add( context );
+    }
+
+    /**
+     *  Removes a child window context.  The window context's canTerminate()
+     *  method is called before the context is removed.  This gives the
+     *  context a change to veto the close.
+     */
+    public boolean removeWindowContext( WindowContext context )
+    {
+        // Check to see if the context can be closed
+        if( !context.canTerminate(true) )
+            return( false );
+
+        return( windows.remove( context ) );
+    }
+
+    /**
+     *  Tries to close all child contexts.  Returns false if this was not
+     *  successful.
+     */
+    public boolean closeContext( boolean fullCheck )
+    {
+        for( Iterator i = windows.iterator(); i.hasNext(); )
+            {
+            WindowContext context = (WindowContext)i.next();
+            if( !context.canTerminate( fullCheck ) )
+                return( false );
+
+            i.remove();
+            }
+
+        return( true );
     }
 }

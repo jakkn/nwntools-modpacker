@@ -121,7 +121,7 @@ public class MainWindow extends JFrame
 
             // And it should just be a matter of adding it to the global
             // context's window context list.
-            appContext.getWindowContexts().add( winContext );
+            appContext.addWindowContext( winContext );
             }
         catch( Exception e )
             {

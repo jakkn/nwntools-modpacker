@@ -59,7 +59,7 @@ public class WindowManager
     public WindowManager( GlobalContext context )
     {
         this.context = context;
-        context.getWindowContexts().addPropertyChangeListener( contextListener );
+        context.addPropertyChangeListener( GlobalContext.PROP_WINDOWS, contextListener );
     }
 
     protected void windowAdded( WindowContext context )
@@ -80,8 +80,6 @@ public class WindowManager
             log.info( "Removing window for:" + context );
 
         MainWindow win = (MainWindow)windowMap.get( context );
-
-        // Should really confirm per-window
 
         windowMap.remove( context );
 
@@ -138,16 +136,16 @@ public class WindowManager
                 log.info( "Window closing:" + event.getSource() );
 
             MainWindow win = (MainWindow)event.getSource();
+            WindowContext ctx = win.getWindowContext();
 
             // If it's the last window, confirm
-            WindowContext ctx = win.getWindowContext();
-            Boolean b = ctx.getRequestHandler().requestConfirmation( "Exit Application",
+            /*Boolean b = ctx.getRequestHandler().requestConfirmation( "Exit Application",
                                                                      "Really exit?", true );
             if( b != Boolean.TRUE )
-                return;
+                return;*/
 
             // Clear the window's context from the context list
-            context.getWindowContexts().remove( ctx );
+            context.removeWindowContext( ctx );
         }
 
         public void windowClosed( WindowEvent event )
