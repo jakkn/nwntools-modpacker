@@ -339,7 +339,7 @@ public class MiniMapExporter
                 System.out.println( usage[i] );
             return;
             }
-        System.out.println( "--- Mini-map Exporter version 0.4 ---" );
+        System.out.println( "--- Mini-map Exporter version 0.5 ---" );
 
         MiniMapExporter exporter = new MiniMapExporter();
 
