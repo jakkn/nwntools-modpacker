@@ -72,14 +72,24 @@ public class GraphObjectHandler extends DefaultObjectHandler
      */
     public void setProperty( Object obj, String field, Object value, ObjectXmlReader reader )
     {
-System.out.println( "setProperty( " + obj + ", " + field + ", " + value + " )" );
         if( "nodes".equals( field ) )
             {
-System.out.println(" Nodes:" + value );
+            Graph graph = (Graph)obj;
+            List nodes = (List)value;
+            for( Iterator i = nodes.iterator(); i.hasNext(); )
+                {
+                graph.addNode( i.next() );
+                }
             }
         else if( "edges".equals( field ) )
             {
-System.out.println(" Edges:" + value );
+            Graph graph = (Graph)obj;
+            List edges = (List)value;
+            for( Iterator i = edges.iterator(); i.hasNext(); )
+                {
+                EdgeHolder edge = (EdgeHolder)i.next();
+                graph.addEdge( edge.getObject(), edge.getTail(), edge.getHead(), edge.isDirected() );
+                }
             }
         else
             {
@@ -133,7 +143,6 @@ System.out.println(" Edges:" + value );
      */
     public Object createObject( String tag, AttributeList atts, ObjectXmlReader reader )
     {
-System.out.println( "createObject(" + tag + ")" );
         if( !"edge".equals( tag ) )
             return( super.createObject( tag, atts, reader ) );
 

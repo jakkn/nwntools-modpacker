@@ -58,6 +58,13 @@ public class ResourceIndexHandler extends DefaultObjectHandler
         addHandledClass( ResourceIndex.class );
     }
 
+    protected boolean ignoreAttribute( String name, ObjectXmlReader reader )
+    {
+        if( "key".equals( name ) || "name".equals( name ) )
+            return( true );
+        return( super.ignoreAttribute( name, reader ) );
+    }
+
     /**
      *  Creates and returns an object based on the specified parameters.
      */

@@ -164,7 +164,7 @@ public class ResourceIndexFactory
         switch( key.getType() )
             {
             case ResourceTypes.TYPE_NSS:
-                ext = ".ncs";
+                ext = "ncs";
                 break;
             default:
                 ext = key.getTypeString().toLowerCase();

@@ -39,6 +39,7 @@ import javax.swing.AbstractAction;
 import org.progeeks.util.log.*;
 import org.progeeks.util.*;
 
+import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.ui.*;
 
 /**
@@ -71,7 +72,11 @@ public class OpenProjectAction extends AbstractAction
         System.out.println( "Open:" + projectFile );
         try
             {
-            context.getGlobalContext().loadProject( projectFile );
+            Project project = context.getGlobalContext().loadProject( projectFile );
+
+            // This is not the right way, but just for testing.
+            // Update the context with the new file tree
+            context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
             }
         catch( IOException e )
             {

@@ -203,7 +203,7 @@ public class GlobalContext extends DefaultViewContext
     /**
      *  Temporary method.
      */
-    public void loadProject( File f ) throws IOException
+    public Project loadProject( File f ) throws IOException
     {
         FileReader in = new FileReader( f );
 
@@ -211,6 +211,7 @@ public class GlobalContext extends DefaultViewContext
             {
             Object obj = xmlReader.readObject( in );
 System.out.println(" Obj:" + obj );
+            return( (Project)obj );
             }
         finally
             {

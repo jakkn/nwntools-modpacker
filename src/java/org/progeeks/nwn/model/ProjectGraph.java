@@ -51,9 +51,9 @@ public class ProjectGraph extends DefaultGraph
      */
     public static final String EDGE_FILE = "File";
 
-    private Object root;
+    private ProjectRoot root;
 
-    public ProjectGraph( Object root )
+    public ProjectGraph( ProjectRoot root )
     {
         setRoot( root );
     }
@@ -66,7 +66,7 @@ public class ProjectGraph extends DefaultGraph
      *  Sets the root if this graph.  This will throw an exception if
      *  the graph already has a root.
      */
-    public void setRoot( Object root )
+    public void setRoot( ProjectRoot root )
     {
         if( this.root != null )
             throw new RuntimeException( "Root is already set." );
@@ -77,7 +77,7 @@ public class ProjectGraph extends DefaultGraph
     /**
      *  Returns the current root of this graph.
      */
-    public Object getRoot()
+    public ProjectRoot getRoot()
     {
         return( root );
     }

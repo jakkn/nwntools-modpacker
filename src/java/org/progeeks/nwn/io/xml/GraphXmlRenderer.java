@@ -46,7 +46,7 @@ import com.phoenixst.plexus.*;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class GraphXmlRenderer implements XmlPropertyRenderer
+public class GraphXmlRenderer extends XmlMetaObjectRenderer
 {
     /**
      *  Returns true if the property value can be rendered
@@ -168,14 +168,22 @@ public class GraphXmlRenderer implements XmlPropertyRenderer
         // Unwrap it since MetaObjects don't provide all of the access
         // that we need
         MetaObject mValue = (MetaObject)value;
+        MetaClass  metaClass = mValue.getMetaClass();
         MetaKit metaKit = mValue.getMetaKit();
         value = metaKit.getInternalObject( mValue );
 
         if( !(value instanceof Graph) )
             throw new RuntimeException( "Value is not a graph:" + value );
 
+        Collection properties = getFields();
+        if( properties == null )
+            properties = metaClass.getPropertyNames();
+
         Graph graph = (Graph)value;
         out.pushTag( graph.getClass().getName() );
+
+        // Write out the attributes.
+        writeAttributes( mValue, properties, context );
 
         out.pushTag( "nodes" );
         // Render the nodes
@@ -194,6 +202,9 @@ public class GraphXmlRenderer implements XmlPropertyRenderer
             renderEdge( edge, graph, mValue.getMetaClass(), metaKit, context );
             }
         out.popTag();
+
+        // Render any of the other properties on the object
+        writeElements( mValue, properties, context );
 
         out.popTag();
     }
