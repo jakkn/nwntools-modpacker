@@ -125,15 +125,19 @@ public class GffToGff
             return;
             }
 
-        System.out.println( "Writing:" + f.getName() );
-
+        System.out.println( "Reading:" + name );
+try{
         // Process the GFF file using the GffReader
         GffReader reader = new GffReader( in );
+        System.out.println( "Writing:" + f.getName() );
         GffWriter out = new GffWriter( reader.getHeader().getType(),
                                        reader.getHeader().getVersion(),
                                        new FileOutputStream( f ) );
 
         out.writeStruct( reader.getRootStruct() );
+} catch( StackOverflowError e ) {
+    e.printStackTrace();
+}
     }
 
     public void processModFile( File f ) throws IOException

@@ -176,7 +176,7 @@ public class GffWriter
 
         i = structs.size();
         structs.add( struct );
-        StructStub stub = new StructStub( struct.getId(), lastStub );
+        StructStub stub = new StructStub( struct.getId(), struct.getValues().size(), lastStub );
         structStubs.add( stub );
 
         for( Iterator it = struct.values(); it.hasNext(); )
@@ -444,17 +444,18 @@ public class GffWriter
     private class Stub
     {
         Stub previous;
+        private int offset;
 
         public Stub( Stub previous )
         {
             this.previous = previous;
+            if( previous != null )
+                offset = previous.getEndOffset();
         }
 
         public int getOffset()
         {
-            if( previous == null )
-                return( 0 );
-            return( previous.getEndOffset() );
+            return( offset );
         }
 
         public int getSize()
@@ -472,22 +473,29 @@ public class GffWriter
     {
         // Offset in the field index data block
         int type;
+        int elementCount;
         List elementIndex = new ArrayList();
 
-        public StructStub( int type, Stub previous )
+        public StructStub( int type, int elementCount, Stub previous )
         {
             super( previous );
             this.type = type;
+
+            // Set the index size up front since it is easy
+            // and means this stub can properly participate in
+            // offset calculations even though it doesn't have all
+            // of its sub-items yet.
+            this.elementCount = elementCount;
         }
 
         public int getSize()
         {
             // In the case of only one element it's just stored
             // directly in the struct
-            if( elementIndex.size() <= 1 )
+            if( elementCount <= 1 )
                 return( 0 );
 
-            return( elementIndex.size() * 4 );
+            return( elementCount * 4 );
         }
     }
 
@@ -497,6 +505,7 @@ public class GffWriter
         // Size isn't used by all written stubs, but it is
         // used to keep the current offset in the top list item.
         int size = 0;
+        int offset = -1;
 
         int type;
         int labelIndex;
@@ -518,6 +527,7 @@ public class GffWriter
     private class ListStub extends Stub
     {
         int indexSize = 0;
+        int offset = -1;
         List indices = new ArrayList();
 
         public ListStub( int indexSize, Stub previous )
