@@ -56,6 +56,7 @@ public class WindowContext extends DefaultViewContext
     /**
      *  Constant associated with the application exit action.
      */
+    public static final String ACTION_IMPORT_MODULE = "Import Module";
     public static final String ACTION_EXIT = "Exit";
 
     /**
@@ -133,6 +134,7 @@ public class WindowContext extends DefaultViewContext
         ActionList file = addActionList( ACTIONS_FILE, new ActionList( "File" ) );
         rootActionList.add( file );
 
+        file.add( addAction( ACTION_IMPORT_MODULE, new ImportModuleAction( this ) ) );
         file.add( addAction( ACTION_EXIT, new ExitAction( this ) ) );
 
     }
@@ -149,4 +151,5 @@ public class WindowContext extends DefaultViewContext
         actionLists.put( key, list );
         return( list );
     }
+
 }

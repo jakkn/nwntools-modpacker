@@ -32,10 +32,12 @@
 
 package org.progeeks.nwn.ui;
 
+import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
 
 import org.progeeks.util.*;
+import org.progeeks.util.log.*;
 
 /**
  *  Manages the current window list by listening to the window
@@ -46,10 +48,13 @@ import org.progeeks.util.*;
  */
 public class WindowManager
 {
+    static Log log = Log.getLog( WindowManager.class );
+
     private GlobalContext context;
     private ContextListener contextListener = new ContextListener();
 
     private Map windowMap = new HashMap();
+    private WindowStateListener windowListener = new WindowStateListener();
 
     public WindowManager( GlobalContext context )
     {
@@ -59,14 +64,21 @@ public class WindowManager
 
     protected void windowAdded( WindowContext context )
     {
+        if( log.isInfoEnabled() )
+            log.info( "Adding window for:" + context );
+
         MainWindow win = new MainWindow( context );
         windowMap.put( context, win );
 
+        win.addWindowListener( windowListener );
         win.setVisible( true );
     }
 
     protected void windowRemoved( WindowContext context )
     {
+        if( log.isInfoEnabled() )
+            log.info( "Removing window for:" + context );
+
         MainWindow win = (MainWindow)windowMap.get( context );
 
         // Should really confirm per-window
@@ -74,6 +86,14 @@ public class WindowManager
         windowMap.remove( context );
 
         win.dispose();
+
+        // If it was the last window, then we need to exit
+        if( windowMap.size() == 0 )
+            {
+            log.info( "Exiting application." );
+            // Just to be safe.
+            System.exit( 0 );
+            }
     }
 
     private class ContextListener implements PropertyChangeListener
@@ -107,6 +127,37 @@ public class WindowManager
                         }
                     break;
                 }
+        }
+    }
+
+    private class WindowStateListener extends WindowAdapter
+    {
+        public void windowClosing( WindowEvent event )
+        {
+            if( log.isInfoEnabled() )
+                log.info( "Window closing:" + event.getSource() );
+
+            MainWindow win = (MainWindow)event.getSource();
+
+            // If it's the last window, confirm
+            WindowContext ctx = win.getWindowContext();
+            Boolean b = ctx.getRequestHandler().requestConfirmation( "Exit Application",
+                                                                     "Really exit?", true );
+            if( b != Boolean.TRUE )
+                return;
+
+            // Clear the window's context from the context list
+            context.getWindowContexts().remove( ctx );
+        }
+
+        public void windowClosed( WindowEvent event )
+        {
+            if( log.isInfoEnabled() )
+                log.info( "Window closed:" + event.getSource() );
+
+            // Remove it from our map
+            MainWindow win = (MainWindow)event.getSource();
+            windowMap.remove( win.getWindowContext() );
         }
     }
 }

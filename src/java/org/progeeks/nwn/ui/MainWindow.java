@@ -54,12 +54,19 @@ public class MainWindow extends JFrame
         this.context = context;
         context.setRequestHandler( new SwingRequestHandler( this ) );
 
+        setDefaultCloseOperation( DO_NOTHING_ON_CLOSE );
+
         // Get the root menu action list and create the menu bar.
         ActionList root = context.getRootActionList();
         JMenuBar bar = ActionUtils.createActionMenuBar( root );
         setJMenuBar( bar );
 
         setSize( 1024, 768 );
+    }
+
+    public WindowContext getWindowContext()
+    {
+        return( context );
     }
 
     public static void main( String[] args )
