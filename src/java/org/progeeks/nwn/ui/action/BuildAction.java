@@ -185,7 +185,6 @@ public class BuildAction extends AbstractAction
             // Compile the scripts first
             for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
                 {
-                pr.setProgress( index );
                 ResourceIndex ri = (ResourceIndex)i.next();
                 if( ri.getKey().getType() != ResourceTypes.TYPE_NSS )
                     continue;
@@ -196,6 +195,7 @@ public class BuildAction extends AbstractAction
                     continue;
                     }
 
+                pr.setProgress( index );
                 pr.setMessage( "Compiling:" + ri.getKey().getFileName() );
 
                 // Copy the new script into the build directory
@@ -229,7 +229,7 @@ public class BuildAction extends AbstractAction
 
             if( !hasCompiler )
                 {
-                log.error( "No compiler configured." );
+                throw new RuntimeException( "No compiler configured." );
                 }
         }
 
@@ -304,7 +304,7 @@ public class BuildAction extends AbstractAction
                                 + " resources." );
         }
 
-        public Result execute( Environment env )
+        public String build() throws IOException
         {
             graph = project.getProjectGraph();
             int nodeCount = graph.nodeSize();
@@ -328,10 +328,18 @@ public class BuildAction extends AbstractAction
                         checkStaleness( (ResourceIndex)obj );
                         }
                     }
+
+                if( pr.isCanceled() )
+                    throw new RuntimeException( "User canceled." );
                 }
             finally
                 {
                 pr.done();
+                }
+
+            if( staleResources.size() == 0 )
+                {
+                return( "All files are current." );
                 }
 
             // Convert the XML first
@@ -340,10 +348,8 @@ public class BuildAction extends AbstractAction
             try
                 {
                 convertGffResources( pr );
-                }
-            catch( IOException e )
-                {
-                log.error( "Error converting XML resources", e );
+                if( pr.isCanceled() )
+                    throw new RuntimeException( "User canceled." );
                 }
             finally
                 {
@@ -355,10 +361,8 @@ public class BuildAction extends AbstractAction
             try
                 {
                 copyResources( pr );
-                }
-            catch( IOException e )
-                {
-                log.error( "Error copying modified resources", e );
+                if( pr.isCanceled() )
+                    throw new RuntimeException( "User canceled." );
                 }
             finally
                 {
@@ -369,10 +373,8 @@ public class BuildAction extends AbstractAction
             try
                 {
                 compileScripts( pr, unpackedDir );
-                }
-            catch( IOException e )
-                {
-                log.error( "Error compiling scripts", e );
+                if( pr.isCanceled() )
+                    throw new RuntimeException( "User canceled." );
                 }
             finally
                 {
@@ -384,25 +386,38 @@ public class BuildAction extends AbstractAction
             try
                 {
                 packModule( buildDir, unpackedDir, pr );
-                }
-            catch( IOException e )
-                {
-                log.error( "Error packing module", e );
+                if( pr.isCanceled() )
+                    throw new RuntimeException( "User canceled." );
                 }
             finally
                 {
                 pr.done();
                 }
 
+            // Store a cached version of the project with all of the changes
+            // we just made above.
+            context.cacheProject();
+
+            return( "Module built successfully." );
+        }
+
+        public Result execute( Environment env )
+        {
+            UserRequestHandler reqHandler = context.getRequestHandler();
             try
                 {
-                // Store a cached version of the project with all of the changes
-                // we just made above.
-                context.cacheProject();
+                String msg = build();
+                reqHandler.requestShowMessage( msg );
+                }
+            catch( RuntimeException e )
+                {
+                log.error( "Erro building", e );
+                reqHandler.requestShowError( "Build Aborted", e.getMessage() );
                 }
             catch( IOException e )
                 {
-                log.error( "Error compiling scripts", e );
+                log.error( "Error building", e );
+                reqHandler.requestShowError( "Build Aborted", e.getMessage() );
                 }
 
             return( null );
