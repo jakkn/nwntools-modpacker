@@ -41,7 +41,11 @@ import org.progeeks.nwn.resource.*;
 
 /**
  *  NWN Area tileset reader.
- *  NOW a standard Java reader implementation.
+ *  NOT a standard Java reader implementation.
+ *
+ *  Note: currently this reader only reads the ImageMap2D settings
+ *  for each of the tiles.  More thorough SetReader functionality should be
+ *  created in the future.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
@@ -102,7 +106,7 @@ public class SetReader
         String line = null;
         while( (line = in.readLine()) != null )
             {
-            if( s.equals( line ) )
+            if( s.equals( line.trim() ) )
                 break;
             }
     }
