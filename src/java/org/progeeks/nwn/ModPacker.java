@@ -329,7 +329,7 @@ System.out.print( "Packed resource file:" + res.file + "   " + bytes + " bytes w
             return;
             }
 
-        System.out.println( "--- Module Packer version 0.1 alpha ---" );
+        System.out.println( "--- Module Packer version 0.2 ---" );
 
         long start = System.currentTimeMillis();
 

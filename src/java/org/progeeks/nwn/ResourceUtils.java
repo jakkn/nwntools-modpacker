@@ -130,6 +130,15 @@ public class ResourceUtils
     {
         Integer i = (Integer)extensionMap.get( extension );
         if( i == null )
+            {
+            // Check for encoded unknown extensions
+            if( extension.startsWith( "0x" ) )
+                {
+                i = Integer.valueOf( extension.substring( 2 ), 16 );
+                System.out.println( "Decoded extension:" + extension + " as type:" + i );
+                }
+            }
+        if( i == null )
             return( -1 );
         return( i.intValue() );
     }
@@ -285,6 +294,9 @@ public class ResourceUtils
             case 0x270F:
                 return( "KEY" );
             }
-        throw new RuntimeException( "Unknown file type:" + type + "  0x" + Integer.toHexString( type ) );
+        String ext = "0x" + Integer.toHexString( type );
+
+        System.out.println( "Warning: encountered unknown type:" + type + "  Using extension:" + ext );
+        return( ext );
     }
 }
