@@ -96,6 +96,8 @@ public class GffToXml
 
     public long saveStream( File f, InputStream in ) throws IOException
     {
+        System.out.println( "Writing:" + f.getName() );
+
         FileOutputStream fOut = new FileOutputStream(f);
         BufferedOutputStream out = new BufferedOutputStream( fOut, 65536 );
         try
@@ -147,6 +149,27 @@ public class GffToXml
             ListElement ll = (ListElement)el;
             writeElements( ll.getValue() );
             }
+        else if( el instanceof StringElement )
+            {
+            StringElement se = (StringElement)el;
+            String val = se.getValue();
+            // no attribute means no value
+            if( val != null )
+                {
+                if( val.indexOf( '\r' ) < 0 && val.indexOf( '\n' ) < 0 )
+                    {
+                    writer.printAttribute( "value", val );
+                    }
+                else
+                    {
+                    writer.pushTag( "value" );
+                    writer.startDataBlock();
+                    writer.print( val );
+                    writer.closeDataBlock();
+                    writer.popTag();
+                    }
+                }
+            }
         else
             {
             writer.printAttribute( "value", el.getStringValue() );
@@ -173,6 +196,8 @@ public class GffToXml
             saveStream( f, in );
             return;
             }
+
+        System.out.println( "Writing:" + f.getName() );
 
         // Process the GFF file using the GffReader
         GffReader reader = new GffReader( in );
@@ -216,7 +241,7 @@ public class GffToXml
                 int type = rIn.getResourceType();
                 name += "." + ResourceUtils.getExtensionForType(rIn.getResourceType()).toLowerCase();
 
-                System.out.println( "-------Resource:" + name + "    size:" + rIn.getBytesLeft() );
+                //System.out.println( "-------Resource:" + name + "    size:" + rIn.getBytesLeft() );
 
                 try
                     {
