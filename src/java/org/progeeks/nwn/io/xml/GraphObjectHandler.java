@@ -147,7 +147,22 @@ public class GraphObjectHandler extends DefaultObjectHandler
             return( super.createObject( tag, atts, reader ) );
 
         EdgeHolder edge = new EdgeHolder();
-        setObjectProperties( edge, atts, reader );
+
+        // We'll handle all edge properties ourselves since we
+        // know exactly what they are.
+        String tailId = atts.getValue( "tail" );
+        edge.tail = reader.getReferenceObject( tailId );
+
+        String headId = atts.getValue( "head" );
+        edge.head = reader.getReferenceObject( headId );
+
+        String directed = atts.getValue( "directed" );
+        if( directed != null )
+            setTextProperty( edge, "directed", directed, reader );
+
+        String userObject = atts.getValue( "object" );
+        if( userObject != null )
+            setTextProperty( edge, "object", userObject, reader );
 
         return( edge );
     }

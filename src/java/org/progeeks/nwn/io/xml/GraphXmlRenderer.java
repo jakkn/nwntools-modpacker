@@ -125,6 +125,14 @@ public class GraphXmlRenderer extends XmlMetaObjectRenderer
         out.pushTag( "edge" );
         out.printAttribute( "directed", String.valueOf( edge.isDirected() ) );
 
+        // Since we know the tail and head will have already been stored in
+        // the object cache... and since we know that the loader code is custom
+        // anyway, we can decrease our XML size by folding the IDs into attributes.
+        String oid = context.getObjectId( edge.getHead() );
+        out.printAttribute( "head", oid );
+        oid = context.getObjectId( edge.getTail() );
+        out.printAttribute( "tail", oid );
+
         Object uObj = edge.getUserObject();
         if( uObj != null )
             {
@@ -140,6 +148,7 @@ public class GraphXmlRenderer extends XmlMetaObjectRenderer
                 }
             }
 
+/*
         String oid;
         out.pushTag( "head" );
         // We cheat because we know that the node should already be in the cache
@@ -150,7 +159,7 @@ public class GraphXmlRenderer extends XmlMetaObjectRenderer
         out.pushTag( "tail" );
         oid = context.getObjectId( edge.getTail() );
         out.printAttribute( MetaXmlReader.REFERENCE_DIRECTIVE, oid );
-        out.popTag();
+        out.popTag();*/
 
         out.popTag();
     }
