@@ -87,7 +87,7 @@ public class GffUtils
             }
         finally
             {
-            out.close();
+            writer.close();
             }
     }
 
