@@ -40,6 +40,7 @@ import javax.swing.*;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
 import org.progeeks.meta.swing.*;
+import org.progeeks.meta.swing.wizard.*;
 import org.progeeks.util.*;
 import org.progeeks.util.log.*;
 
@@ -130,8 +131,12 @@ public class ImportModuleAction extends AbstractAction
 
             Project project = new Project();
             project.setName( name );
-            project.setTargetModuleName( name );
+            project.setTargetModuleName( module.getName() );
             project.setProjectDescription( description );
+
+            project.setBuildDirectory( new File( projectDirectory, "build" ) );
+            project.setWorkDirectory( new File( projectDirectory, "cache" ) );
+            project.setSourceDirectory( new File( projectDirectory, "source" ) );
 
             // Need to create wizard pages with the following configuration
             // Page 1:
@@ -165,6 +170,7 @@ public class ImportModuleAction extends AbstractAction
             // project configuration objects they added.
 
             MetaWizardDialog dlg = new MetaWizardDialog( null, "Import Module", true );
+            dlg.setSize( 700, 450 );
 
             MetaKit kit = BeanUtils.getMetaKit();
             MetaObject mProject = kit.wrapObject( project, kit.getMetaClassForObject( project ) );
@@ -174,9 +180,9 @@ public class ImportModuleAction extends AbstractAction
             d1 = d1.replaceAll( "@project@", name );
             d1 = d1.replaceAll( "@directory@", projectDirectory.getPath().replace( '\\', '/' ) );
 
-            MetaWizardDialog.PageConfiguration page;
+            PageConfiguration page;
             ImageIcon icon = new ImageIcon( getClass().getResource( "ImportModule.png" ) );
-            page = new MetaWizardDialog.PageConfiguration( null, d1, icon );
+            page = new PageConfiguration( null, d1, icon );
 
             dlg.addPage( page );
 
@@ -186,14 +192,26 @@ public class ImportModuleAction extends AbstractAction
             fields.add( "targetModuleName" );
             fields.add( "projectDescription" );
             //page = new MetaWizardDialog.PageConfiguration( "Project Information", (String)null, fields );
-            page = new MetaWizardDialog.PageConfiguration( "Project Information", icon, fields );
+            String d2 = StringUtils.readStringResource( getClass(), "ImportModule-info.html" );
+            page = new PageConfiguration( "Project Information", d2, fields );
 
-            dlg.addPage( page );
+            dlg.addPage( page, mProject );
 
-            dlg.setMetaObject( 1, mProject );
+            // Page three configuration
+            fields = new ArrayList();
+            fields.add( "buildDirectory" );
+            fields.add( "workDirectory" );
+            fields.add( "sourceDirectory" );
+            String d3 = StringUtils.readStringResource( getClass(), "ImportModule-dirs.html" );
+            d3 = d3.replaceAll( "@directory@", projectDirectory.getPath().replace( '\\', '/' ) );
+            page = new PageConfiguration( "Directories", d3, fields );
+            page.setPageEvaluator( new EndEvaluator() );
+            dlg.addPage( page, mProject );
 
             dlg.setLocationRelativeTo( null );
             dlg.show();
+
+            System.out.println( "Canceled:" + dlg.isCanceled() );
             }
         catch( IOException e )
             {
@@ -206,6 +224,15 @@ public class ImportModuleAction extends AbstractAction
             context.getRequestHandler().requestShowMessage( "Error importing module:\n" + e.getMessage() );
             }
 
+    }
+
+    private class EndEvaluator extends DefaultPageEvaluator
+    {
+        public int pageChanged( int buttonFlags, MetaObject object, PageConfiguration page )
+        {
+            buttonFlags |= MetaWizardDialog.BUTTON_FINISH;
+            return( buttonFlags );
+        }
     }
 }
 

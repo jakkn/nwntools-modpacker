@@ -83,6 +83,10 @@ public class GlobalContext extends DefaultViewContext
 
             List properties = BeanUtils.getBeanPropertyInfos( Project.class );
             MetaObjectUtils.replacePropertyType( properties, "projectDescription", new LongStringType() );
+            MetaObjectUtils.replacePropertyType( properties, "buildDirectory", new FileType( true, true ) );
+            MetaObjectUtils.replacePropertyType( properties, "workDirectory", new FileType( true, true ) );
+            MetaObjectUtils.replacePropertyType( properties, "sourceDirectory", new FileType( true, true ) );
+
             MetaClassRegistry.getRootRegistry().createMetaClass( Project.class.getName(), properties );
             }
         catch( IntrospectionException e )
