@@ -61,6 +61,31 @@ public class MiniMapExporter
     public static final String OPTION_DESTINATION = "-d";
     public static final String OPTION_SCALE = "-scale";
 
+    public static final String[] usage = new String[] {
+            "Usage: MiniMapExport <options> <area files>",
+            "",
+            "Where:",
+            "",
+            "<area files> are the extracted .are files that should be converted",
+            "             to PNG images.",
+            "",
+            "<options> are one of the following:",
+            "    -nwn <dir>     Specifies the main Neverwinter Nights install",
+            "                   directory where the .key files can be found.",
+            "                   Defaults to \\NeverwinterNights\\NWN",
+            "",
+            "    -d <dir>       Specifies the directory to which images will be",
+            "                   written.  Defaults to the current directory.",
+            "",
+            "    -scale <scale> Specifies a magnification factor for the generated",
+            "                   images.  Mini-map images can be pretty small so",
+            "                   it is often necessary to scale them up.",
+            "                   Scaling example option:",
+            "                       -scale 2.0",
+            "                   The above scale would double the mini-map image",
+            "                   sizes."
+        };
+
     private static ResourceManager resMgr = new ResourceManager();
 
     private File nwnDir;
@@ -198,6 +223,14 @@ public class MiniMapExporter
     public static void main( String[] args ) throws Exception
     {
         Log.initialize();
+
+        if( args.length == 0 )
+            {
+            for( int i = 0; i < usage.length; i++ )
+                System.out.println( usage[i] );
+            return;
+            }
+        System.out.println( "--- Mini-map Exporter version 0.1 ---" );
 
         MiniMapExporter exporter = new MiniMapExporter();
 
