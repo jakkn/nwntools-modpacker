@@ -215,6 +215,57 @@ public class ImportModuleAction extends AbstractAction
         return( currentParent );
     }
 
+    protected ResourceIndex createSource( ModReader.ResourceInputStream rIn, ResourceKey key, Project project,
+                                          FileIndex destination ) throws IOException
+    {
+        ResourceIndex ri = null;
+
+        // If it's a GFF file, the read it's struct
+        if( key.isGffType() )
+            {
+            ResourceLoader loader = context.getResourceManager().getLoader( key.getType() );
+            Struct struct = (Struct)loader.loadResource( key, rIn );
+            ri = ResourceIndexFactory.createResourceIndex( key, struct, destination,
+                                                           project.getModuleFilesDirectory() );
+
+            // Now write out the struct
+            File f = ri.getSource().getFile( project );
+            writeGffXml( f, struct, key );
+
+            // Go ahead and make the source and target times the same
+            File df = ri.getDestination().getFile( project );
+            df.setLastModified( f.lastModified() );
+
+            // Make sure the file indexes are up-to-date.
+            ri.getSource().updateLastModified( project );
+            ri.getDestination().updateLastModified( project );
+            }
+        else
+            {
+            try
+                {
+                // Just copy the file
+                ri = ResourceIndexFactory.createResourceIndex( key, destination,
+                                                               project.getModuleFilesDirectory() );
+
+                File f = ri.getSource().getFile( project );
+                saveStream( f, rIn );
+
+                // Go ahead and make the source and target times the same
+                File df = ri.getDestination().getFile( project );
+                df.setLastModified( f.lastModified() );
+
+                // Make sure the file indexes are up-to-date.
+                ri.getSource().updateLastModified( project );
+                ri.getDestination().updateLastModified( project );
+                }
+            finally
+                {
+                rIn.close();
+                }
+            }
+        return( ri );
+    }
 
     protected void convertResources( File moduleFile, Project project, List rules,
                                      ProgressReporter pr ) throws IOException
@@ -256,7 +307,67 @@ public class ImportModuleAction extends AbstractAction
 
                 ResourceKey key = new ResourceKey( name, type );
 
-                FileIndex destination = getPathForResource( rules, key, project.getSourceDirectory() );
+                FileIndex destination;
+                boolean   shouldHaveParent = false;
+                Object    parentNode = null;
+                List      children = null;
+
+                // Certain file types piggy-back on other resources
+                switch( type )
+                    {
+                    case ResourceTypes.TYPE_GIC: // area comments
+                    case ResourceTypes.TYPE_GIT: // area items
+                        // These get attached to the are resource and
+                        // inherit its directory.
+                        ResourceKey parent = new ResourceKey( name, ResourceTypes.TYPE_ARE );
+                        destination = getPathForResource( rules, parent, project.getSourceDirectory() );
+
+                        parentNode = graph.getResourceIndex( parent );
+
+                        if( parentNode == null )
+                            log.warn( "Resource has no parent:" + name );
+
+                        shouldHaveParent = true;
+                        break;
+
+                    case ResourceTypes.TYPE_ARE:
+                        // We do an extra check here just in case the GIC or GIT
+                        // resources were added before us
+                        ResourceKey k = new ResourceKey( name, ResourceTypes.TYPE_GIC );
+                        ResourceIndex temp = graph.getResourceIndex( k );
+                        if( temp != null )
+                            {
+                            children = new ArrayList();
+                            // Need to connect this one to it
+                            children.add( temp );
+                            }
+                        k = new ResourceKey( name, ResourceTypes.TYPE_GIT );
+                        temp = graph.getResourceIndex( k );
+                        if( temp != null )
+                            {
+                            if( children == null )
+                                children = new ArrayList();
+
+                            // Need to connect this one to it
+                            children.add( temp );
+                            }
+                        destination = getPathForResource( rules, key, project.getSourceDirectory() );
+                        break;
+
+                    case ResourceTypes.TYPE_IFO: // module info file
+                    case ResourceTypes.TYPE_ITP: // palette files
+                    case ResourceTypes.TYPE_FAC: // factions
+                    case ResourceTypes.TYPE_JRL: // journal
+                        parentNode = graph.getRoot();
+                        destination = getPathForResource( rules, key, project.getSourceDirectory() );
+                        shouldHaveParent = true;
+                        break;
+
+                    default:
+                        destination = getPathForResource( rules, key, project.getSourceDirectory() );
+                        break;
+                    }
+
                 if( destination == null )
                     {
                     // Skipping it because it doesn't convert or copy to a source
@@ -269,60 +380,30 @@ public class ImportModuleAction extends AbstractAction
                 if( !path.exists() )
                     path.mkdirs();
 
-                ResourceIndex ri = null;
-
-                // If it's a GFF file, the read it's struct
-                if( key.isGffType() )
-                    {
-                    ResourceLoader loader = context.getResourceManager().getLoader( key.getType() );
-                    Struct struct = (Struct)loader.loadResource( key, rIn );
-                    ri = ResourceIndexFactory.createResourceIndex( key, struct, destination,
-                                                                   project.getModuleFilesDirectory() );
-
-                    // Now write out the struct
-                    File f = ri.getSource().getFile( project );
-                    pr.setMessage( "Storing: " + f.getName() );
-                    writeGffXml( f, struct, key );
-
-                    // Go ahead and make the source and target times the same
-                    File df = ri.getDestination().getFile( project );
-                    df.setLastModified( f.lastModified() );
-
-                    // Make sure the file indexes are up-to-date.
-                    ri.getSource().updateLastModified( project );
-                    ri.getDestination().updateLastModified( project );
-                    }
-                else
-                    {
-                    try
-                        {
-                        // Just copy the file
-                        ri = ResourceIndexFactory.createResourceIndex( key, destination,
-                                                                       project.getModuleFilesDirectory() );
-
-                        File f = ri.getSource().getFile( project );
-                        pr.setMessage( "Storing: " + f.getName() );
-                        saveStream( f, rIn );
-
-                        // Go ahead and make the source and target times the same
-                        File df = ri.getDestination().getFile( project );
-                        df.setLastModified( f.lastModified() );
-
-                        // Make sure the file indexes are up-to-date.
-                        ri.getSource().updateLastModified( project );
-                        ri.getDestination().updateLastModified( project );
-                        }
-                    finally
-                        {
-                        rIn.close();
-                        }
-                    }
+                pr.setMessage( "Sourcing: " + key.getName() );
+                ResourceIndex ri = createSource( rIn, key, project, destination );
 
                 // Now that we have a fully built out ResourceIndex,
                 // add it to the graph
-                graph.addDirectory( destination );
                 graph.addNode( ri );
-                graph.addEdge( ProjectGraph.EDGE_FILE, destination, ri, true );
+                if( shouldHaveParent )
+                    {
+                    if( parentNode != null )
+                        graph.addEdge( ProjectGraph.EDGE_AGGREGATE, parentNode, ri, true );
+                    }
+                else
+                    {
+                    graph.addDirectory( destination );
+                    graph.addEdge( ProjectGraph.EDGE_FILE, destination, ri, true );
+                    }
+
+                if( children != null )
+                    {
+                    for( Iterator i = children.iterator(); i.hasNext(); )
+                        {
+                        graph.addEdge( ProjectGraph.EDGE_AGGREGATE, ri, i.next(), true );
+                        }
+                    }
                 }
             }
         finally

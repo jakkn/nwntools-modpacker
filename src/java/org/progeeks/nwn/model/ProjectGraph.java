@@ -54,6 +54,12 @@ public class ProjectGraph extends DefaultGraph
      */
     public static final String EDGE_FILE = "File";
 
+    /**
+     *  Shows that two nodes have a linking relatonship such that
+     *  the linked objects represent one larger object.
+     */
+    public static final String EDGE_AGGREGATE = "Agg";
+
     private ProjectRoot root;
 
     private HashMap nodeCache = new HashMap();

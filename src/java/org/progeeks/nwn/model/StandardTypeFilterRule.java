@@ -89,14 +89,19 @@ public class StandardTypeFilterRule implements MappingRule
             case ResourceTypes.TYPE_UTD:
                 subDir = "Blueprints/Doors";
                 break;
-
-            // Ignored types
-            case ResourceTypes.TYPE_NCS: // compiled script files
-            case ResourceTypes.TYPE_NDB: // debug files
             case ResourceTypes.TYPE_IFO: // module info file
             case ResourceTypes.TYPE_ITP: // palette files
             case ResourceTypes.TYPE_FAC: // factions
             case ResourceTypes.TYPE_JRL: // journal
+                // Let these go into the sources directory for
+                // now.  Eventually we'll roll them together or
+                // something but at least now they'll get copied
+                // over.
+                break;
+
+            // Ignored types
+            case ResourceTypes.TYPE_NCS: // compiled script files
+            case ResourceTypes.TYPE_NDB: // debug files
                 return( null );
 
             default:
