@@ -1,0 +1,3 @@
+# ANT generated file, do not hand-edit.
+# Set the classpath to the standard elements.
+export CLASSPATH='@build.classpath@'

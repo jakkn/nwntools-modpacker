@@ -1,0 +1,4 @@
+rem ANT generated file, do not hand-edit.
+rem Set the classpath to the standard elements.
+set CLASSPATH=@build.classpath@
+
