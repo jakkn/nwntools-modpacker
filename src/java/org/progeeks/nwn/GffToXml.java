@@ -84,13 +84,14 @@ public class GffToXml
             }
 
         FileInputStream fIn = new FileInputStream( f );
+        BufferedInputStream bIn = new BufferedInputStream( fIn, 65536 );
         try
             {
-            writeFile( f.getName(), fIn, type );
+            writeFile( f.getName(), bIn, type );
             }
         finally
             {
-            fIn.close();
+            bIn.close();
             }
     }
 
@@ -132,9 +133,11 @@ public class GffToXml
 
         // Process the GFF file using the GffReader
         GffReader reader = new GffReader( in );
+        FileWriter fOut = new FileWriter( f );
+        BufferedWriter bOut = new BufferedWriter( fOut, 65536 );
         GffXmlWriter out = new GffXmlWriter( name, reader.getHeader().getType(),
                                              reader.getHeader().getVersion(),
-                                             new FileWriter( f ) );
+                                             bOut );
         try
             {
             out.writeStruct( reader.getRootStruct() );

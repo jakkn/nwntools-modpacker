@@ -81,13 +81,14 @@ public class GffToGff
             }
 
         FileInputStream fIn = new FileInputStream( f );
+        BufferedInputStream bIn = new BufferedInputStream( fIn, 65536 );
         try
             {
-            writeFile( f.getName(), fIn, type );
+            writeFile( f.getName(), bIn, type );
             }
         finally
             {
-            fIn.close();
+            bIn.close();
             }
     }
 
@@ -126,18 +127,17 @@ public class GffToGff
             }
 
         System.out.println( "Reading:" + name );
-try{
+
         // Process the GFF file using the GffReader
         GffReader reader = new GffReader( in );
         System.out.println( "Writing:" + f.getName() );
+        FileOutputStream fOut = new FileOutputStream( f );
+        BufferedOutputStream bOut = new BufferedOutputStream( fOut, 65536 );
         GffWriter out = new GffWriter( reader.getHeader().getType(),
                                        reader.getHeader().getVersion(),
-                                       new FileOutputStream( f ) );
+                                       bOut );
 
         out.writeStruct( reader.getRootStruct() );
-} catch( StackOverflowError e ) {
-    e.printStackTrace();
-}
     }
 
     public void processModFile( File f ) throws IOException
