@@ -254,6 +254,11 @@ public class MiniMapExporter
                     exporter.scale = Double.parseDouble( args[i + 1] );
                     i++;
                     }
+                else
+                    {
+                    System.out.println( "Error: Don't know how to handle arg:" + arg );
+                    System.out.println( "...ignoring." );
+                    }
                 }
             else if( arg.toLowerCase().endsWith( ".are" ) )
                 {
@@ -264,6 +269,12 @@ public class MiniMapExporter
                 System.out.println( "Error: Don't know how to handle arg:" + arg );
                 System.out.println( "...ignoring." );
                 }
+            }
+
+        if( exporter.areaFiles.size() == 0 )
+            {
+            System.out.println( "No files to export." );
+            return;
             }
 
         exporter.export();
