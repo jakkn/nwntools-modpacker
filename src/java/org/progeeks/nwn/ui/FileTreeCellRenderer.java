@@ -109,13 +109,15 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
     {
         Icon icon = null;
 
+        ResourceIndex ri = null;
+
         if( value instanceof FileIndex )
             {
             value = ((FileIndex)value).getName();
             }
         else if( value instanceof ResourceIndex )
             {
-            ResourceIndex ri = (ResourceIndex)value;
+            ri = (ResourceIndex)value;
             icon = getIcon( ri.getKey().getType() );
             if( icon != null )
                 {
@@ -134,6 +136,9 @@ public class FileTreeCellRenderer extends DefaultTreeCellRenderer
 //System.out.println( "retVal:" + retVal );
         if( icon != null )
             setIcon( icon );
+
+        if( ri != null && ri.isSourceNewer() )
+            setForeground( java.awt.Color.red );
 
         return( retVal );
     }

@@ -32,6 +32,8 @@
 
 package org.progeeks.nwn.model;
 
+import java.io.File;
+
 import org.progeeks.nwn.resource.ResourceKey;
 
 /**
@@ -130,6 +132,37 @@ public class ResourceIndex implements Comparable
     public FileIndex getDestination()
     {
         return( destination );
+    }
+
+    /**
+     *  Checks to see if the file on disk has changed since our
+     *  last cached time.
+     */
+    public boolean isSourceStale( Project project )
+    {
+        File f = source.getFile( project );
+        if( f.lastModified() > source.getLastModified() )
+            return( true );
+        return( false );
+    }
+
+    /**
+     *  Retrieves the source file's last modified time and recaches
+     *  it.  After this call, isSourceStale() should return false.
+     *  This method returns true if the value was updated.
+     */
+    public boolean makeSourceCurrent( Project project )
+    {
+        return( source.updateLastModified( project ) );
+    }
+
+    /**
+     *  Returns true if the source file is newer than the destination
+     *  file.
+     */
+    public boolean isSourceNewer()
+    {
+        return( source.getLastModified() > destination.getLastModified() );
     }
 
     public boolean equals( Object obj )

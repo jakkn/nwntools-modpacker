@@ -135,9 +135,11 @@ public class FileIndex implements Comparable
      *  Updates the cached last modified time by synching it with the
      *  physical file.
      */
-    public void updateLastModified( Project project )
+    public boolean updateLastModified( Project project )
     {
+        long old = lastModified;
         lastModified = getFile( project ).lastModified();
+        return( lastModified > old );
     }
 
     /**
