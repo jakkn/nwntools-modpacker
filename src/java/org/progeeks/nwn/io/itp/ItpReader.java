@@ -312,7 +312,15 @@ public class ItpReader
             BufferedInputStream bIn = new BufferedInputStream( fIn, 16384 );
             try
                 {
+                System.out.println( args[i] );
                 ItpReader reader = new ItpReader( bIn );
+                for( Iterator it = reader.getRootElements().iterator(); it.hasNext(); )
+                    {
+                    Element e = (Element)it.next();
+                    reader.printEntity( e, "    " );
+                    }
+
+                //System.out.println( reader.getRootElements() );
                 }
             finally
                 {
