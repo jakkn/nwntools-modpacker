@@ -50,10 +50,12 @@ public class Project
     private FileIndex buildDirectory;
     private FileIndex workDirectory;
     private FileIndex sourceDirectory;
-    private ProjectGraph graph = new ProjectGraph( this );
+    private ProjectGraph graph;
+    private ProjectRoot root;
 
     public Project()
     {
+        root = new ProjectRoot();
     }
 
     /**
@@ -63,6 +65,7 @@ public class Project
     public void setName( String name )
     {
         this.name = name;
+        root.setName( name );
     }
 
     /**
@@ -74,10 +77,23 @@ public class Project
     }
 
     /**
+     *  Sets this project's project graph.  This will throw
+     *  an exception if a graph has already been set.
+     */
+    public void setProjectGraph( ProjectGraph graph )
+    {
+        if( this.graph != null )
+            throw new RuntimeException( "The project graph can only be set once." );
+        this.graph = graph;
+    }
+
+    /**
      *  Returns the resource graph for this project.
      */
     public ProjectGraph getProjectGraph()
     {
+        if( graph == null )
+            graph = new ProjectGraph( root );
         return( graph );
     }
 

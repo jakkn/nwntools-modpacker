@@ -91,14 +91,29 @@ public class ResourceIndex implements Comparable
         return( name );
     }
 
+    public void setKey( ResourceKey key )
+    {
+        this.key = key;
+    }
+
     public ResourceKey getKey()
     {
         return( key );
     }
 
+    public void setSource( FileIndex source )
+    {
+        this.source = source;
+    }
+
     public FileIndex getSource()
     {
         return( source );
+    }
+
+    public void setDestination( FileIndex destination )
+    {
+        this.destination = destination;
     }
 
     public FileIndex getDestination()

@@ -43,6 +43,7 @@ import org.progeeks.meta.swing.*;
 import org.progeeks.meta.util.*;
 import org.progeeks.meta.xml.*;
 
+import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
 import org.progeeks.util.*;
@@ -119,8 +120,13 @@ public class GlobalContext extends DefaultViewContext
             MetaClassRegistry.getRootRegistry().createMetaClass( Project.class.getName(), properties );
 
             MetaClass fiClass = BeanUtils.createBeanMetaClass( FileIndex.class );
+            MetaClass graphClass = BeanUtils.createBeanMetaClass( ProjectGraph.class );
+            MetaClass riClass = BeanUtils.createBeanMetaClass( ResourceIndex.class );
+            BeanUtils.createBeanMetaClass( ProjectRoot.class );
 
             xmlRenderer = new XmlRenderingEngine();
+
+            xmlRenderer.registerRenderer( graphClass, new GraphXmlRenderer() );
 
             // Register a custom editor for the FileIndex.
             // Right now, we don't use a correct one, but this keeps the

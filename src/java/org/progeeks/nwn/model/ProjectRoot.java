@@ -32,24 +32,39 @@
 
 package org.progeeks.nwn.model;
 
-import com.phoenixst.plexus.*;
 
 /**
- *  A RootTreeView of the project graph showing the resource
- *  relationships.
+ *  Special place-holder class that represents a root node
+ *  in the graph.  We may add more attributes to this later.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class FileTreeView extends DefaultRootedTreeView
+public class ProjectRoot
 {
-    public FileTreeView( ProjectGraph graph )
+    private String name;
+
+    public ProjectRoot( String name )
     {
-        super( graph, graph.getRoot(),
-               new DefaultTraverserFilter( GraphUtils.TRUE, ProjectGraph.EDGE_FILE,
-                                           GraphUtils.DIRECTED_IN_MASK ),
-               new DefaultTraverserFilter( GraphUtils.TRUE, ProjectGraph.EDGE_FILE,
-                                           GraphUtils.DIRECTED_OUT_MASK ) );
+        setName( name );
     }
 
+    public ProjectRoot()
+    {
+    }
+
+    public void setName( String name )
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return( name );
+    }
+
+    public String toString()
+    {
+        return( name );
+    }
 }

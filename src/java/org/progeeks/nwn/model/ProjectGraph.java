@@ -51,23 +51,35 @@ public class ProjectGraph extends DefaultGraph
      */
     public static final String EDGE_FILE = "File";
 
-    private Project project;
+    private Object root;
 
-    public ProjectGraph( Project project )
+    public ProjectGraph( Object root )
     {
-        // The project is the central node of the graph
-        // from which all other paths eventually link.  It's
-        // just convenient that way.
-        this.project = project;
-        addNode( project );
+        setRoot( root );
+    }
+
+    public ProjectGraph()
+    {
     }
 
     /**
-     *  Returns the project for which this graph holds the resources.
+     *  Sets the root if this graph.  This will throw an exception if
+     *  the graph already has a root.
      */
-    public Project getProject()
+    public void setRoot( Object root )
     {
-        return( project );
+        if( this.root != null )
+            throw new RuntimeException( "Root is already set." );
+        this.root = root;
+        addNode( root );
+    }
+
+    /**
+     *  Returns the current root of this graph.
+     */
+    public Object getRoot()
+    {
+        return( root );
     }
 
     /**
@@ -81,7 +93,7 @@ public class ProjectGraph extends DefaultGraph
         // We go ahead and use recursion because it's just so easy
         Object p = directory.getParent();
         if( p == null )
-            p = project;
+            p = root;
         else
             addDirectory( (FileIndex)p );
 

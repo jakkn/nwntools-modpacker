@@ -111,13 +111,9 @@ public class FileTreeModel extends AbstractTreeModel
 
         // Quick and dirty optimization since currently
         // we know what is being stored inside of us.
-        if( node instanceof FileIndex )
-            return( false );
-        else if( node instanceof Project )
-            return( false );
-
-        // Only files contain other things right now
-        return( true );
+        if( node instanceof ResourceIndex )
+            return( true );
+        return( false );
     }
 
     protected void clearCache()
