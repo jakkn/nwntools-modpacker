@@ -136,6 +136,7 @@ public class ScriptModifier
         // first include or declaration.
         int insertIndex = -1;
         int index = 0;
+        boolean isRunnable = false;
         for( Iterator i = blocks.iterator(); i.hasNext(); index++ )
             {
             ScriptBlock block = (ScriptBlock)i.next();
@@ -146,9 +147,15 @@ public class ScriptModifier
                 case ScriptBlock.WHITESPACE:
                     break;
                 case ScriptBlock.INCLUDE:
+                    if( insertIndex < 0 )
+                        insertIndex = index;
+                    break;
                 case ScriptBlock.DECLARATION:
                     if( insertIndex < 0 )
                         insertIndex = index;
+                    DeclarationBlock db = (DeclarationBlock)block;
+                    if( "main".equals( db.getName() ) || "StartingConditional".equals( db.getName() ) )
+                        isRunnable = true;
                     break;
                 case ScriptBlock.CONSTANT:
                     if( insertIndex < 0 )
@@ -165,6 +172,12 @@ public class ScriptModifier
                         }
                     break;
                 }
+            }
+
+        if( !isRunnable )
+            {
+            // We don't insert constants in include files.
+            return;
             }
 
         // Now, go through the constants map adding any
