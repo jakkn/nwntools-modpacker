@@ -109,6 +109,9 @@ public class ResourceStreamer implements Cloneable
                     // Then we're on a more sane platform that doesn't use
                     // escape characters for path delimiters.
                     fileName = fileName.replaceAll( "\\\\", "/" );
+
+                    if( log.isDebugEnabled() )
+                        log.debug( "Converted embedded path:" + file.getFileName() + " to:" + fileName );
                     }
 
                 for( Iterator j = file.getKeyEntries().iterator(); j.hasNext(); )
