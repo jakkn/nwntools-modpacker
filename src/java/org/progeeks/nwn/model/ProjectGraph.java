@@ -64,7 +64,7 @@ public class ProjectGraph extends DefaultEnhancedGraph
     public static final String EDGE_AGGREGATE = "Agg";
 
     /**
-     *  Edge indicating an attached error or some kind.
+     *  Edge indicating an attached error of some kind.
      */
     public static final String EDGE_ERROR = "Error";
 

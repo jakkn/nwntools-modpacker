@@ -32,6 +32,7 @@
 
 package org.progeeks.nwn.model;
 
+import org.progeeks.util.ErrorInfo;
 
 /**
  *  Specialization of ErrorInfo containing script compile error
@@ -44,10 +45,6 @@ public class CompileError extends ErrorInfo
 {
     private String scriptName;
     private int line;
-
-    public CompileError()
-    {
-    }
 
     public CompileError( String message, String scriptName, int line )
     {
