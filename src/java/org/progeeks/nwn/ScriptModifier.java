@@ -206,6 +206,32 @@ public class ScriptModifier
             }
     }
 
+    /**
+     *  Goes through all of the blocks, searching and replacing
+     *  the standard variable references.
+     */
+    protected void replaceVariables( File f, List blocks )
+    {
+        String scriptFile = f.getName();
+        String scriptName = scriptFile;
+        int split = scriptFile.lastIndexOf( '.' );
+        if( split > 0 )
+            {
+            scriptName = scriptFile.substring( 0, split );
+            }
+
+        for( Iterator i = blocks.iterator(); i.hasNext(); )
+            {
+            ScriptBlock block = (ScriptBlock)i.next();
+            String text = block.getBlockText().toString();
+            String processed = text.replaceAll( "\\$\\{script_name\\}", scriptName );
+            processed = processed.replaceAll( "\\$\\{script_file\\}", scriptFile );
+            if( text.equals( processed ) )
+                continue;
+            block.setBlockText( new StringBuffer(processed) );
+            }
+    }
+
     public void processScript( File scriptFile ) throws IOException
     {
         System.out.println( "Processing:" + scriptFile );
@@ -215,6 +241,7 @@ public class ScriptModifier
         setConstants( blocks );
 
         // Perform any processing
+        replaceVariables( scriptFile, blocks );
 
         // Write it back out
         writeScript( scriptFile, blocks );
