@@ -43,6 +43,80 @@ import java.util.*;
  */
 public class ResourceUtils
 {
+    public static final int RES_RES = 0x0000;
+    public static final int RES_BMP = 0x0001;
+    public static final int RES_MVE = 0x0002;
+    public static final int RES_TGA = 0x0003;
+    public static final int RES_WAV = 0x0004;
+    public static final int RES_PLT = 0x0006;
+    public static final int RES_INI = 0x0007;
+    public static final int RES_BMU = 0x0008;
+    public static final int RES_MPG = 0x0009;
+    public static final int RES_TXT = 0x000A;
+    public static final int RES_PLH = 0x07D0;
+    public static final int RES_TEX = 0x07D1;
+    public static final int RES_MDL = 0x07D2;
+    public static final int RES_THG = 0x07D3;
+    public static final int RES_FNT = 0x07D5;
+    public static final int RES_LUA = 0x07D7;
+    public static final int RES_SLT = 0x07D8;
+    public static final int RES_NSS = 0x07D9;
+    public static final int RES_NCS = 0x07DA;
+    public static final int RES_MOD = 0x07DB;
+    public static final int RES_ARE = 0x07DC;
+    public static final int RES_SET = 0x07DD;
+    public static final int RES_IFO = 0x07DE;
+    public static final int RES_BIC = 0x07DF;
+    public static final int RES_WOK = 0x07E0;
+    public static final int RES_2DA = 0x07E1;
+    public static final int RES_TLK = 0x07E2;
+    public static final int RES_TXI = 0x07E6;
+    public static final int RES_GIT = 0x07E7;
+    public static final int RES_BTI = 0x07E8;
+    public static final int RES_UTI = 0x07E9;
+    public static final int RES_BTC = 0x07EA;
+    public static final int RES_UTC = 0x07EB;
+    public static final int RES_DLG = 0x07ED;
+    public static final int RES_ITP = 0x07EE;
+    public static final int RES_BTT = 0x07EF;
+    public static final int RES_UTT = 0x07F0;
+    public static final int RES_DDS = 0x07F1;
+    public static final int RES_UTS = 0x07F3;
+    public static final int RES_LTR = 0x07F4;
+    public static final int RES_GFF = 0x07F5;
+    public static final int RES_FAC = 0x07F6;
+    public static final int RES_BTE = 0x07F7;
+    public static final int RES_UTE = 0x07F8;
+    public static final int RES_BTD = 0x07F9;
+    public static final int RES_UTD = 0x07FA;
+    public static final int RES_BTP = 0x07FB;
+    public static final int RES_UTP = 0x07FC;
+    public static final int RES_DTF = 0x07FD;
+    public static final int RES_GIC = 0x07FE;
+    public static final int RES_GUI = 0x07FF;
+    public static final int RES_CSS = 0x0800;
+    public static final int RES_CCS = 0x0801;
+    public static final int RES_BTM = 0x0802;
+    public static final int RES_UTM = 0x0803;
+    public static final int RES_DWK = 0x0804;
+    public static final int RES_PWK = 0x0805;
+    public static final int RES_BTG = 0x0806;
+    public static final int RES_UTG = 0x0807;
+    public static final int RES_JRL = 0x0808;
+    public static final int RES_SAV = 0x0809;
+    public static final int RES_UTW = 0x080A;
+    public static final int RES_4PC = 0x080B;
+    public static final int RES_SSF = 0x080C;
+    public static final int RES_HAK = 0x080D;
+    public static final int RES_NWM = 0x080E;
+    public static final int RES_BIK = 0x080F;
+    public static final int RES_NDB = 0x0810;
+    public static final int RES_PTM = 0x0811;
+    public static final int RES_PTT = 0x0812;
+    public static final int RES_ERF = 0x270D;
+    public static final int RES_BIF = 0x270E;
+    public static final int RES_KEY = 0x270F;
+
     /**
      *  Maps file extensions to the appropriate resource type code.
      */
@@ -147,151 +221,151 @@ public class ResourceUtils
     {
         switch( type )
             {
-            case 0x0000:
+            case RES_RES:
                 return( "RES" );
-            case 0x0001:
+            case RES_BMP:
                 return( "BMP" );
-            case 0x0002:
+            case RES_MVE:
                 return( "MVE" );
-            case 0x0003:
+            case RES_TGA:
                 return( "TGA" );
-            case 0x0004:
+            case RES_WAV:
                 return( "WAV" );
-            case 0x0006:
+            case RES_PLT:
                 return( "PLT" );
-            case 0x0007:
+            case RES_INI:
                 return( "INI" );
-            case 0x0008:
+            case RES_BMU:
                 return( "BMU" );
-            case 0x0009:
+            case RES_MPG:
                 return( "MPG" );
-            case 0x000A:
+            case RES_TXT:
                 return( "TXT" );
-            case 0x07D0:
+            case RES_PLH:
                 return( "PLH" );
-            case 0x07D1:
+            case RES_TEX:
                 return( "TEX" );
-            case 0x07D2:
+            case RES_MDL:
                 return( "MDL" );
-            case 0x07D3:
+            case RES_THG:
                 return( "THG" );
-            case 0x07D5:
+            case RES_FNT:
                 return( "FNT" );
-            case 0x07D7:
+            case RES_LUA:
                 return( "LUA" );
-            case 0x07D8:
+            case RES_SLT:
                 return( "SLT" );
-            case 0x07D9:
+            case RES_NSS:
                 return( "NSS" );
-            case 0x07DA:
+            case RES_NCS:
                 return( "NCS" );
-            case 0x07DB:
+            case RES_MOD:
                 return( "MOD" );
-            case 0x07DC:
+            case RES_ARE:
                 return( "ARE" );
-            case 0x07DD:
+            case RES_SET:
                 return( "SET" );
-            case 0x07DE:
+            case RES_IFO:
                 return( "IFO" );
-            case 0x07DF:
+            case RES_BIC:
                 return( "BIC" );
-            case 0x07E0:
+            case RES_WOK:
                 return( "WOK" );
-            case 0x07E1:
+            case RES_2DA:
                 return( "2DA" );
-            case 0x07E2:
+            case RES_TLK:
                 return( "TLK" );
-            case 0x07E6:
+            case RES_TXI:
                 return( "TXI" );
-            case 0x07E7:
+            case RES_GIT:
                 return( "GIT" );
-            case 0x07E8:
+            case RES_BTI:
                 return( "BTI" );
-            case 0x07E9:
+            case RES_UTI:
                 return( "UTI" );
-            case 0x07EA:
+            case RES_BTC:
                 return( "BTC" );
-            case 0x07EB:
+            case RES_UTC:
                 return( "UTC" );
-            case 0x07ED:
+            case RES_DLG:
                 return( "DLG" );
-            case 0x07EE:
+            case RES_ITP:
                 return( "ITP" );
-            case 0x07EF:
+            case RES_BTT:
                 return( "BTT" );
-            case 0x07F0:
+            case RES_UTT:
                 return( "UTT" );
-            case 0x07F1:
+            case RES_DDS:
                 return( "DDS" );
-            case 0x07F3:
+            case RES_UTS:
                 return( "UTS" );
-            case 0x07F4:
+            case RES_LTR:
                 return( "LTR" );
-            case 0x07F5:
+            case RES_GFF:
                 return( "GFF" );
-            case 0x07F6:
+            case RES_FAC:
                 return( "FAC" );
-            case 0x07F7:
+            case RES_BTE:
                 return( "BTE" );
-            case 0x07F8:
+            case RES_UTE:
                 return( "UTE" );
-            case 0x07F9:
+            case RES_BTD:
                 return( "BTD" );
-            case 0x07FA:
+            case RES_UTD:
                 return( "UTD" );
-            case 0x07FB:
+            case RES_BTP:
                 return( "BTP" );
-            case 0x07FC:
+            case RES_UTP:
                 return( "UTP" );
-            case 0x07FD:
+            case RES_DTF:
                 return( "DTF" );
-            case 0x07FE:
+            case RES_GIC:
                 return( "GIC" );
-            case 0x07FF:
+            case RES_GUI:
                 return( "GUI" );
-            case 0x0800:
+            case RES_CSS:
                 return( "CSS" );
-            case 0x0801:
+            case RES_CCS:
                 return( "CCS" );
-            case 0x0802:
+            case RES_BTM:
                 return( "BTM" );
-            case 0x0803:
+            case RES_UTM:
                 return( "UTM" );
-            case 0x0804:
+            case RES_DWK:
                 return( "DWK" );
-            case 0x0805:
+            case RES_PWK:
                 return( "PWK" );
-            case 0x0806:
+            case RES_BTG:
                 return( "BTG" );
-            case 0x0807:
+            case RES_UTG:
                 return( "UTG" );
-            case 0x0808:
+            case RES_JRL:
                 return( "JRL" );
-            case 0x0809:
+            case RES_SAV:
                 return( "SAV" );
-            case 0x080A:
+            case RES_UTW:
                 return( "UTW" );
-            case 0x080B:
+            case RES_4PC:
                 return( "4PC" );
-            case 0x080C:
+            case RES_SSF:
                 return( "SSF" );
-            case 0x080D:
+            case RES_HAK:
                 return( "HAK" );
-            case 0x080E:
+            case RES_NWM:
                 return( "NWM" );
-            case 0x080F:
+            case RES_BIK:
                 return( "BIK" );
-            case 0x0810:
+            case RES_NDB:
                 return( "NDB" );
-            case 0x0811:
+            case RES_PTM:
                 return( "PTM" );
-            case 0x0812:
+            case RES_PTT:
                 return( "PTT" );
-            case 0x270D:
+            case RES_ERF:
                 return( "ERF" );
-            case 0x270E:
+            case RES_BIF:
                 return( "BIF" );
-            case 0x270F:
+            case RES_KEY:
                 return( "KEY" );
             }
         String ext = "0x" + Integer.toHexString( type );
@@ -299,4 +373,38 @@ public class ResourceUtils
         System.out.println( "Warning: encountered unknown type:" + type + "  Using extension:" + ext );
         return( ext );
     }
+
+    /**
+     *  Returns true if the specified resource type is stored as
+     *  a GFF file.
+     */
+    public static boolean isGffType( int type )
+    {
+        switch( type )
+            {
+            case RES_IFO: // module info
+            case RES_ARE: // area
+            case RES_GIC: // area comments
+            case RES_GIT: // area objects
+            case RES_UTC: // creature blueprint
+            case RES_UTD: // door blueprint
+            case RES_UTE: // encounter blueprint
+            case RES_UTI: // item blueprint
+            case RES_UTP: // placeable blueprint
+            case RES_UTS: // sound blueprint
+            case RES_UTM: // store blueprint
+            case RES_UTT: // trigger blueprint
+            case RES_UTW: // waypoint blueprint
+            case RES_DLG: // conversation
+            case RES_JRL: // journal
+            case RES_FAC: // faction
+            case RES_ITP: // palette
+            case RES_PTM: // plot manager
+            case RES_PTT: // plot wizard blueprint
+            case RES_BIC: // Character/Creature file
+                return( true );
+            }
+        return( false );
+    }
 }
+
