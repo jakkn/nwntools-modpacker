@@ -63,7 +63,7 @@ public class GlobalContext extends DefaultViewContext
 {
     public static final String PROP_WINDOWS = "windows";
 
-    private ObservableList windows = new ObservableList( PROP_WINDOWS, new ArrayList() );
+    private ObservableList windows = new DefaultObservableList( PROP_WINDOWS, new ArrayList() );
 
     private ResourceManager resourceMgr = new ResourceManager();
 

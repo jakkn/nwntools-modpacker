@@ -133,13 +133,13 @@ public class WindowContext extends DefaultViewContext
     /**
      *  The current list of selected objects within this window.
      */
-    private ObservableList selectedObjects = new ObservableList( PROP_SELECTED_OBJECTS, new ArrayList() );
+    private ObservableList selectedObjects = new DefaultObservableList( PROP_SELECTED_OBJECTS, new ArrayList() );
 
     /**
      *  The current list of console contexts that this window should be
      *  displaying in its console tab.
      */
-    private ObservableList consoles = new ObservableList( PROP_CONSOLES, new ArrayList() );
+    private ObservableList consoles = new DefaultObservableList( PROP_CONSOLES, new ArrayList() );
 
     /**
      *  Creates a new WindowContext as a child of the specified global
