@@ -74,11 +74,17 @@ public class WindowContext extends DefaultViewContext
     public static final String ACTIONS_FILE = "File";
 
     /**
+     *  Constant associated with the build menu action list.
+     */
+    public static final String ACTIONS_BUILD = "Build";
+
+    /**
      *  Constant associated with the application exit action.
      */
     public static final String ACTION_OPEN_PROJECT = "Open Project";
     public static final String ACTION_IMPORT_MODULE = "Import Module";
     public static final String ACTION_EXIT = "Exit";
+    public static final String ACTION_BUILD_MODULE = "Build Module";
 
     /**
      *  The root-level menu action list.
@@ -260,6 +266,10 @@ public class WindowContext extends DefaultViewContext
         file.add( addAction( ACTION_IMPORT_MODULE, new ImportModuleAction( this ) ) );
         file.add( addAction( ACTION_EXIT, new ExitAction( this ) ) );
 
+        ActionList build = addActionList( ACTIONS_BUILD, new ActionList( "Build" ) );
+        rootActionList.add( build );
+
+        build.add( addAction( ACTION_BUILD_MODULE, new BuildAction( this ) ) );
     }
 
     protected Action addAction( String key, Action action )

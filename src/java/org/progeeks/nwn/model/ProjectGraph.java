@@ -33,8 +33,11 @@
 package org.progeeks.nwn.model;
 
 import java.io.File;
+import java.util.*;
 
 import com.phoenixst.plexus.*;
+
+import org.progeeks.nwn.resource.*;
 
 /**
  *  The main graph containing all of the project's resources
@@ -53,6 +56,8 @@ public class ProjectGraph extends DefaultGraph
 
     private ProjectRoot root;
 
+    private HashMap nodeCache = new HashMap();
+
     public ProjectGraph( ProjectRoot root )
     {
         setRoot( root );
@@ -60,6 +65,30 @@ public class ProjectGraph extends DefaultGraph
 
     public ProjectGraph()
     {
+    }
+
+    protected void nodeAdded( Object o )
+    {
+        if( o instanceof ResourceIndex )
+            {
+            nodeCache.put( ((ResourceIndex)o).getKey(), o );
+            }
+    }
+
+    protected void nodeRemoved( Object o )
+    {
+        if( o instanceof ResourceIndex )
+            {
+            nodeCache.remove( ((ResourceIndex)o).getKey() );
+            }
+    }
+
+    /**
+     *  Returns the resource index for the specified key.
+     */
+    public ResourceIndex getResourceIndex( ResourceKey key )
+    {
+        return( (ResourceIndex)nodeCache.get( key ) );
     }
 
     /**
