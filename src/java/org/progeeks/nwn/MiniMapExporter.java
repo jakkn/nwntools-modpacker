@@ -96,6 +96,8 @@ public class MiniMapExporter
             "   -hak <file>     Specifies a HAK file that should be used when",
             "                   resolving tileset resources.  You can have as",
             "                   many -hak options as you need.",
+            "                   HAK files referenced in the module will be loaded",
+            "                   automatically if they can be located.",
             "",
             "   -useAreaName    When this is specified, the area's in-game name",
             "                   will be used as the file name instead of its",
@@ -371,7 +373,7 @@ public class MiniMapExporter
                 System.out.println( usage[i] );
             return;
             }
-        System.out.println( "--- Mini-map Exporter version 0.6 ---" );
+        System.out.println( "--- Mini-map Exporter version 0.7 ---" );
 
         MiniMapExporter exporter = new MiniMapExporter();
 
