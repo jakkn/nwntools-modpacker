@@ -86,8 +86,7 @@ public class ScriptReader
 
         // In some cases, we keep appending to the last block until
         // the block type changes.
-        StringBuffer line = new StringBuffer();
-        ScriptBlock block = new ScriptBlock( line );
+        ScriptBlock block = new ScriptBlock( new StringBuffer() );
         block.setType( ScriptBlock.WHITESPACE );
         block.setStartLine( st.lineno() );
 
@@ -108,7 +107,7 @@ public class ScriptReader
             switch( token )
                 {
                 case StreamTokenizer.TT_WORD:
-                    line.append( st.sval );
+                    block.append( st.sval );
                     if( block.getType() == ScriptBlock.WHITESPACE )
                         {
                         if( st.sval.startsWith( "/*" ) ) // */ Working around a bug in my editor
@@ -128,7 +127,8 @@ public class ScriptReader
                             }
                         else if( st.sval.equals( "const" ) )
                             {
-                            block.setType( ScriptBlock.CONSTANT );
+                            //block.setType( ScriptBlock.CONSTANT );
+                            block = new ConstantBlock( block.getBlockText() );
                             closeAtEol = false;
                             }
                         else
@@ -146,13 +146,13 @@ public class ScriptReader
                         }
                     break;
                 case '"':
-                    line.append( "\"" + st.sval + "\"" );
+                    block.append( "\"" + st.sval + "\"" );
                     break;
                 case StreamTokenizer.TT_NUMBER:
-                    line.append( st.nval );
+                    block.append( st.nval );
                     break;
                 case StreamTokenizer.TT_EOL:
-                    line.append( "\n" );
+                    block.append( "\n" );
                     if( closeAtEol )
                         {
                         block.setEndLine( st.lineno() - 1 );
@@ -160,7 +160,7 @@ public class ScriptReader
                         }
                     break;
                 default:
-                    line.append( (char)token );
+                    block.append( (char)token );
                     switch( block.getType() )
                         {
                         case ScriptBlock.WHITESPACE:
@@ -231,6 +231,17 @@ public class ScriptReader
         return( result );
     }
 
+    public List readAllBlocks() throws IOException
+    {
+        List results = new ArrayList();
+        ScriptBlock block = null;
+        while( (block = readNextBlock()) != null )
+            {
+            results.add( block );
+            }
+        return( results );
+    }
+
     public void close() throws IOException
     {
         in.close();
@@ -247,8 +258,8 @@ public class ScriptReader
                 while( (block = r.readNextBlock()) != null )
                     {
 //                    System.out.print( "Line:" + block.getBlockText() );
-//                    System.out.print( block );
-                    System.out.print( block.getBlockText() );
+                    System.out.print( block );
+//                    System.out.print( block.getBlockText() );
                     }
                 }
             finally

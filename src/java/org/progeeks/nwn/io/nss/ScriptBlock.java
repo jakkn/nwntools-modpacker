@@ -65,6 +65,21 @@ public class ScriptBlock
         this.blockText = blockText;
     }
 
+    public void append( String value )
+    {
+        blockText.append( value );
+    }
+
+    public void append( char c )
+    {
+        append( String.valueOf(c) );
+    }
+
+    public void append( double num )
+    {
+        append( String.valueOf(num) );
+    }
+
     public void setType( int type )
     {
         this.type = type;
