@@ -53,8 +53,7 @@ public class MainWindow extends JFrame
     private WindowContext context;
     private JSplitPane main;
     private FileTreePanel treePanel;
-
-    private JLabel temporary;
+    private ObjectPanel objectPanel;
 
     public MainWindow( WindowContext context )
     {
@@ -76,11 +75,11 @@ public class MainWindow extends JFrame
         getContentPane().add( main, "Center" );
 
         treePanel = new FileTreePanel( context );
+        objectPanel = new ObjectPanel( context );
 
         main.setLeftComponent( treePanel );
 
-        temporary = new JLabel();
-        main.setRightComponent( temporary );
+        main.setRightComponent( objectPanel );
 
         setSize( 1024, 768 );
     }
@@ -138,10 +137,6 @@ public class MainWindow extends JFrame
                 {
                 Project project = context.getProject();
                 context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
-                }
-            else if( WindowContext.PROP_SELECTED_OBJECTS.equals( name ) )
-                {
-                temporary.setText( String.valueOf( context.getSelectedObjects() ) );
                 }
         }
     }
