@@ -157,6 +157,10 @@ public class ResourceStreamer
      */
     public void addEncapsulatedResourceFile( File erfFile ) throws IOException
     {
+        // See if it's a hak file since we treat overrides differently
+        // then.
+        boolean fromHak = erfFile.getName().toLowerCase().endsWith( ".hak" );
+
         FileInputStream fIn = new FileInputStream( erfFile );
         try
             {
@@ -169,7 +173,23 @@ public class ResourceStreamer
                 int type = resource.getResourceType();
 
                 ResourceKey key = new ResourceKey( name, type );
-                resources.put( key, new ErfIndex( erfFile, key ) );
+
+                // See if the resource already exists... if it is
+                // another HAK resource then we won't override it
+                // so that we can simulate the standard NWN loading
+                // order.
+                ResourceIndex ri = (ResourceIndex)resources.get( key );
+                if( ri != null && ri instanceof ErfIndex )
+                    {
+                    // If it is from a hak then don't add this
+                    // resource.
+                    if( ((ErfIndex)ri).fromHak && fromHak )
+                        {
+                        continue;
+                        }
+                    }
+
+                resources.put( key, new ErfIndex( erfFile, fromHak, key ) );
                 }
             }
         finally
@@ -357,11 +377,13 @@ public class ResourceStreamer
     private static class ErfIndex extends ResourceIndex
     {
         private File file;
+        private boolean fromHak;
         private ResourceKey key;
 
-        protected ErfIndex( File file, ResourceKey key )
+        protected ErfIndex( File file, boolean fromHak, ResourceKey key )
         {
             this.file = file;
+            this.fromHak = fromHak;
             this.key = key;
         }
 
