@@ -55,11 +55,92 @@ public class ScriptCompiler
 
     static Log log = Log.getLog( ScriptCompiler.class );
 
+    private int maxCompilerCount = MAX_COMPILERS;
+    private File compiler = new File( "nwnnsscomp" );
     private CompilerWatcher watcher = new CompilerWatcher();
+    private volatile int compiledCount = 0;
+    private volatile int includeCount = 0;
 
     public ScriptCompiler()
     {
         watcher.start();
+    }
+
+    /**
+     *  Sets the maximum number of compile threads that will be spawned
+     *  by this script compiler.
+     */
+    public void setMaxCompilerCount( int count )
+    {
+        this.maxCompilerCount = count;
+    }
+
+    /**
+     *  Returns the maximum number of compile threads that will be spawned
+     *  by this script compiler.
+     */
+    public int getMaxCompilerCount()
+    {
+        return( maxCompilerCount );
+    }
+
+    public void resetCompiledCount()
+    {
+        compiledCount = 0;
+        includeCount = 0;
+    }
+
+    /**
+     *  Returns the number of compiles that actually produced output.
+     */
+    public int getCompiledCount()
+    {
+        return( compiledCount );
+    }
+
+    /**
+     *  Returns the number of scripts that were skipped because they were
+     *  just include files with no main() or conditional check.
+     */
+    public int getIncludeCount()
+    {
+        return( includeCount );
+    }
+
+    /**
+     *  Sets the compiler path include the name of the exe file.
+     */
+    public void setCompilerPath( File compiler )
+    {
+        this.compiler = compiler;
+    }
+
+    /**
+     *  Returns the current compiler path including the name of the exe file.
+     */
+    public File getCompilerPath()
+    {
+        return( compiler );
+    }
+
+    /**
+     *  Returns true if a compiler exists at the specified path... makes
+     *  a lot of assumptions.  The path should include the executable name...
+     *  but does not need to include the path.
+     */
+    public boolean hasCompiler( File path )
+    {
+        // Do a test run to see if the compiler exists
+        try
+            {
+            Process p = Runtime.getRuntime().exec( path.toString() );
+            return( true );
+            }
+        catch( IOException e )
+            {
+            log.warn( "Compiler not found", e );
+            return( false );
+            }
     }
 
     /**
@@ -72,12 +153,12 @@ public class ScriptCompiler
         // Do a test run to see if the compiler exists
         try
             {
-            Process p = Runtime.getRuntime().exec( "nwnnsscomp" );
+            Process p = Runtime.getRuntime().exec( compiler.toString() );
             return( true );
             }
         catch( IOException e )
             {
-            log.warn( "Compiler not found", e );
+            log.warn( "Compiler not found:" + compiler, e );
             return( false );
             }
     }
@@ -90,7 +171,45 @@ public class ScriptCompiler
         try
             {
             System.out.println( "Exec: nwnnsscomp " + script );
-            Process p = Runtime.getRuntime().exec( new String[] { "nwnnsscomp", script }, null,
+            Process p = Runtime.getRuntime().exec( new String[] { compiler.toString(), script }, null,
+                                                   directory );
+            //runningCompiles.add( p );
+            watcher.addCompiler( script, "nwnnsscomp " + script, p, listener );
+            }
+        catch( IOException e )
+            {
+            log.error( "Error compiling script", e );
+            }
+    }
+
+    /**
+     *  Builds the specified script that resides in the specified directory.
+     */
+    public void compileScript( String script, String[] args, File directory, ErrorListener listener )
+    {
+        try
+            {
+            StringBuffer debug = new StringBuffer( compiler.toString() + " " );
+
+            String[] cmdLine = new String[ 2 + args.length ];
+            cmdLine[0] = compiler.toString();
+            for( int i = 0; i < args.length; i++ )
+                {
+                cmdLine[i + 1] = args[i];
+
+                if( log.isDebugEnabled() )
+                    debug.append( args[i] + " " );
+                }
+            cmdLine[args.length + 1] = "\"" + script + "\"";
+
+            if( log.isDebugEnabled() )
+                {
+                debug.append( script );
+                log.debug( "Command line:" + debug );
+                }
+
+            //System.out.println( "nwnnsscomp " + script );
+            Process p = Runtime.getRuntime().exec( cmdLine, null,
                                                    directory );
             //runningCompiles.add( p );
             watcher.addCompiler( script, "nwnnsscomp " + script, p, listener );
@@ -109,9 +228,11 @@ public class ScriptCompiler
         watcher.waitForAll();
     }
 
-    protected void processErrors( CompilerInfo info )
+    protected void processOutput( CompilerInfo info )
     {
         StringBuffer results = info.results;
+
+        log.debug( results );
 
         if( info.errors.length() > 0 )
             {
@@ -119,9 +240,18 @@ public class ScriptCompiler
             System.out.println( "Errors:\n" + info.errors );
             }
 
+        // Don't bother checking the include files
+        if( results.indexOf( "File is an include file, ignored" ) >= 0 )
+            {
+            // And hope the string doesn't change
+            includeCount++;
+            return;
+            }
+
         if( results.indexOf( "Error:" ) < 0
             && results.indexOf( "Warning:" ) > 0 )
             {
+            compiledCount++;
             return;
             }
 
@@ -132,11 +262,21 @@ public class ScriptCompiler
             return;
             }
 
+        int errors = 0;
         StringTokenizer st = new StringTokenizer( results.toString(), "\r\n" );
         while( st.hasMoreTokens() )
             {
             String token = st.nextToken();
-            if( token.indexOf( "Error:" ) > 0 )
+            if( token.startsWith( "Error:" ) )
+                {
+                String error = token.substring( "Error:".length() );
+                error = error.trim();
+
+                ErrorInfo err = new ErrorInfo( "Compiling", error );
+                info.listener.error( info.script, err );
+                errors++;
+                }
+            else if( token.indexOf( "Error:" ) > 0 )
                 {
                 try
                     {
@@ -151,12 +291,16 @@ public class ScriptCompiler
                     {
                     System.out.println( "Bad string:" + token );
                     }
+                errors++;
                 }
             else
                 {
                 //System.out.println( "Token:" + token );
                 }
             }
+
+        if( errors == 0 )
+            compiledCount++;
     }
 
     /**
@@ -172,7 +316,7 @@ public class ScriptCompiler
 
         public synchronized void addCompiler( String script, String command, Process p, ErrorListener listener )
         {
-            while( compilers.size() > MAX_COMPILERS )
+            while( compilers.size() > maxCompilerCount )
                 {
                 waiters++;
                 try
@@ -230,9 +374,9 @@ public class ScriptCompiler
 
                                 if( p.done )
                                     {
-                                    System.out.println( p.command + " finished:" + p.p.exitValue() );
+                                    //System.out.println( p.command + " finished:" + p.p.exitValue() );
                                     p.cleanup();
-                                    processErrors( p );
+                                    processOutput( p );
                                     i.remove();
                                     }
                                 }
@@ -242,7 +386,7 @@ public class ScriptCompiler
                                 }
                             }
 
-                        if( compilers.size() < MAX_COMPILERS && waiters > 0 )
+                        if( compilers.size() < maxCompilerCount && waiters > 0 )
                             {
                             notifyAll();
                             }
@@ -295,7 +439,7 @@ public class ScriptCompiler
         {
             if( done )
                 return;
-
+//System.out.println( "Results:" + results );
             if( !inDone )
                 {
                 int b = in.read();
