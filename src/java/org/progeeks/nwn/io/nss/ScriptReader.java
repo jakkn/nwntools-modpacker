@@ -45,11 +45,6 @@ import org.progeeks.nwn.resource.*;
  */
 public class ScriptReader
 {
-    private static final int NORMAL = 0;
-    private static final int COMMENT = 1;
-    private static final int BLOCK = 2;
-    private static final int END_AT_EOL = 3;
-
     private Reader in;
     private StreamTokenizer st;
     private boolean endOfFile = false;
@@ -79,18 +74,23 @@ public class ScriptReader
     }
 
     /**
-     *  Reads the next full line from the parser.  This is a line in
-     *  scripting terms not in file terms.
+     *  Internal method for eading a new raw unmerged block of
+     *  text.
      */
-    public String readScriptLine() throws IOException
+    protected ScriptBlock readSingleBlock() throws IOException
     {
         if( endOfFile )
             return( null );
 
+        // In some cases, we keep appending to the last block until
+        // the block type changes.
         StringBuffer line = new StringBuffer();
+        ScriptBlock block = new ScriptBlock( line );
+        block.setType( ScriptBlock.WHITESPACE );
+        block.setStartLine( st.lineno() );
 
         // Parse until we have a complete line.
-        int state = NORMAL;
+        boolean closeAtEol = true;
         int blockDepth = 0;
         int token = 0;
         while( true )
@@ -107,10 +107,36 @@ public class ScriptReader
                 {
                 case StreamTokenizer.TT_WORD:
                     line.append( st.sval );
-                    if( st.sval.startsWith( "/*" ) )
-                        state = COMMENT;
-                    else if( st.sval.endsWith( "*/" ) )
-                        state = END_AT_EOL;
+                    if( block.getType() == ScriptBlock.WHITESPACE )
+                        {
+                        if( st.sval.startsWith( "/*" ) ) // */ Working around a bug in my editor
+                            {
+                            block.setType( ScriptBlock.COMMENT );
+                            closeAtEol = false;
+                            }
+                        else if( st.sval.startsWith( "//" ) )
+                            {
+                            block.setType( ScriptBlock.COMMENT );
+                            closeAtEol = true;
+                            }
+                        else if( st.sval.equals( "#include" ) )
+                            {
+                            block.setType( ScriptBlock.INCLUDE );
+                            closeAtEol = true;
+                            }
+                        else
+                            {
+                            block.setType( ScriptBlock.CODE );
+                            closeAtEol = false;
+                            }
+                        }
+                    else if( block.getType() == ScriptBlock.COMMENT )
+                        {
+                        if( st.sval.endsWith( "*/" ) )
+                            {
+                            closeAtEol = true;
+                            }
+                        }
                     break;
                 case '"':
                     line.append( "\"" + st.sval + "\"" );
@@ -120,79 +146,61 @@ public class ScriptReader
                     break;
                 case StreamTokenizer.TT_EOL:
                     line.append( "\n" );
-                    if( state == END_AT_EOL )
+                    if( closeAtEol )
                         {
-                        state = NORMAL;
-                        return( line.toString() );
+                        block.setEndLine( st.lineno() - 1 );
+                        return( block );
                         }
                     break;
                 default:
                     line.append( (char)token );
-                    if( token == ';' && state == NORMAL )
+                    if( block.getType() == ScriptBlock.WHITESPACE )
                         {
-                        state = END_AT_EOL;
+                        if( token != ' ' && token != '\t' )
+                            {
+                            block.setType( ScriptBlock.CODE );
+                            closeAtEol = false;
+                            }
                         }
-                    else if( token == '{' )
+                    else if( block.getType() == ScriptBlock.CODE )
                         {
-                        state = BLOCK;
-                        blockDepth++;
+                        if( token == ';' && blockDepth == 0 )
+                            {
+                            closeAtEol = true;
+                            }
+                        else if( token == '{' )
+                            {
+                            blockDepth++;
+                            closeAtEol = false;
+                            }
+                        else if( token == '}' )
+                            {
+                            blockDepth--;
+                            if( blockDepth == 0 )
+                                closeAtEol = true;
+                            }
                         }
-                    else if( token == '}' )
-                        {
-                        blockDepth--;
-                        if( blockDepth == 0 )
-                            state = END_AT_EOL;
-                        }
+
                     break;
                 }
             }
 
-        return( line.toString() );
+        block.setEndLine( st.lineno() );
+        return( block );
     }
-/*
-    public void readScript() throws IOException
+
+    /**
+     *  Reads the next full block from the parser.  A ScriptBlock is a logical
+     *  portion of a script.
+     */
+    public ScriptBlock readNextBlock() throws IOException
     {
-        int token = 0;
-        while( (token = st.nextToken()) != StreamTokenizer.TT_EOF )
-            {
-            switch( token )
-                {
-                case StreamTokenizer.TT_WORD:
-                    System.out.print( "[" + st.sval + "]" );
-                    if( directive != null )
-                        {
-                        directive += st.sval;
-                        continue;
-                        }
-                    break;
-                case '#':
-                    directive = "#";
-                    System.out.print( "#" );
-                    continue;
-                case '"':
-                    if( "#include".equals( directive ) )
-                        {
-                        ResourceKey key = new ResourceKey( st.sval, ResourceTypes.TYPE_NSS );
-                        }
-                    System.out.print( "\"" + st.sval + "\"" );
-                    break;
-                case StreamTokenizer.TT_NUMBER:
-                    System.out.print( st.nval );
-                    break;
-                case StreamTokenizer.TT_EOF:
-                    return;
-                case StreamTokenizer.TT_EOL:
-                    System.out.println();
-                    break;
-                default:
-                    System.out.print( (char)token );
-                    break;
-                }
+        ScriptBlock block = readSingleBlock();
+        if( block == null )
+            return( null );
 
-            directive = null;
-            }
-
-    }*/
+        return( block );
+    }
 
     public void close() throws IOException
     {
@@ -207,11 +215,13 @@ public class ScriptReader
             try
                 {
                 //r.readScript();
-                String line = null;
-                while( (line = r.readScriptLine()) != null )
+                ScriptBlock block = null;
+                while( (block = r.readNextBlock()) != null )
                     {
-//                    System.out.print( "Line:" + line );
-                    System.out.print( line );
+//                    System.out.print( "Line:" + block.getBlockText() );
+//                    System.out.print( block );
+                    System.out.print( block.getBlockText() );
+//                    System.out.print( line );
                     }
                 }
             finally
