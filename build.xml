@@ -160,6 +160,27 @@
         </jar>
     </target>
 
+    <target name="nwn-io.jar" description="Create NWN Resource IO distribution" depends="dist" >
+
+        <!-- make the jar file. -->
+        <jar jarFile="${dist}/nwn-io.jar" basedir="${build.classes}" >
+            <include name="LICENSE" />
+            <include name="org/progeeks/nwn/io/bif/**" />
+            <include name="org/progeeks/nwn/io/image/**" />
+            <include name="org/progeeks/nwn/io/key/**" />
+            <include name="org/progeeks/nwn/io/nss/**" />
+            <include name="org/progeeks/nwn/io/set/**" />
+            <manifest>
+                <attribute name="Class-Path" value="lib/meta-jb-util.jar lib/log4j.jar" />
+            </manifest>
+        </jar>
+
+        <!-- make sure it has a log4j.properties file. -->
+        <jar jarFile="${dist}/nwn-io.jar" basedir="lib" update="true" >
+            <include name="log4j.properties" />
+        </jar>
+    </target>
+
     <target name="modpacker.zip" description="Create the ModPacker zip download" depends="nwn-tools.jar" >
 
         <!-- Create the modpacker directory -->
@@ -176,6 +197,26 @@
 
         <zip destfile="${dist}/modpacker.zip"
             basedir="${dist}/modpacker" >
+        </zip>
+    </target>
+
+    <target name="minimap-export.zip" description="Create the MiniMapExport zip download"
+                                      depends="nwn-tools.jar,nwn-io.jar" >
+
+        <!-- Create the modpacker directory -->
+        <mkdir dir="${dist}/minimap-export"/>
+        <mkdir dir="${dist}/minimap-export/lib"/>
+
+        <!--<copy file="../web-site/minimap-export.html" toFile="${dist}/minimap-export/readme.html" /> -->
+        <copy file="${dist}/nwn-tools.jar" toDir="${dist}/minimap-export" />
+        <copy file="${dist}/nwn-io.jar" toDir="${dist}/minimap-export" />
+        <copy file="${dist}/lib/meta-jb-util.jar" toDir="${dist}/minimap-export/lib" />
+        <copy file="${dist}/lib/log4j.jar" toDir="${dist}/minimap-export/lib" />
+        <copy file="${dist}/lib/log4j.properties" toDir="${dist}/minimap-export/lib" />
+        <copy file="${src.cmd}/minimap-export-setup.cmd" toFile="${dist}/minimap-export/setup.cmd" />
+
+        <zip destfile="${dist}/minimap-export.zip"
+            basedir="${dist}/minimap-export" >
         </zip>
     </target>
 
