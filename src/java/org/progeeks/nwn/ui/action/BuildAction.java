@@ -165,10 +165,92 @@ public class BuildAction extends AbstractAction
             return( false );
         }
 
+        protected void compileScripts( ProgressReporter pr, File buildDir ) throws IOException
+        {
+            if( scriptCount == 0 )
+                return;
+
+            ScriptCompiler scriptCompiler = context.getGlobalContext().getScriptCompiler();
+
+            System.out.println( "Compiling..." );
+            int index = 0;
+
+            if( scriptCount > 1 )
+                {
+                if( !scriptCompiler.hasCompiler() )
+                    {
+                    log.error( "No compiler configured." );
+                    return;
+                    }
+                }
+
+            // Compile the scripts first
+            for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
+                {
+                pr.setProgress( index );
+                ResourceIndex ri = (ResourceIndex)i.next();
+                if( ri.getKey().getType() != ResourceTypes.TYPE_NSS )
+                    continue;
+
+                pr.setMessage( "Compiling:" + ri.getKey().getFileName() );
+
+                // Copy the new script into the build directory
+                File src = ri.getSource().getFile( project );
+                File dest = ri.getDestination().getFile( project );
+
+                log.debug( "Copying:" + src + " to:" + dest );
+                FileUtils.copyFile( src, dest );
+
+                // Errors have to be handled a different way, but at this
+                // point the src and destination _are_ up-to-date since the
+                // destination is just the script copy.  Errors need to be
+                // added to the graph or resource or something.
+                ri.makeAllCurrent( project );
+
+                // Compile the script
+                scriptCompiler.compileScript( ri.getKey().getFileName(), buildDir );
+
+                i.remove();
+                }
+
+            try
+                {
+                // Wait for the last compiles to finish.
+                scriptCompiler.waitForAll();
+                }
+            catch( InterruptedException e )
+                {
+                log.error( "Error waiting for compiles to finish", e );
+                }
+        }
+
+        protected void copyResources( ProgressReporter pr ) throws IOException
+        {
+            int index = 0;
+            // Copy the rest of the files
+            for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
+                {
+                ResourceIndex ri = (ResourceIndex)i.next();
+                pr.setMessage( "Copying:" + ri.getKey().getFileName() );
+                pr.setProgress( index );
+
+                // Copy the new script into the build directory
+                File src = ri.getSource().getFile( project );
+                File dest = ri.getDestination().getFile( project );
+
+                log.debug( "Copying:" + src + " to:" + dest );
+                FileUtils.copyFile( src, dest );
+
+                ri.makeAllCurrent( project );
+                }
+        }
+
         public Result execute( Environment env )
         {
             graph = project.getProjectGraph();
             int nodeCount = graph.nodeSize();
+
+            File buildDir = project.getBuildDirectory().getFile( project );
 
             String prName = "Build Module:" + project.getTargetModuleName();
             UserRequestHandler reqHandler = context.getRequestHandler();
@@ -192,35 +274,12 @@ public class BuildAction extends AbstractAction
                 pr.done();
                 }
 
-            pr = reqHandler.requestProgressReporter( prName, "Compiling scripts...", 0, scriptCount );
-            System.out.println( "Compiling..." );
-            try
-                {
-                int index = 0;
-                // Compile the scripts first
-                for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
-                    {
-                    pr.setProgress( index );
-                    ResourceIndex ri = (ResourceIndex)i.next();
-                    if( ri.getKey().getType() != ResourceTypes.TYPE_NSS )
-                        continue;
-
-                    System.out.println( "Need to compile script:" + ri.getKey().getFileName() );
-                    i.remove();
-                    }
-                }
-            finally
-                {
-                pr.done();
-                }
-
-            // Convert the XML next
+            // Convert the XML first
             pr = reqHandler.requestProgressReporter( prName, "Converting XML...", 0, xmlCount );
             System.out.println( "Converting..." );
             try
                 {
                 int index = 0;
-                // Compile the scripts first
                 for( Iterator i = staleResources.iterator(); i.hasNext(); index++ )
                     {
                     pr.setProgress( index );
@@ -236,13 +295,33 @@ public class BuildAction extends AbstractAction
                 pr.done();
                 }
 
-            if( staleResources.size() > 0 )
+            // Copy any resources (including the script files)
+            pr = reqHandler.requestProgressReporter( prName, "Copying resources...", 0, staleResources.size() );
+            try
                 {
-                // Copy the rest of the files
-                for( Iterator i = staleResources.iterator(); i.hasNext(); )
-                    {
-                    System.out.println( "Need to copy:" + i.next() );
-                    }
+                copyResources( pr );
+                }
+            catch( IOException e )
+                {
+                log.error( "Error copying modified resources", e );
+                }
+            finally
+                {
+                pr.done();
+                }
+
+            pr = reqHandler.requestProgressReporter( prName, "Compiling scripts...", 0, scriptCount );
+            try
+                {
+                compileScripts( pr, buildDir );
+                }
+            catch( IOException e )
+                {
+                log.error( "Error compiling scripts", e );
+                }
+            finally
+                {
+                pr.done();
                 }
 
             // Now build the module.

@@ -81,6 +81,11 @@ public class GlobalContext extends DefaultViewContext
      */
     private ObjectXmlReader xmlReader;
 
+    /**
+     *  The current script compiler.
+     */
+    private ScriptCompiler scriptCompiler = new ScriptCompiler();
+
     public GlobalContext()
     {
         setupMetaClasses();
@@ -109,6 +114,11 @@ public class GlobalContext extends DefaultViewContext
     public FactoryRegistry getFactoryRegistry()
     {
         return( factories );
+    }
+
+    public ScriptCompiler getScriptCompiler()
+    {
+        return( scriptCompiler );
     }
 
     /**

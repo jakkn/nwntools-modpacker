@@ -165,6 +165,21 @@ public class ResourceIndex implements Comparable
         return( source.getLastModified() > destination.getLastModified() );
     }
 
+    /**
+     *  Forces the source and destination times to be the same.
+     */
+    public void makeAllCurrent( Project project )
+    {
+        File dest = getDestination().getFile( project );
+        File src = getSource().getFile( project );
+
+        dest.setLastModified( src.lastModified() );
+
+        // Make sure the file indexes are up-to-date.
+        getSource().updateLastModified( project );
+        getDestination().updateLastModified( project );
+    }
+
     public boolean equals( Object obj )
     {
         if( !(obj instanceof ResourceIndex) )
