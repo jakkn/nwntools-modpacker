@@ -207,7 +207,7 @@
         <mkdir dir="${dist}/minimap-export"/>
         <mkdir dir="${dist}/minimap-export/lib"/>
 
-        <!--<copy file="../web-site/minimap-export.html" toFile="${dist}/minimap-export/readme.html" /> -->
+        <copy file="../web-site/minimap-export.html" toFile="${dist}/minimap-export/readme.html" />
         <copy file="${dist}/nwn-tools.jar" toDir="${dist}/minimap-export" />
         <copy file="${dist}/nwn-io.jar" toDir="${dist}/minimap-export" />
         <copy file="${dist}/lib/meta-jb-util.jar" toDir="${dist}/minimap-export/lib" />
