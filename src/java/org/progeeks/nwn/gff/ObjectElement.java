@@ -120,8 +120,8 @@ public class ObjectElement extends Element
                 }
             }
 
-System.out.println( "Passed value:" + value );
-System.out.println( "     decoded:" + getStringValue() );
+//System.out.println( "Passed value:" + value );
+//System.out.println( "     decoded:" + getStringValue() );
     }
 
     public String getStringValue()

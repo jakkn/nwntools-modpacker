@@ -58,15 +58,30 @@ public class XmlToGff
     private byte[] transferBuff = new byte[65536];
     private GffXmlReader xmlReader = new GffXmlReader();
     private boolean compressGff = false;
+    private boolean verbose = true;
+
+    public XmlToGff()
+    {
+    }
 
     public XmlToGff( File outDir )
     {
         this.outDir = outDir;
     }
 
+    public void setVerbose( boolean flag )
+    {
+        this.verbose = flag;
+    }
+
     public void setCompressGff( boolean flag )
     {
         this.compressGff = flag;
+    }
+
+    public void setOutputDirectory( File outDir )
+    {
+        this.outDir = outDir;
     }
 
     public File getOutputFile( String name, int type )
@@ -92,7 +107,8 @@ public class XmlToGff
         // Is it an XML file
         if( type == -1 && f.getName().toLowerCase().endsWith( ".xml" ) )
             {
-            System.out.println( "Reading:" + f.getName() );
+            if( verbose )
+                System.out.println( "Reading:" + f.getName() );
             FileReader fIn = new FileReader( f );
             BufferedReader bIn = new BufferedReader( fIn, 65536 );
 
@@ -106,7 +122,9 @@ public class XmlToGff
                 Struct root = (Struct)obj;
                 String name = xmlReader.getName();
 
-                System.out.println( "Writing:" + name );
+                if( verbose )
+                    System.out.println( "Writing:" + name );
+
                 File outFile = new File( outDir, name );
 
                 FileOutputStream fOut = new FileOutputStream( outFile );

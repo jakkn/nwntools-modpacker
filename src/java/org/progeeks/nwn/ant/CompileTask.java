@@ -104,6 +104,9 @@ public class CompileTask extends MatchingTask
         log( "Includes:" + includes, Project.MSG_VERBOSE );
 
         File[] scripts = getNewFiles( srcdir, destdir, files );
+        if( scripts.length == 0 )
+            return;
+
         log( "Compiling " + scripts.length + " scripts to:" + destdir );
 
         for( int i = 0; i < scripts.length; i++ )
