@@ -34,35 +34,27 @@ package org.progeeks.nwn.resource;
 
 import java.io.*;
 
+import org.progeeks.nwn.io.set.*;
 import org.progeeks.nwn.ResourceKey;
 
 /**
- *  Default resource loader implementation that will load an input stream
- *  as a byte[] array.
+ *  Loader that will load a Tileset (SET) from an input stream.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ByteLoader implements ResourceLoader
+public class TilesetLoader implements ResourceLoader
 {
     public Object loadResource( ResourceKey key, InputStream in ) throws IOException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        SetReader setReader = new SetReader( in );
         try
             {
-            byte[] buff = new byte[1024];
-
-            int bytesRead = 0;
-            while( (bytesRead = in.read( buff )) >= 0 )
-                {
-                out.write( buff, 0, bytesRead );
-                }
-
-            return( out.toByteArray() );
+            return( setReader.readTiles() );
             }
         finally
             {
-            out.close();
+            setReader.close();
             }
     }
 }

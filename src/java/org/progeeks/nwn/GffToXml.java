@@ -140,10 +140,11 @@ public class GffToXml
                                              bOut );
         try
             {
-            out.writeStruct( reader.getRootStruct() );
+            out.writeStruct( reader.readRootStruct() );
             }
         finally
             {
+            reader.close();
             out.close();
             }
     }

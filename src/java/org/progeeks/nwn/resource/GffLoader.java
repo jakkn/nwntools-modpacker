@@ -34,35 +34,27 @@ package org.progeeks.nwn.resource;
 
 import java.io.*;
 
+import org.progeeks.nwn.io.gff.*;
 import org.progeeks.nwn.ResourceKey;
 
 /**
- *  Default resource loader implementation that will load an input stream
- *  as a byte[] array.
+ *  Loader that will load any GFF based file from an input stream.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ByteLoader implements ResourceLoader
+public class GffLoader implements ResourceLoader
 {
     public Object loadResource( ResourceKey key, InputStream in ) throws IOException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        GffReader reader = new GffReader( in );
         try
             {
-            byte[] buff = new byte[1024];
-
-            int bytesRead = 0;
-            while( (bytesRead = in.read( buff )) >= 0 )
-                {
-                out.write( buff, 0, bytesRead );
-                }
-
-            return( out.toByteArray() );
+            return( reader.readRootStruct() );
             }
         finally
             {
-            out.close();
+            reader.close();
             }
     }
 }

@@ -204,6 +204,15 @@ public class ResourceUtils
         extensionMap.put( "key", new Integer(0x270f) );
     }
 
+    /**
+     *  Returns a collection containing all resource types as Integers.
+     *  In no particular order.
+     */
+    public static Collection getResourceTypes()
+    {
+        return( Collections.unmodifiableCollection( extensionMap.values() ) );
+    }
+
     public static int getTypeForExtension( String extension )
     {
         Integer i = (Integer)extensionMap.get( extension );

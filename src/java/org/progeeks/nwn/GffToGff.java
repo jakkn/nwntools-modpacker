@@ -136,8 +136,15 @@ public class GffToGff
         GffWriter out = new GffWriter( reader.getHeader().getType(),
                                        reader.getHeader().getVersion(),
                                        bOut );
-
-        out.writeStruct( reader.getRootStruct() );
+        try
+            {
+            out.writeStruct( reader.readRootStruct() );
+            }
+        finally
+            {
+            reader.close();
+            out.close();
+            }
     }
 
     public void processModFile( File f ) throws IOException

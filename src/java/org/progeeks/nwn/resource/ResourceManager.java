@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 
 import org.progeeks.nwn.*;
+import org.progeeks.util.log.*;
 
 /**
  *  Provides resource lookup support.  Resource objects can be grabbed
@@ -46,6 +47,8 @@ import org.progeeks.nwn.*;
  */
 public class ResourceManager
 {
+    static Log log = Log.getLog( ResourceManager.class );
+
     /**
      *  Maps loaders to resource types.
      */
@@ -56,6 +59,84 @@ public class ResourceManager
      */
     private ResourceStreamer streamer = new ResourceStreamer();
 
+    public ResourceManager()
+    {
+        setupDefaultLoaders();
+    }
+
+    /**
+     *  Registers a default set of resource loaders.
+     */
+    protected void setupDefaultLoaders()
+    {
+        registerLoader( ResourceUtils.RES_SET, new TilesetLoader() );
+        registerLoader( ResourceUtils.RES_TGA, new TargaLoader() );
+
+        // Go through all of the resource types and register the gff
+        // loader with any GFF based type.
+        GffLoader gffLoader = new GffLoader();
+        for( Iterator i = ResourceUtils.getResourceTypes().iterator(); i.hasNext(); )
+            {
+            Integer type = (Integer)i.next();
+
+            if( ResourceUtils.isGffType( type.intValue() ) )
+                registerLoader( type, gffLoader );
+            }
+    }
+
+    /**
+     *  Returns a type-specific object for the specified resource key.
+     */
+    public Object getResource( ResourceKey key )
+    {
+        ResourceLoader loader = getLoader( key.getType() );
+        if( loader == null )
+            {
+            log.error( "No loader for key type, key:" + key );
+            return( null );
+            }
+
+        InputStream in = getResourceStream( key );
+        if( in == null )
+            {
+            log.error( "Could not get data stream for key:" + key );
+            return( null );
+            }
+
+        try
+            {
+            return( loader.loadResource( key, in ) );
+            }
+        catch( IOException e )
+            {
+            log.error( "Error loading resource for key:" + key, e );
+            return( null );
+            }
+    }
+
+    /**
+     *  Registers a specific loader implementation with the specified resource type.
+     */
+    public void registerLoader( int type, ResourceLoader loader )
+    {
+        registerLoader( new Integer(type), loader );
+    }
+
+    /**
+     *  Registers a specific loader implementation with the specified resource type.
+     */
+    public void registerLoader( Integer type, ResourceLoader loader )
+    {
+        loaderMap.put( type, loader );
+    }
+
+    /**
+     *  Returns a loader implementation for the specified type.
+     */
+    protected ResourceLoader getLoader( int type )
+    {
+        return( (ResourceLoader)loaderMap.get( new Integer(type) ) );
+    }
 
     /**
      *  Returns the raw InputStream for the specified resource key.

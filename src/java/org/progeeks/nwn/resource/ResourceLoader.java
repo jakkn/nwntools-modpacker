@@ -46,7 +46,8 @@ import org.progeeks.nwn.ResourceKey;
 public interface ResourceLoader
 {
     /**
-     *  Loads the resource from the specified stream and returns it.
+     *  Loads the resource from the specified stream and returns it.  It
+     *  is the loader implementations responsibility to close the stream.
      *
      *  @param key The key of the object being loaded.  This is provided
      *             in case the loaded needs to perform special processing

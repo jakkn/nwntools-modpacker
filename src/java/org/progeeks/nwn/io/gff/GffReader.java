@@ -59,6 +59,15 @@ public class GffReader
 
         header = new Header( this.in );
 //System.out.println( "Header:" + header );
+    }
+
+    public Header getHeader()
+    {
+        return( header );
+    }
+
+    public Struct readRootStruct() throws IOException
+    {
         Stub[] structStubs = readStubBlock( header.getStructs() );
         Stub[] fieldStubs = readStubBlock( header.getFields() );
 
@@ -72,16 +81,13 @@ public class GffReader
         resolveFieldIndices( structStubs );
         resolveStructReferences( fieldStubs );
         resolveLists( fieldStubs );
-    }
 
-    public Header getHeader()
-    {
-        return( header );
-    }
-
-    public Struct getRootStruct()
-    {
         return( (Struct)structs.get(0) );
+    }
+
+    public void close() throws IOException
+    {
+        in.close();
     }
 
     public static void printElement( Object obj, String indent )
@@ -385,12 +391,12 @@ public class GffReader
             {
             FileInputStream fIn = new FileInputStream( args[i] );
             BufferedInputStream bIn = new BufferedInputStream( fIn, 16384 );
+            System.out.println( args[i] );
+            GffReader reader = new GffReader( bIn );
+
             try
                 {
-                System.out.println( args[i] );
-                GffReader reader = new GffReader( bIn );
-
-                Struct root = reader.getRootStruct();
+                Struct root = reader.readRootStruct();
                 for( Iterator it = root.getValues().iterator(); it.hasNext(); )
                     {
                     Element e = (Element)it.next();
@@ -400,7 +406,7 @@ public class GffReader
                 }
             finally
                 {
-                bIn.close();
+                reader.close();
                 }
             }
     }

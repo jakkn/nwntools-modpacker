@@ -38,6 +38,7 @@ import java.util.*;
 import org.progeeks.nwn.*;
 import org.progeeks.nwn.io.key.*;
 import org.progeeks.nwn.io.bif.*;
+import org.progeeks.util.log.*;
 
 
 /**
@@ -48,6 +49,8 @@ import org.progeeks.nwn.io.bif.*;
  */
 public class ResourceStreamer
 {
+    static Log log = Log.getLog( ResourceStreamer.class );
+
     /**
      *  Maps resource keys to specific stream implementations.
      */
@@ -156,6 +159,8 @@ public class ResourceStreamer
 
     public void loadDefaultKeys() throws IOException
     {
+        long startTime = System.currentTimeMillis();
+
         // Check for the default location of standard NWN key files
         // FIXME - this check should be a bit more advanced, maybe check
         //         user preferences.
@@ -176,6 +181,13 @@ public class ResourceStreamer
             for( int i = 0; i < keys.length; i++ )
                 {
                 addKeyFile( keys[i] );
+                }
+
+            long endTime = System.currentTimeMillis();
+            if( log.isInfoEnabled() )
+                {
+                log.info( "Indexed default keys files in: " + (endTime - startTime) + " ms" );
+System.out.println( "Indexed default keys files in: " + (endTime - startTime) + " ms" );
                 }
             }
     }

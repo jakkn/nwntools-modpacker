@@ -452,7 +452,7 @@ public class GffWriter
             }
     }
 
-    protected void close() throws IOException
+    public void close() throws IOException
     {
         out.close();
     }

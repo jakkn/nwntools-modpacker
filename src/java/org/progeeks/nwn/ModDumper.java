@@ -94,7 +94,7 @@ public class ModDumper
                     {
                     GffReader reader = new GffReader( rIn );
 
-                    Struct root = reader.getRootStruct();
+                    Struct root = reader.readRootStruct();
                     for( Iterator it = root.getValues().iterator(); it.hasNext(); )
                         {
                         Element e = (Element)it.next();

@@ -82,35 +82,24 @@ public class AreaViewer extends JFrame
     protected void readArea( File area ) throws IOException
     {
         FileInputStream fIn = new FileInputStream( area );
+        GffReader reader = new GffReader( fIn );
         try
             {
-            GffReader reader = new GffReader( fIn );
-            areaStruct = reader.getRootStruct();
+            areaStruct = reader.readRootStruct();
             }
         finally
             {
-            fIn.close();
+            reader.close();
             }
     }
 
     protected List getTileset( String tileset ) throws IOException
     {
-        InputStream in = resMgr.getResourceStream( new ResourceKey( tileset, ResourceUtils.RES_SET ) );
-        SetReader setReader = new SetReader( in );
-
-        try
-            {
-            List tiles = setReader.readTiles();
-
-            int size = tiles.size();
-            for( int i = 0; i < size; i++ )
-                images.add( null );
-            return( tiles );
-            }
-        finally
-            {
-            setReader.close();
-            }
+        List tiles = (List)resMgr.getResource( new ResourceKey( tileset, ResourceUtils.RES_SET ) );
+        int size = tiles.size();
+        for( int i = 0; i < size; i++ )
+            images.add( null );
+        return( tiles );
     }
 
     protected Image getTileImage( int index ) throws IOException
@@ -123,19 +112,9 @@ public class AreaViewer extends JFrame
         String res = (String)tile.get( "ImageMap2D" );
         res = res.toLowerCase();
 System.out.println( "Res:" + res );
-        // Right now just read it every time
-        InputStream in = resMgr.getResourceStream( new ResourceKey( res, ResourceUtils.RES_TGA ) );
-        TgaReader reader = new TgaReader( in );
-        try
-            {
-            img = reader.readImage();
-            images.set( index, img );
-            return( img );
-            }
-        finally
-            {
-            reader.close();
-            }
+        img = (Image)resMgr.getResource( new ResourceKey( res, ResourceUtils.RES_TGA ) );
+        images.set( index, img );
+        return( img );
     }
 
     protected void drawArea() throws IOException
@@ -213,6 +192,8 @@ System.out.println( "Res:" + res );
 
     public static void main( String[] args ) throws IOException
     {
+        org.progeeks.util.log.Log.initialize();
+
         resMgr.loadDefaultKeys();
 
         File f = new File( args[0] );
