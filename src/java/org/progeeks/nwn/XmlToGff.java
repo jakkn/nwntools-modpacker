@@ -239,10 +239,11 @@ public class XmlToGff
             System.out.println( "<files> is a collection of modules files that will be converted" );
             System.out.println( "differently depending on their extension.  XML files will be" );
             System.out.println( "converted to GFF and any non-XML files will be copied." );
+            System.out.println( "Sub-directories are currently ignored." );
             return;
             }
 
-        org.progeeks.util.log.Log.initialize();
+        //org.progeeks.util.log.Log.initialize();
 
         System.out.println( "--- XML To GFF version 0.1 ---" );
 
