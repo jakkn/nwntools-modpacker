@@ -358,7 +358,7 @@ public class ModPacker
             return;
             }
 
-        System.out.println( "--- Module Packer version 0.3 ---" );
+        System.out.println( "--- Module Packer version 0.4 ---" );
 
         long start = System.currentTimeMillis();
 

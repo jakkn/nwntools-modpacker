@@ -59,7 +59,7 @@ public class ModToXml
             return;
             }
 
-        System.out.println( "--- Gff To XML version 0.1 ---" );
+        System.out.println( "--- Gff To XML version 0.4 ---" );
 
         long start = System.currentTimeMillis();
 
