@@ -75,6 +75,7 @@ public class ProjectGraph extends DefaultGraph
 
     protected void nodeAdded( Object o )
     {
+        super.nodeAdded( o );
         if( o instanceof ResourceIndex )
             {
             nodeCache.put( ((ResourceIndex)o).getKey(), o );
@@ -83,6 +84,7 @@ public class ProjectGraph extends DefaultGraph
 
     protected void nodeRemoved( Object o )
     {
+        super.nodeRemoved( o );
         if( o instanceof ResourceIndex )
             {
             nodeCache.remove( ((ResourceIndex)o).getKey() );
