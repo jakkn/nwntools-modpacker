@@ -131,7 +131,7 @@ public class XmlToGff
 
     public long saveStream( File f, InputStream in ) throws IOException
     {
-        System.out.println( "Writing:" + f.getName() );
+        System.out.println( "Copying:" + f.getName() );
 
         FileOutputStream fOut = new FileOutputStream(f);
         BufferedOutputStream out = new BufferedOutputStream( fOut, 65536 );
