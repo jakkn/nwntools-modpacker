@@ -337,8 +337,11 @@ public class ImportModuleAction extends AbstractAction
                 if( currentParent != null )
                     {
                     graph.addDirectory( currentParent );
-                    graph.addNode( key );
-                    graph.addEdge( ProjectGraph.EDGE_FILE, currentParent, key, true );
+                    ResourceIndex ri = new ResourceIndex( key,
+                                                          new FileIndex( currentParent, key.getName() ),
+                                                          new FileIndex( "build/" + key.getName() ) );
+                    graph.addNode( ri );
+                    graph.addEdge( ProjectGraph.EDGE_FILE, currentParent, ri, true );
                     continue;
                     }
                 }
