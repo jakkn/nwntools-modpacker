@@ -35,6 +35,8 @@ package org.progeeks.nwn;
 import java.io.*;
 import java.util.*;
 
+import org.progeeks.util.*;
+
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.itp.*;
 import org.progeeks.nwn.itp.*;
@@ -77,10 +79,18 @@ public class ModPacker
 
     private byte[] transferBuff = new byte[65536];
 
+    private ProgressReporter reporter;
+
     public ModPacker( File module, String description )
+    {
+        this( module, description, null );
+    }
+
+    public ModPacker( File module, String description, ProgressReporter pr )
     {
         this.module = module;
         this.description = description;
+        this.reporter = pr;
     }
 
     public void addFile( File f )
@@ -111,6 +121,12 @@ public class ModPacker
      */
     public long writeModule() throws IOException
     {
+        if( reporter != null )
+            {
+            reporter.setMaximum( resources.size() + 1 );
+            reporter.setProgress( 1 );
+            }
+
         BufferedOutputStream bOut = new BufferedOutputStream( new FileOutputStream(module), 65536 );
         out = new BinaryDataOutputStream( bOut );
         try
@@ -274,15 +290,27 @@ public class ModPacker
 
     private void writeResources() throws IOException
     {
-        for( Iterator i = resources.iterator(); i.hasNext(); )
+        int index = 1;
+        for( Iterator i = resources.iterator(); i.hasNext(); index++ )
             {
             ResourceIndex res = (ResourceIndex)i.next();
+            if( reporter != null )
+                {
+                if( reporter.isCanceled() )
+                    {
+                    throw new InterruptedIOException( "Aborted by user." );
+                    }
+                reporter.setProgress( index );
+                reporter.setMessage( "Storing:" + res.file.getName() );
+                }
+
             FileInputStream fIn = new FileInputStream( res.file );
             BufferedInputStream in = new BufferedInputStream( fIn, 65536 );
             try
                 {
                 int bytes = writeResourceData( in );
-System.out.print( "Packed resource file:" + res.file + "   " + bytes + " bytes written.        \r" );
+                if( reporter == null )
+                    System.out.print( "Packed resource file:" + res.file + "   " + bytes + " bytes written.        \r" );
                 }
             finally
                 {

@@ -42,6 +42,7 @@ import org.progeeks.cmd.swing.*;
 import org.progeeks.util.log.*;
 import org.progeeks.util.*;
 
+import org.progeeks.nwn.*;
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.nss.*;
@@ -277,6 +278,31 @@ public class BuildAction extends AbstractAction
                 }
         }
 
+        public void packModule( File buildDir, File unpackedDir, ProgressReporter pr ) throws IOException
+        {
+            File module = new File( buildDir, project.getTargetModuleName() );
+
+            // For now we cheat and use the project description.  We
+            // should really be pulling this from the module.ifo resource.
+            String description = project.getProjectDescription();
+
+            ModPacker packer = new ModPacker( module, description, pr );
+            File[] list = unpackedDir.listFiles();
+            for( int i = 0; i < list.length; i++ )
+                {
+                if( list[i].isDirectory() )
+                    continue;
+                packer.addFile( list[i] );
+                }
+
+            System.out.println( "Writing resources to module file:" + module );
+
+            // And go
+            long size = packer.writeModule();
+            System.out.println( size + " bytes written from " + packer.getResourceCount()
+                                + " resources." );
+        }
+
         public Result execute( Environment env )
         {
             graph = project.getProjectGraph();
@@ -352,6 +378,21 @@ public class BuildAction extends AbstractAction
                 pr.done();
                 }
 
+            // Now build the module.
+            pr = reqHandler.requestProgressReporter( prName, "Packing module...", 0, 0 );
+            try
+                {
+                packModule( buildDir, unpackedDir, pr );
+                }
+            catch( IOException e )
+                {
+                log.error( "Error packing module", e );
+                }
+            finally
+                {
+                pr.done();
+                }
+
             try
                 {
                 // Store a cached version of the project with all of the changes
@@ -362,8 +403,6 @@ public class BuildAction extends AbstractAction
                 {
                 log.error( "Error compiling scripts", e );
                 }
-
-            // Now build the module.
 
             return( null );
         }
