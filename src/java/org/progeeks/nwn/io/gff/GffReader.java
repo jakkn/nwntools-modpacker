@@ -347,23 +347,13 @@ public class GffReader
     {
         long listOffset = header.getLists().getOffset();
 
-        // First make a list with just the list elements
-        ArrayList listStubs = new ArrayList();
+        // And resolve
         for( Iterator i = fieldStubs.iterator(); i.hasNext(); )
             {
             Stub stub = (Stub)i.next();
             if( stub.type != Element.TYPE_LIST )
                 continue;
-            listStubs.add( stub );
-            }
 
-        // Now sort based on the data element
- //       Collections.sort( listStubs );
-
-        // And resolve
-        for( Iterator i = listStubs.iterator(); i.hasNext(); )
-            {
-            Stub stub = (Stub)i.next();
             String name = (String)labels.get(stub.index);
 
             in.gotoPosition( listOffset + stub.data );
