@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 
 import org.progeeks.nwn.io.*;
+import org.progeeks.util.ProgressReporter;
 import org.progeeks.util.thread.*;
 
 /**
@@ -73,6 +74,11 @@ public class ModReader
         readStrings();
         readResourceIndices();
         readPositions();
+    }
+
+    public int getResourceCount()
+    {
+        return( resources.size() );
     }
 
     private void readHeader() throws IOException
@@ -194,6 +200,57 @@ public class ModReader
         finally
             {
             out.close();
+            }
+    }
+
+    /**
+     *  Need to combine the various extractModule() methods. -FIXME
+     */
+    public static void extractModule( File module, File destination, ProgressReporter pr ) throws IOException
+    {
+        FileInputStream fIn = new FileInputStream( module );
+        BufferedInputStream in = new BufferedInputStream( fIn, 65536 );
+        int count = 0;
+        long total = 0;
+
+        try
+            {
+            File root = destination;
+
+            ModReader m = new ModReader( in );
+            pr.setMaximum( m.getResourceCount() );
+
+            ResourceInputStream rIn = null;
+            while( (rIn = m.nextResource()) != null )
+                {
+                String name = rIn.getResourceName();
+                pr.setMessage( "Extracting: " + name );
+                pr.setProgress( count );
+                if( pr.isCanceled() )
+                    {
+                    System.out.println( "User aborted." );
+                    return;
+                    }
+
+                if( name.length() == 0 )
+                    {
+                    pr.setMessage( "Skipping empty resource entry." );
+                    continue;
+                    }
+                name += "." + ResourceUtils.getExtensionForType(rIn.getResourceType()).toLowerCase();
+
+                File f = new File( root, name );
+                pr.setMessage( "Writing:" + f.getName() + " size:" + rIn.getBytesLeft() );
+
+                int size = dumpStream( f, rIn );
+
+                total += size;
+                count++;
+                }
+            }
+        finally
+            {
+            in.close();
             }
     }
 

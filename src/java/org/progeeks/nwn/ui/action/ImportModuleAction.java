@@ -216,7 +216,8 @@ public class ImportModuleAction extends AbstractAction
     }
 
 
-    protected void convertResources( File moduleFile, Project project, List rules ) throws IOException
+    protected void convertResources( File moduleFile, Project project, List rules,
+                                     ProgressReporter pr ) throws IOException
     {
         ProjectGraph graph = project.getProjectGraph();
 
@@ -231,14 +232,24 @@ public class ImportModuleAction extends AbstractAction
             {
             ModReader reader = new ModReader( in );
 
+            pr.setMaximum( reader.getResourceCount() );
+
             ModReader.ResourceInputStream rIn = null;
+            int count = 0;
             while( (rIn = reader.nextResource()) != null )
                 {
                 String name = rIn.getResourceName();
-System.out.println( "Processing:" + name );
+                pr.setMessage( "Importing: " + name );
+                pr.setProgress( count++ );
+                if( pr.isCanceled() )
+                    {
+                    log.info( "User aborted." );
+                    return;
+                    }
+
                 if( name.length() == 0 )
                     {
-                    System.out.println( "Skipping empty resource entry." );
+                    pr.setMessage( "Skipping empty resource entry." );
                     continue;
                     }
                 int type = rIn.getResourceType();
@@ -270,7 +281,7 @@ System.out.println( "Processing:" + name );
 
                     // Now write out the struct
                     File f = ri.getSource().getFile( project );
-                    System.out.println( "  Converting to:" + f );
+                    pr.setMessage( "Storing: " + f.getName() );
                     writeGffXml( f, struct, key );
                     }
                 else
@@ -282,7 +293,7 @@ System.out.println( "Processing:" + name );
                                                                        project.getBuildDirectory() );
 
                         File f = ri.getSource().getFile( project );
-                        System.out.println( "  Copying to:" + f );
+                        pr.setMessage( "Storing: " + f.getName() );
                         saveStream( f, rIn );
                         }
                     finally
@@ -511,13 +522,27 @@ System.out.println( "Processing:" + name );
                 if( !buildDir.exists() )
                     buildDir.mkdirs();
 
+                UserRequestHandler reqHandler = context.getRequestHandler();
+                ProgressReporter pr;
+                pr = reqHandler.requestProgressReporter( "Importing module:" + module.getName(),
+                                                         "Extracting files...", 0, 100 );
+
+                // Extract the module resources into the build directory.
+                ModReader.extractModule( module, buildDir, pr );
+                if( pr.isCanceled() )
+                    throw new RuntimeException( "Operation Canceled" );
+                pr.done();
+
+                pr = reqHandler.requestProgressReporter( "Importing module:" + module.getName(),
+                                                         "Converting files...", 0, 100 );
+
                 // Go through all of the resources and add them to the source
                 // directories.
                 // This should probably be moved to a separate class.
-                convertResources( module, project, rules );
-
-                // Extract the module resources into the build directory.
-                ModReader.extractModule( module, buildDir, true );
+                convertResources( module, project, rules, pr );
+                if( pr.isCanceled() )
+                    throw new RuntimeException( "Operation Canceled" );
+                pr.done();
 
                 // Update the context with the new file tree
                 context.getFileTreeModel().setFileTreeView( new FileTreeView( project.getProjectGraph() ) );
