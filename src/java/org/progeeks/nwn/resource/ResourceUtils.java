@@ -138,6 +138,166 @@ public class ResourceUtils
         return( Collections.unmodifiableCollection( extensionMap.values() ) );
     }
 
+    /**
+     *  Returns a human-readable description for the type.
+     */
+    public static String getTypeDescription( int type )
+    {
+        switch( type )
+            {
+            case ResourceTypes.TYPE_RES:
+                return( "Resource" );
+            case ResourceTypes.TYPE_BMP:
+                return( "Bitmap" );
+            case ResourceTypes.TYPE_MVE:
+                return( "Movie" );
+            case ResourceTypes.TYPE_TGA:
+                return( "Targa Image" );
+            case ResourceTypes.TYPE_WAV:
+                return( "Wave" );
+            case ResourceTypes.TYPE_PLT:
+                return( "PLT" );
+            case ResourceTypes.TYPE_INI:
+                return( "INI" );
+            case ResourceTypes.TYPE_BMU:
+                return( "BMU" );
+            case ResourceTypes.TYPE_MPG:
+                return( "MPG" );
+            case ResourceTypes.TYPE_TXT:
+                return( "Text" );
+            case ResourceTypes.TYPE_PLH:
+                return( "PLH" );
+            case ResourceTypes.TYPE_TEX:
+                return( "TEX" );
+            case ResourceTypes.TYPE_MDL:
+                return( "Model" );
+            case ResourceTypes.TYPE_THG:
+                return( "THG" );
+            case ResourceTypes.TYPE_FNT:
+                return( "Font" );
+            case ResourceTypes.TYPE_LUA:
+                return( "LUA" );
+            case ResourceTypes.TYPE_SLT:
+                return( "SLT" );
+            case ResourceTypes.TYPE_NSS:
+                return( "Script" );
+            case ResourceTypes.TYPE_NCS:
+                return( "NCS" );
+            case ResourceTypes.TYPE_MOD:
+                return( "Module" );
+            case ResourceTypes.TYPE_ARE:
+                return( "Area" );
+            case ResourceTypes.TYPE_SET:
+                return( "Tileset" );
+            case ResourceTypes.TYPE_IFO:
+                return( "Info" );
+            case ResourceTypes.TYPE_BIC:
+                return( "BIC" );
+            case ResourceTypes.TYPE_WOK:
+                return( "WOK" );
+            case ResourceTypes.TYPE_2DA:
+                return( "2DA" );
+            case ResourceTypes.TYPE_TLK:
+                return( "TLK" );
+            case ResourceTypes.TYPE_TXI:
+                return( "TXI" );
+            case ResourceTypes.TYPE_GIT:
+                return( "GIT" );
+            case ResourceTypes.TYPE_BTI:
+                return( "BTI" );
+            case ResourceTypes.TYPE_UTI:
+                return( "Item" );
+            case ResourceTypes.TYPE_BTC:
+                return( "BTC" );
+            case ResourceTypes.TYPE_UTC:
+                return( "Creature" );
+            case ResourceTypes.TYPE_DLG:
+                return( "Dialog" );
+            case ResourceTypes.TYPE_ITP:
+                return( "ITP" );
+            case ResourceTypes.TYPE_BTT:
+                return( "BTT" );
+            case ResourceTypes.TYPE_UTT:
+                return( "Trigger" );
+            case ResourceTypes.TYPE_DDS:
+                return( "DDS" );
+            case ResourceTypes.TYPE_UTS:
+                return( "Sound" );
+            case ResourceTypes.TYPE_LTR:
+                return( "LTR" );
+            case ResourceTypes.TYPE_GFF:
+                return( "GFF" );
+            case ResourceTypes.TYPE_FAC:
+                return( "Faction" );
+            case ResourceTypes.TYPE_BTE:
+                return( "BTE" );
+            case ResourceTypes.TYPE_UTE:
+                return( "Encounter" );
+            case ResourceTypes.TYPE_BTD:
+                return( "BTD" );
+            case ResourceTypes.TYPE_UTD:
+                return( "Door" );
+            case ResourceTypes.TYPE_BTP:
+                return( "BTP" );
+            case ResourceTypes.TYPE_UTP:
+                return( "Placeable" );
+            case ResourceTypes.TYPE_DTF:
+                return( "DTF" );
+            case ResourceTypes.TYPE_GIC:
+                return( "GIC" );
+            case ResourceTypes.TYPE_GUI:
+                return( "GUI" );
+            case ResourceTypes.TYPE_CSS:
+                return( "CSS" );
+            case ResourceTypes.TYPE_CCS:
+                return( "CCS" );
+            case ResourceTypes.TYPE_BTM:
+                return( "BTM" );
+            case ResourceTypes.TYPE_UTM:
+                return( "Merchant" );
+            case ResourceTypes.TYPE_DWK:
+                return( "DWK" );
+            case ResourceTypes.TYPE_PWK:
+                return( "PWK" );
+            case ResourceTypes.TYPE_BTG:
+                return( "BTG" );
+            case ResourceTypes.TYPE_UTG:
+                return( "UTG" );
+            case ResourceTypes.TYPE_JRL:
+                return( "Journal" );
+            case ResourceTypes.TYPE_SAV:
+                return( "SAV" );
+            case ResourceTypes.TYPE_UTW:
+                return( "Waypoint" );
+            case ResourceTypes.TYPE_4PC:
+                return( "4PC" );
+            case ResourceTypes.TYPE_SSF:
+                return( "SSF" );
+            case ResourceTypes.TYPE_HAK:
+                return( "HAK" );
+            case ResourceTypes.TYPE_NWM:
+                return( "NWM" );
+            case ResourceTypes.TYPE_BIK:
+                return( "BIK" );
+            case ResourceTypes.TYPE_NDB:
+                return( "Script Debug" );
+            case ResourceTypes.TYPE_PTM:
+                return( "PTM" );
+            case ResourceTypes.TYPE_PTT:
+                return( "PTT" );
+            case ResourceTypes.TYPE_270C:
+                return( "270C" );
+            case ResourceTypes.TYPE_ERF:
+                return( "ERF" );
+            case ResourceTypes.TYPE_BIF:
+                return( "BIF" );
+            case ResourceTypes.TYPE_KEY:
+                return( "KEY" );
+            }
+
+        return( WILDCARD );
+    }
+
     public static int getTypeForExtension( String extension )
     {
         Integer i = (Integer)extensionMap.get( extension );

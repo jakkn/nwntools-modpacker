@@ -97,6 +97,8 @@ public class ResourceIndex implements Comparable
      */
     public String getName()
     {
+        if( name == null )
+            return( key.getName() );
         return( name );
     }
 

@@ -90,6 +90,11 @@ public class ResourceKey implements java.io.Serializable, Comparable //, Resourc
         return( name + "." + ResourceUtils.getExtensionForType( type ) );
     }
 
+    public String getDescription()
+    {
+        return( ResourceUtils.getTypeDescription( type ) );
+    }
+
     public int hashCode()
     {
         return( name.hashCode() + type );
