@@ -96,6 +96,7 @@ public class WindowContext extends DefaultViewContext
     public static final String ACTION_EXIT = "Exit";
     public static final String ACTION_BUILD_MODULE = "Build Module";
     public static final String ACTION_ADD_DIRECTORY = "Add Directory";
+    public static final String ACTION_REMOVE_DIRECTORY = "Remove Directory";
 
     /**
      *  The root-level menu action list.
@@ -344,6 +345,7 @@ public class WindowContext extends DefaultViewContext
         rootActionList.add( action );
 
         action.add( addAction( ACTION_ADD_DIRECTORY, new AddDirectoryAction( this ) ) );
+        action.add( addAction( ACTION_REMOVE_DIRECTORY, new RemoveDirectoryAction( this ) ) );
 
 
         ActionList build = addActionList( ACTIONS_BUILD, new ActionList( "Build" ) );

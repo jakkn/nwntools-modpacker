@@ -43,20 +43,20 @@ import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.ui.*;
 
 /**
- *  Action used to add a sub-directory to the tree.
+ *  Action used to remove a sub-directory from a tree.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class AddDirectoryAction extends AbstractAction
-                                implements PropertyChangeListener
+public class RemoveDirectoryAction extends AbstractAction
+                                   implements PropertyChangeListener
 {
     private WindowContext context;
-    private FileIndex     parent;
+    private FileIndex     dir;
 
-    public AddDirectoryAction( WindowContext context )
+    public RemoveDirectoryAction( WindowContext context )
     {
-        super( "Add directory..." );
+        super( "Remove directory" );
         this.context = context;
         context.addPropertyChangeListener( WindowContext.PROP_SELECTED_OBJECTS, this );
         setParent( context.getSelectedObject() );
@@ -64,11 +64,11 @@ public class AddDirectoryAction extends AbstractAction
 
     protected void setParent( Object obj )
     {
-        parent = null;
+        dir = null;
         if( obj instanceof FileIndex )
-            parent = (FileIndex)obj;
+            dir = (FileIndex)obj;
 
-        setEnabled( parent != null );
+        setEnabled( dir != null );
     }
 
     public void propertyChange( PropertyChangeEvent event )
@@ -78,31 +78,39 @@ public class AddDirectoryAction extends AbstractAction
 
     public void actionPerformed( ActionEvent event )
     {
-        if( parent == null )
+        if( dir == null )
             return;
 
         UserRequestHandler reqHandler = context.getRequestHandler();
-        String name = reqHandler.requestString( "Directory Name",
-                                                "Enter sub-directory name for [" + parent.getName() + "]:",
-                                                "" );
-        if( name == null )
-            return; // user canceled
-        name = name.trim();
-        if( name.length() == 0 )
-            return; // not usable
 
+        FileTreeModel tree = context.getFileTreeModel();
         Project project = context.getProject();
+        ProjectGraph graph = project.getProjectGraph();
 
-        FileIndex child = new FileIndex( parent, name );
-        File f = child.getFile( project );
-        if( !f.exists() && !f.mkdirs() )
+        // Check to see if the directory has any children
+        if( tree.getChildCount( dir ) > 0 )
             {
-            reqHandler.requestShowError( "Directory Error", "Directory was not created." );
+            reqHandler.requestShowMessage( "Cannot remove a directory that contains other objects." );
+            // If we ever do this remember to do depth-first removal to catch everything
+            // properly
             return;
             }
 
-        ProjectGraph graph = project.getProjectGraph();
-        graph.addDirectory( child );
+        // Double check that the user really wants to remove it
+        Boolean b = reqHandler.requestConfirmation( "Remove Directory", "Really remove the directory?", false );
+        if( b == null || !b.booleanValue() )
+            return;
+
+        // Remove the directory
+        File f = dir.getFile( project );
+        if( f.exists() && !f.delete() )
+            {
+            reqHandler.requestShowError( "Remove Directory", "Directory was not removed." );
+            return;
+            }
+
+        // Remove the node
+        graph.removeNode( dir );
     }
 }
 
