@@ -162,7 +162,7 @@ public class MainWindow extends JFrame
 
                 context.getFileTreeModel().setRootedTreeView( new FileTreeView( filtered, graph.getRoot() ) );*/
 
-                context.getFileTreeModel().setRootedTreeView( new FileTreeView( graph, graph.getRoot() ) );
+                context.getFileTreeModel().setRootedTree( new FileTreeView( graph, graph.getRoot() ) );
                 }
         }
     }

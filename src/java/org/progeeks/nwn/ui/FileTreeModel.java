@@ -61,7 +61,7 @@ public class FileTreeModel extends RootedTreeViewModel
      */
     public boolean isLeaf( Object node )
     {
-        if( getRootedTreeView() == null )
+        if( getRootedTree() == null )
             return( true );
 
         // Quick and dirty optimization since currently
