@@ -84,7 +84,7 @@ public class GffReader
         return( (Struct)structs.get(0) );
     }
 
-    public void printElement( Object obj, String indent )
+    public static void printElement( Object obj, String indent )
     {
         List l = null;
         /*if( obj instanceof List )

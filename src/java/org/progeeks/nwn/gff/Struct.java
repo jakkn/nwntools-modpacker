@@ -45,6 +45,11 @@ public class Struct
     private int id;
     private Map elements = new LinkedHashMap();
 
+    public Struct( int id )
+    {
+        this.id = id;
+    }
+
     public Struct( int id, List values )
     {
         this.id = id;
@@ -76,6 +81,11 @@ public class Struct
     public List getValues()
     {
         return( new ArrayList( elements.values() ) );
+    }
+
+    public void addValue( Element element )
+    {
+        setValue( element.getName(), element );
     }
 
     public void setValue( String name, Element element )

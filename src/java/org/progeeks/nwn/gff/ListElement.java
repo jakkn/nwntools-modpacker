@@ -47,6 +47,7 @@ public class ListElement extends Element
     public ListElement( String name, int type )
     {
         super( name, type );
+        value = new ArrayList();
     }
 
     public ListElement( String name, int type, List value )
@@ -58,6 +59,11 @@ public class ListElement extends Element
     public List getValue()
     {
         return( value );
+    }
+
+    public void addValue( Struct struct )
+    {
+        value.add( struct );
     }
 
     public void setValue( List value )

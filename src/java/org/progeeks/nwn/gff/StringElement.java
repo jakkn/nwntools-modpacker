@@ -42,9 +42,19 @@ public class StringElement extends Element
 {
     private String value;
 
+    public StringElement( String name, int type )
+    {
+        super( name, type );
+    }
+
     public StringElement( String name, int type, String value )
     {
         super( name, type );
+        this.value = value;
+    }
+
+    public void setValue( String value )
+    {
         this.value = value;
     }
 
@@ -55,6 +65,7 @@ public class StringElement extends Element
 
     public void setStringValue( String value )
     {
+        this.value = value;
     }
 
     public String getStringValue()
