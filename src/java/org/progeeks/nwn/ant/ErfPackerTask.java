@@ -42,6 +42,8 @@ import org.apache.tools.ant.util.*;
 import org.progeeks.util.DefaultProgressReporter;
 
 import org.progeeks.nwn.*;
+import org.progeeks.nwn.gff.*;
+import org.progeeks.nwn.io.gff.*;
 
 /**
  *  ANT task for generating an ERF-based file.
@@ -151,10 +153,58 @@ public class ErfPackerTask extends MatchingTask
             }
     }
 
+    /**
+     *  Write a GFF structure to the specified file.
+     */
+    protected void writeGff( Struct struct, String type, File target ) throws IOException
+    {
+        FileOutputStream out = new FileOutputStream( target );
+        try
+            {
+            GffWriter writer = new GffWriter( type, out );
+            writer.writeStruct( struct );
+            }
+        finally
+            {
+            out.close();
+            }
+    }
+
+    /**
+     *  Creates an export info GFF structure for an ERF file.  HAKs and
+     *  MODs don't need this... just .erfs.
+     */
+    protected Struct createExportInfo( String description )
+    {
+        // Should be:
+        //  name: ExportInfo.gff
+        //  type: GFF
+        //  version: V3.2
+        //
+
+        // Really should standardize this stuff into a different
+        // separate set of classes for GFF types.
+        Struct root = new Struct( -1 );
+
+        // These should be configurable
+        root.addValue( new StringElement( "Mod_MinGameVer", Element.TYPE_STRING, "1.64" ) );
+        root.addValue( new IntElement( "Expansion_Pack", Element.TYPE_UINT16, 3 ) );
+        root.addValue( new StringElement( "Comments", Element.TYPE_STRING, description ) );
+
+        // Turns out we don't really need anything else.  The toolset seems
+        // to cope just fine with the above.
+
+        return( root );
+    }
+
     public void execute() throws BuildException
     {
         if( target == null )
             throw new BuildException( "No erffile specified." );
+
+        // We'll keep track of any temporary ExportInfo.gff file
+        // that we create so we can remove it after packing.
+        File exportInfoFile = null;
 
         // Do some deducing
         String type = getType();
@@ -183,6 +233,25 @@ public class ErfPackerTask extends MatchingTask
             {
             // Need to generate an ExportInfo file containing a list of
             // the included resources and the description.
+            Struct exportInfo = createExportInfo( desc );
+            try
+                {
+                // Note: the space at the end of GFF is necessary right now.
+                exportInfoFile = new File( baseDir, "ExportInfo.gff" );
+                if( !exportInfoFile.exists() )
+                    {
+                    writeGff( exportInfo, "GFF ", new File( baseDir, "ExportInfo.gff" ) );
+                    }
+                else
+                    {
+                    // We'll use the existing one
+                    exportInfoFile = null;
+                    }
+                }
+            catch( IOException e )
+                {
+                throw new BuildException( "Error generating ExportInfo.gff", e );
+                }
             }
 
         ModPacker packer = new ModPacker( target, desc, new NullMonitor() );
@@ -223,6 +292,12 @@ public class ErfPackerTask extends MatchingTask
             {
             throw new BuildException( "Error writing erf:" + target, e );
             }
+
+        // Clean up the temporary ExportInfo if we created one
+        if( exportInfoFile != null )
+            {
+            exportInfoFile.delete();
+            }
     }
 
     private class NullMonitor extends DefaultProgressReporter
@@ -252,4 +327,6 @@ public class ErfPackerTask extends MatchingTask
         }
     }
 }
+
+
 
