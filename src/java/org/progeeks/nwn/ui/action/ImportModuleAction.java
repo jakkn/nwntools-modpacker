@@ -283,8 +283,11 @@ public class ImportModuleAction extends AbstractAction
             rules.add( new ResourceRegexRule( "cohort.*", "Tools/Cohort System" ) );
             rules.add( new ResourceRegexRule( "dlg_.*", "Tools/Dialog Utils" ) );
             rules.add( new ResourceRegexRule( "dmw_.*", "Tools/Dungeon Master Wand" ) );
+            rules.add( new ResourceRegexRule( "dmwand", "Tools/Dungeon Master Wand" ) );
             rules.add( new ResourceRegexRule( "ew_.*", "Tools/Emote Wand" ) );
+            rules.add( new ResourceRegexRule( "emotewand", "Tools/Emote Wand" ) );
             rules.add( new ResourceRegexRule( "fxw_.*", "Tools/FX Wand" ) );
+            rules.add( new ResourceRegexRule( "fxwand", "Tools/FX Wand" ) );
             rules.add( new ResourceRegexRule( "hc_.*", "Tools/Hard-core Rules" ) );
             rules.add( new ResourceRegexRule( "hcr.*", "Tools/Hard-core Rules" ) );
             rules.add( new ResourceRegexRule( "hchtf_.*", "Tools/Hard-core Rules" ) );

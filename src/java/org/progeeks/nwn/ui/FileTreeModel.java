@@ -95,6 +95,9 @@ public class FileTreeModel extends AbstractTreeModel
             lastChildren.add( i.next() );
         lastParent = parent;
 
+        // Sort the list of children
+        Collections.sort( lastChildren );
+
         return( lastChildren );
     }
 

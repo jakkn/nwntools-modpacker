@@ -39,7 +39,7 @@ package org.progeeks.nwn;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ResourceKey implements java.io.Serializable
+public class ResourceKey implements java.io.Serializable, Comparable
 {
     static final long serialVersionUID = 42L;
 
@@ -171,6 +171,14 @@ public class ResourceKey implements java.io.Serializable
         if( obj instanceof ResourceKey )
             return( equals( (ResourceKey)obj ) );
         return( false );
+    }
+
+    public int compareTo( Object obj )
+    {
+        if( !(obj instanceof ResourceKey) )
+            return( 1 );
+        ResourceKey key = (ResourceKey)obj;
+        return( name.compareTo( key.name ) );
     }
 
     public String toString()
