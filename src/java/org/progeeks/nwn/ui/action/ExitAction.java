@@ -64,7 +64,7 @@ public class ExitAction extends AbstractAction
             {
             // After confirmation, it should just be a matter of clearing
             // the window context list.
-            ((GlobalContext)context.getParentContext()).getWindowContexts().clear();
+            ((GlobalContext)context.getParentContext()).closeContext( false );
             }
     }
 }
