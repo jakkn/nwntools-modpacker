@@ -36,6 +36,9 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 
+import org.progeeks.nwn.*;
+import org.progeeks.nwn.gff.*;
+import org.progeeks.nwn.io.gff.*;
 import org.progeeks.nwn.ui.*;
 
 /**
@@ -55,6 +58,39 @@ public class ImportModuleAction extends AbstractAction
         this.context = context;
     }
 
+    protected Struct getModuleInfo( File moduleFile ) throws IOException
+    {
+        FileInputStream in = new FileInputStream( moduleFile );
+        try
+            {
+            ModReader modReader = new ModReader( in );
+
+            // Find the input stream for the module.ifo resource
+            ModReader.ResourceInputStream rIn = null;
+            while( (rIn = modReader.nextResource()) != null )
+                {
+                if( rIn.getResourceType() == ResourceUtils.RES_IFO
+                    && rIn.getResourceName().equals( "module" ) )
+                    {
+                    break;
+                    }
+                }
+
+            if( rIn == null )
+                {
+                throw new RuntimeException( "The specified module does not contain a valid module.ifo resource."
+                                             + "\nModule file:" + moduleFile );
+                }
+
+            GffReader reader = new GffReader( rIn );
+            return( (Struct)reader.readRootStruct() );
+            }
+        finally
+            {
+            in.close();
+            }
+    }
+
     public void actionPerformed( ActionEvent event )
     {
         System.out.println( "Import" );
@@ -64,6 +100,28 @@ public class ImportModuleAction extends AbstractAction
             return;
 
         System.out.println( "Import:" + module );
+        try
+            {
+            Struct info = getModuleInfo( module );
+            System.out.println( "Info:" + info );
+
+            String name = info.getString( "Mod_Name" );
+            String description = info.getString( "Mod_Description" );
+            String minGameVer = info.getString( "Mod_MinGameVer" );
+
+            System.out.println( "Module:" + name );
+            System.out.println( "Description:" + description );
+            System.out.println( "Minimum game version:" + minGameVer );
+            }
+        catch( IOException e )
+            {
+            context.getRequestHandler().requestShowMessage( "Error loading module file:" + module
+                                                            + "\n" + e.getMessage() );
+            }
+        catch( RuntimeException e )
+            {
+            context.getRequestHandler().requestShowMessage( e.getMessage() );
+            }
 
     }
 }
