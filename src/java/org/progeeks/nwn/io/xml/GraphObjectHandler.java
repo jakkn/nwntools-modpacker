@@ -53,6 +53,11 @@ import org.progeeks.util.xml.*;
  */
 public class GraphObjectHandler extends DefaultObjectHandler
 {
+    public GraphObjectHandler()
+    {
+        importPackage( "org.progeeks.nwn.model" );
+    }
+
     /**
      *  Returns true if this handler applies to the specified
      *  object tag.

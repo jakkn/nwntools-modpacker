@@ -189,7 +189,7 @@ public class GraphXmlRenderer extends XmlMetaObjectRenderer
             properties = metaClass.getPropertyNames();
 
         Graph graph = (Graph)value;
-        out.pushTag( graph.getClass().getName() );
+        out.pushTag( context.transformClassName( graph.getClass().getName() ) );
 
         // Write out the attributes.
         writeAttributes( mValue, properties, context );

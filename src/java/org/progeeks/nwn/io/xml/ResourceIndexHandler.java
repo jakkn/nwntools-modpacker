@@ -56,6 +56,7 @@ public class ResourceIndexHandler extends DefaultObjectHandler
     public ResourceIndexHandler()
     {
         addHandledClass( ResourceIndex.class );
+        importPackage( "org.progeeks.nwn.model" );
     }
 
     protected boolean ignoreAttribute( String name, ObjectXmlReader reader )

@@ -135,6 +135,7 @@ public class GlobalContext extends DefaultViewContext
 
             xmlRenderer.setFormatRegistry( factories.getFormatRegistry() );
             xmlRenderer.registerRenderer( graphClass, new GraphXmlRenderer() );
+            xmlRenderer.importPackage( "org.progeeks.nwn.model" );
 
             // Register a custom editor for the FileIndex.
             // Right now, we don't use a correct one, but this keeps the
@@ -161,9 +162,14 @@ public class GlobalContext extends DefaultViewContext
             xmlReader = new ObjectXmlReader();
             GraphObjectHandler graphHandler = new GraphObjectHandler();
             graphHandler.addHandledClass( ProjectGraph.class );
+            BeanObjectHandler beanHandler = new BeanObjectHandler();
+            ResourceIndexHandler riHandler = new ResourceIndexHandler();
+
+            beanHandler.importPackage( "org.progeeks.nwn.model" );
+
             xmlReader.addObjectHandler( graphHandler );
-            xmlReader.addObjectHandler( new ResourceIndexHandler() );
-            xmlReader.addObjectHandler( new BeanObjectHandler() );
+            xmlReader.addObjectHandler( riHandler );
+            xmlReader.addObjectHandler( beanHandler );
             }
         catch( IntrospectionException e )
             {
