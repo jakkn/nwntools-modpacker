@@ -109,10 +109,11 @@ public class GffWriter
         ListStub stub = new ListStub( values.size(), lastStub );
         listStubs.add( stub );
 
+        int index = 0;
         for( Iterator i = values.iterator(); i.hasNext(); )
             {
             Struct s = (Struct)i.next();
-            stub.indices.add( new Integer( addStruct( s ) ) );
+            stub.indices[index++] = addStruct( s );
             }
 
         return( stub.getOffset() );
@@ -193,10 +194,11 @@ public class GffWriter
         StructStub stub = new StructStub( struct.getId(), struct.getValues().size(), lastStub );
         structStubs.add( stub );
 
+        int index = 0;
         for( Iterator it = struct.values(); it.hasNext(); )
             {
             Element el = (Element)it.next();
-            stub.elementIndex.add( new Integer( addElement( el ) ) );
+            stub.elementIndex[index++] = addElement( el );
             }
 
         return( i );
@@ -266,6 +268,14 @@ public class GffWriter
         out.writeInt( listBlockSize );
     }
 
+    protected void writeIntArray( int[] array ) throws IOException
+    {
+        for( int i = 0; i < array.length; i++ )
+            {
+            out.writeInt( array[i] );
+            }
+    }
+
     protected void writeData() throws IOException
     {
         // Structs
@@ -273,7 +283,7 @@ public class GffWriter
             {
             StructStub stub = (StructStub)i.next();
             out.writeInt( stub.type );
-            int size = stub.elementIndex.size();
+            int size = stub.elementCount;
 
             if( size == 0 )
                 {
@@ -281,8 +291,7 @@ public class GffWriter
                 }
             else if( size == 1 )
                 {
-                Integer index = (Integer)stub.elementIndex.get(0);
-                out.writeInt( index.intValue() );
+                out.writeInt( stub.elementIndex[0] );
                 }
             else
                 {
@@ -411,26 +420,19 @@ public class GffWriter
         for( Iterator i = structStubs.iterator(); i.hasNext(); )
             {
             StructStub stub = (StructStub)i.next();
-            if( stub.elementIndex.size() <= 1 )
+            if( stub.elementCount <= 1 )
                 continue;
 
-            for( Iterator j = stub.elementIndex.iterator(); j.hasNext(); )
-                {
-                Integer index = (Integer)j.next();
-                out.writeInt( index.intValue() );
-                }
+            writeIntArray( stub.elementIndex );
             }
 
         // Lists
         for( Iterator i = listStubs.iterator(); i.hasNext(); )
             {
             ListStub stub = (ListStub)i.next();
-            out.writeInt( stub.indices.size() );
-            for( Iterator j = stub.indices.iterator(); j.hasNext(); )
-                {
-                Integer index = (Integer)j.next();
-                out.writeInt( index.intValue() );
-                }
+            out.writeInt( stub.indexSize );
+
+            writeIntArray( stub.indices );
             }
     }
 
@@ -488,7 +490,7 @@ public class GffWriter
         // Offset in the field index data block
         int type;
         int elementCount;
-        List elementIndex;
+        int[] elementIndex;
 
         public StructStub( int type, int elementCount, Stub previous )
         {
@@ -500,7 +502,7 @@ public class GffWriter
             // offset calculations even though it doesn't have all
             // of its sub-items yet.
             this.elementCount = elementCount;
-            this.elementIndex = new ArrayList( elementCount );
+            this.elementIndex = new int[ elementCount ];
         }
 
         public int getSize()
@@ -543,7 +545,7 @@ public class GffWriter
     {
         int indexSize = 0;
         int offset = -1;
-        List indices;
+        int[] indices;
 
         public ListStub( int indexSize, Stub previous )
         {
@@ -554,7 +556,7 @@ public class GffWriter
             // offset calculations even though it doesn't have all
             // of its list items yet.
             this.indexSize = indexSize;
-            this.indices = new ArrayList( indexSize );
+            this.indices = new int[ indexSize ];
         }
 
         public int getSize()
