@@ -78,7 +78,7 @@ public class ObjectElement extends Element
         for( int i = split + 1; i < length; i++ )
             {
             char c = value.charAt( i );
-            int nibble = 0;
+            int nibble = -1;
             switch( c )
                 {
                 case '[':
@@ -113,7 +113,7 @@ public class ObjectElement extends Element
                 default:
                     break;
                 }
-            if( nibble > 0 )
+            if( nibble >= 0 )
                 {
                 current = current << 4;
                 current += nibble;
