@@ -32,8 +32,6 @@
 
 package org.progeeks.nwn.model;
 
-import com.phoenixst.plexus.*;
-
 import org.progeeks.graph.*;
 
 import org.progeeks.nwn.resource.*;
@@ -59,7 +57,7 @@ public class ResourceLocator implements NodeFilter
         return( key );
     }
 
-    public boolean evaluateNode( Object node, Graph graph )
+    public boolean evaluate( Object node )
     {
         // In reality, this method should never be executed since
         // the graph should be smart enough to find the resource index
