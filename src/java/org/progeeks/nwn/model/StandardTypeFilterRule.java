@@ -34,7 +34,7 @@ package org.progeeks.nwn.model;
 
 import java.io.File;
 
-import org.progeeks.nwn.ResourceKey;
+import org.progeeks.nwn.resource.*;
 
 /**
  *  Rule for moving the resource into a type-specific sub-directory.
@@ -51,52 +51,52 @@ public class StandardTypeFilterRule implements MappingRule
 
         switch( key.getType() )
             {
-            case ResourceKey.TYPE_ARE:
+            case ResourceTypes.TYPE_ARE:
                 subDir = "Areas";
                 break;
-            case ResourceKey.TYPE_NSS:
+            case ResourceTypes.TYPE_NSS:
                 subDir = "Scripts";
                 break;
-            case ResourceKey.TYPE_DLG:
+            case ResourceTypes.TYPE_DLG:
                 subDir = "Conversations";
                 break;
-            case ResourceKey.TYPE_UTM:
+            case ResourceTypes.TYPE_UTM:
                 subDir = "Blueprints/Merchants";
                 break;
-            case ResourceKey.TYPE_UTS:
+            case ResourceTypes.TYPE_UTS:
                 subDir = "Blueprints/Sounds";
                 break;
-            case ResourceKey.TYPE_UTP:
+            case ResourceTypes.TYPE_UTP:
                 subDir = "Blueprints/Placeables";
                 break;
-            case ResourceKey.TYPE_UTE:
+            case ResourceTypes.TYPE_UTE:
                 subDir = "Blueprints/Encounters";
                 break;
-            case ResourceKey.TYPE_UTI:
+            case ResourceTypes.TYPE_UTI:
                 subDir = "Blueprints/Items";
                 break;
-            case ResourceKey.TYPE_UTC:
+            case ResourceTypes.TYPE_UTC:
                 subDir = "Blueprints/Creatures";
                 break;
-            case ResourceKey.TYPE_UTW:
+            case ResourceTypes.TYPE_UTW:
                 subDir = "Blueprints/Waypoints";
                 break;
-            case ResourceKey.TYPE_UTT:
+            case ResourceTypes.TYPE_UTT:
                 subDir = "Blueprints/Triggers";
                 break;
-            case ResourceKey.TYPE_UTD:
+            case ResourceTypes.TYPE_UTD:
                 subDir = "Blueprints/Doors";
                 break;
 
             // Ignored types
-            case ResourceKey.TYPE_NCS: // compiled script files
-            case ResourceKey.TYPE_NDB: // debug files
-            case ResourceKey.TYPE_GIC: // area comments
-            case ResourceKey.TYPE_GIT: // area items
-            case ResourceKey.TYPE_IFO: // module info file
-            case ResourceKey.TYPE_ITP: // palette files
-            case ResourceKey.TYPE_FAC: // factions
-            case ResourceKey.TYPE_JRL: // journal
+            case ResourceTypes.TYPE_NCS: // compiled script files
+            case ResourceTypes.TYPE_NDB: // debug files
+            case ResourceTypes.TYPE_GIC: // area comments
+            case ResourceTypes.TYPE_GIT: // area items
+            case ResourceTypes.TYPE_IFO: // module info file
+            case ResourceTypes.TYPE_ITP: // palette files
+            case ResourceTypes.TYPE_FAC: // factions
+            case ResourceTypes.TYPE_JRL: // journal
                 return( null );
 
             default:

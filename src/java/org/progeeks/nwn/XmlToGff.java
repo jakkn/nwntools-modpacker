@@ -41,6 +41,7 @@ import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.gff.*;
 import org.progeeks.nwn.io.xml.*;
+import org.progeeks.nwn.resource.*;
 import org.progeeks.util.thread.*;
 
 
@@ -76,7 +77,7 @@ public class XmlToGff
 
         int type = ResourceUtils.getTypeForFileName( f.getName() );
         //System.out.println( "type:" + type );
-        //if( type == ResourceUtils.RES_MOD )
+        //if( type == ResourceTypes.TYPE_MOD )
         //    {
         //    processModFile( f );
         //    return;

@@ -35,7 +35,7 @@ package org.progeeks.nwn.resource;
 import java.io.*;
 
 import org.progeeks.nwn.io.image.*;
-import org.progeeks.nwn.ResourceKey;
+import org.progeeks.nwn.resource.ResourceKey;
 
 /**
  *  Loader that will load a targa image from an input stream.

@@ -32,7 +32,7 @@
 
 package org.progeeks.nwn.model;
 
-import org.progeeks.nwn.ResourceKey;
+import org.progeeks.nwn.resource.ResourceKey;
 
 /**
  *  Provides the project-level view of a resource.  This includes

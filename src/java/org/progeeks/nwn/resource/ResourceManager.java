@@ -69,8 +69,8 @@ public class ResourceManager
      */
     protected void setupDefaultLoaders()
     {
-        registerLoader( ResourceUtils.RES_SET, new TilesetLoader() );
-        registerLoader( ResourceUtils.RES_TGA, new TargaLoader() );
+        registerLoader( ResourceTypes.TYPE_SET, new TilesetLoader() );
+        registerLoader( ResourceTypes.TYPE_TGA, new TargaLoader() );
 
         // Go through all of the resource types and register the gff
         // loader with any GFF based type.

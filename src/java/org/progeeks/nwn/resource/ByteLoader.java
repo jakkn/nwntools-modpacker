@@ -34,7 +34,7 @@ package org.progeeks.nwn.resource;
 
 import java.io.*;
 
-import org.progeeks.nwn.ResourceKey;
+import org.progeeks.nwn.resource.ResourceKey;
 
 /**
  *  Default resource loader implementation that will load an input stream

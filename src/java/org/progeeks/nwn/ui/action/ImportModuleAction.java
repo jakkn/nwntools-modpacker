@@ -102,7 +102,7 @@ public class ImportModuleAction extends AbstractAction
             ModReader.ResourceInputStream rIn = null;
             while( (rIn = modReader.nextResource()) != null )
                 {
-                if( rIn.getResourceType() == ResourceUtils.RES_IFO
+                if( rIn.getResourceType() == ResourceTypes.TYPE_IFO
                     && rIn.getResourceName().equals( "module" ) )
                     {
                     break;

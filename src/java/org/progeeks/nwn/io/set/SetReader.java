@@ -114,7 +114,7 @@ public class SetReader
 
         for( int i = 0; i < args.length; i++ )
             {
-            InputStream in = resMgr.getResourceStream( new ResourceKey( args[0], ResourceUtils.RES_SET ) );
+            InputStream in = resMgr.getResourceStream( new ResourceKey( args[0], ResourceTypes.TYPE_SET ) );
             SetReader setReader = new SetReader( in );
             try
                 {

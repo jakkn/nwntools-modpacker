@@ -38,6 +38,7 @@ import java.util.*;
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.itp.*;
 import org.progeeks.nwn.itp.*;
+import org.progeeks.nwn.resource.*;
 
 /**
  *  Packs a set of files into a .mod file.

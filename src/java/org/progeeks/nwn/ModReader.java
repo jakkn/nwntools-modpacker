@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 
 import org.progeeks.nwn.io.*;
+import org.progeeks.nwn.resource.*;
 import org.progeeks.util.ProgressReporter;
 import org.progeeks.util.thread.*;
 

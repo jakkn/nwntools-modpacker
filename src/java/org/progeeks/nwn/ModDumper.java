@@ -38,6 +38,7 @@ import java.util.*;
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.gff.*;
+import org.progeeks.nwn.resource.*;
 import org.progeeks.util.thread.*;
 
 

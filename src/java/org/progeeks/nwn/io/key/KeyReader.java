@@ -35,8 +35,8 @@ package org.progeeks.nwn.io.key;
 import java.io.*;
 import java.util.*;
 
-import org.progeeks.nwn.*;
 import org.progeeks.nwn.io.*;
+import org.progeeks.nwn.resource.*;
 
 /**
  *  Reader for NWN Key files.

@@ -35,7 +35,7 @@ package org.progeeks.nwn.model;
 import java.io.File;
 import java.util.regex.*;
 
-import org.progeeks.nwn.ResourceKey;
+import org.progeeks.nwn.resource.ResourceKey;
 
 /**
  *  Rule for moving the resource into a sub-directory if its

@@ -34,8 +34,6 @@ package org.progeeks.nwn.resource;
 
 import java.io.*;
 
-import org.progeeks.nwn.ResourceKey;
-
 /**
  *  Implemented to provide type-specific support for converting
  *  a stream into an object of the specific implementation type.

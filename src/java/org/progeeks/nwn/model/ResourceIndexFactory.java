@@ -33,7 +33,7 @@
 package org.progeeks.nwn.model;
 
 import org.progeeks.nwn.gff.*;
-import org.progeeks.nwn.ResourceKey;
+import org.progeeks.nwn.resource.*;
 
 /**
  *  Creates ResourceIndex objects from supplied parameters.
@@ -86,55 +86,55 @@ public class ResourceIndexFactory
 
         switch( key.getType() )
             {
-            case ResourceKey.TYPE_IFO: // module info
+            case ResourceTypes.TYPE_IFO: // module info
                 s = "Module Information";
                 break;
-            case ResourceKey.TYPE_ARE: // area
+            case ResourceTypes.TYPE_ARE: // area
                 s = struct.getString( "Name" );
                 break;
-            case ResourceKey.TYPE_GIC: // area comments
-            case ResourceKey.TYPE_GIT: // area objects
+            case ResourceTypes.TYPE_GIC: // area comments
+            case ResourceTypes.TYPE_GIT: // area objects
                 break;
-            case ResourceKey.TYPE_UTC: // creature blueprint
+            case ResourceTypes.TYPE_UTC: // creature blueprint
                 s = struct.getString( "FirstName" ) + " " + struct.getString( "LastName" );
                 s.trim();
                 break;
-            case ResourceKey.TYPE_UTD: // door blueprint
+            case ResourceTypes.TYPE_UTD: // door blueprint
                 s = struct.getString( "LocName" );
                 break;
-            case ResourceKey.TYPE_UTE: // encounter blueprint
+            case ResourceTypes.TYPE_UTE: // encounter blueprint
                 s = struct.getString( "LocalizedName" );
                 break;
-            case ResourceKey.TYPE_UTI: // item blueprint
+            case ResourceTypes.TYPE_UTI: // item blueprint
                 s = struct.getString( "LocalizedName" );
                 break;
-            case ResourceKey.TYPE_UTP: // placeable blueprint
+            case ResourceTypes.TYPE_UTP: // placeable blueprint
                 s = struct.getString( "LocName" );
                 break;
-            case ResourceKey.TYPE_UTS: // sound blueprint
+            case ResourceTypes.TYPE_UTS: // sound blueprint
                 s = struct.getString( "LocName" );
                 break;
-            case ResourceKey.TYPE_UTM: // store blueprint
+            case ResourceTypes.TYPE_UTM: // store blueprint
                 s = struct.getString( "LocName" );
                 break;
-            case ResourceKey.TYPE_UTT: // trigger blueprint
+            case ResourceTypes.TYPE_UTT: // trigger blueprint
                 s = struct.getString( "LocalizedName" );
                 break;
-            case ResourceKey.TYPE_UTW: // waypoint blueprint
+            case ResourceTypes.TYPE_UTW: // waypoint blueprint
                 s = struct.getString( "LocalizedName" );
                 break;
-            case ResourceKey.TYPE_DLG: // conversation
+            case ResourceTypes.TYPE_DLG: // conversation
                 // Conversations have no name
-            case ResourceKey.TYPE_JRL: // journal
+            case ResourceTypes.TYPE_JRL: // journal
                 // Neither do journals, besides they don't go into
                 // the tree anyway.
-            case ResourceKey.TYPE_FAC: // faction
+            case ResourceTypes.TYPE_FAC: // faction
                 // Likewise
-            case ResourceKey.TYPE_ITP: // palette
+            case ResourceTypes.TYPE_ITP: // palette
                 // No name.
-            case ResourceKey.TYPE_PTM: // plot manager
-            case ResourceKey.TYPE_PTT: // plot wizard blueprint
-            case ResourceKey.TYPE_BIC: // Character/Creature file
+            case ResourceTypes.TYPE_PTM: // plot manager
+            case ResourceTypes.TYPE_PTT: // plot wizard blueprint
+            case ResourceTypes.TYPE_BIC: // Character/Creature file
                 break;
             }
 
@@ -163,7 +163,7 @@ public class ResourceIndexFactory
         // Some types have altogether different destinations.
         switch( key.getType() )
             {
-            case ResourceKey.TYPE_NSS:
+            case ResourceTypes.TYPE_NSS:
                 ext = ".ncs";
                 break;
             default:

@@ -95,7 +95,7 @@ public class AreaViewer extends JFrame
 
     protected List getTileset( String tileset ) throws IOException
     {
-        List tiles = (List)resMgr.getResource( new ResourceKey( tileset, ResourceUtils.RES_SET ) );
+        List tiles = (List)resMgr.getResource( new ResourceKey( tileset, ResourceTypes.TYPE_SET ) );
         int size = tiles.size();
         for( int i = 0; i < size; i++ )
             images.add( null );
@@ -112,7 +112,7 @@ public class AreaViewer extends JFrame
         String res = (String)tile.get( "ImageMap2D" );
         res = res.toLowerCase();
 System.out.println( "Res:" + res );
-        img = (Image)resMgr.getResource( new ResourceKey( res, ResourceUtils.RES_TGA ) );
+        img = (Image)resMgr.getResource( new ResourceKey( res, ResourceTypes.TYPE_TGA ) );
         images.set( index, img );
         return( img );
     }

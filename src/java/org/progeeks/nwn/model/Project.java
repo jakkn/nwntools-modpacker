@@ -195,7 +195,7 @@ public class Project
         return( sourceDirectory );
     }
 
-/*
+///*
 public void setTest1( Project p )
 {
     System.out.println( "Test1:" + p );
@@ -218,7 +218,7 @@ public void addTest2( Project p )
 public java.util.List getTest2()
 {
     return( null );
-} */
+} //*/
 
     /**
      *  Sets the project description which may be different than the
