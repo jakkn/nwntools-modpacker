@@ -183,7 +183,7 @@ public class GraphXmlRenderer extends XmlMetaObjectRenderer
 
         out.pushTag( "nodes" );
         // Render the nodes
-        for( Iterator i = graph.nodeIterator(); i.hasNext(); )
+        for( Iterator i = graph.nodes(null).iterator(); i.hasNext(); )
             {
             Object node = i.next();
             renderNode( node, graph, mValue.getMetaClass(), metaKit, context );
@@ -192,7 +192,7 @@ public class GraphXmlRenderer extends XmlMetaObjectRenderer
 
         out.pushTag( "edges" );
         // Render the edges
-        for( Iterator i = graph.edgeIterator(); i.hasNext(); )
+        for( Iterator i = graph.edges(null).iterator(); i.hasNext(); )
             {
             Graph.Edge edge = (Graph.Edge)i.next();
             renderEdge( edge, graph, mValue.getMetaClass(), metaKit, context );

@@ -363,7 +363,7 @@ public class BuildAction extends AbstractAction
         public String build() throws IOException
         {
             graph = project.getProjectGraph();
-            int nodeCount = graph.nodeSize();
+            int nodeCount = graph.nodes(null).size();
 
             File buildDir = project.getBuildDirectory().getFile( project );
             File unpackedDir = project.getModuleFilesDirectory().getFile( project );
@@ -375,7 +375,7 @@ public class BuildAction extends AbstractAction
             try
                 {
                 int index = 0;
-                for( Iterator i = graph.nodeIterator(); i.hasNext(); index++ )
+                for( Iterator i = graph.nodes(null).iterator(); i.hasNext(); index++ )
                     {
                     Object obj = i.next();
                     pr.setProgress( index );
