@@ -44,12 +44,15 @@ import org.progeeks.nwn.resource.*;
 
 /**
  *  The main graph containing all of the project's resources
- *  and their relationships.
+ *  and their relationships and how they relate to other things
+ *  such as resouce dependencies, source/target differences, errors,
+ *  etc..  Internally these different things are represented as
+ *  separate graphs.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class ProjectGraph extends DefaultEnhancedGraph
+public class ProjectGraph extends CompositeGraph
 {
     /**
      *  Shows that two nodes have a file-system based relationship.
@@ -68,35 +71,30 @@ public class ProjectGraph extends DefaultEnhancedGraph
      */
     public static final String EDGE_ERROR = "Error";
 
-    private ProjectRoot root;
-
-    private HashMap nodeCache = new HashMap();
+    private ResourceGraph resources;
+    private DefaultEnhancedGraph errors;
 
     public ProjectGraph( ProjectRoot root )
     {
+        initializeSubgraphs();
         setRoot( root );
     }
 
     public ProjectGraph()
     {
+        initializeSubgraphs();
     }
 
-    protected void nodeAdded( Object o )
+    protected void initializeSubgraphs()
     {
-        super.nodeAdded( o );
-        if( o instanceof ResourceIndex )
-            {
-            nodeCache.put( ((ResourceIndex)o).getKey(), o );
-            }
-    }
+        // Setup the different subgraphs for which we
+        // are a composite
+        resources = new ResourceGraph();
+        errors = new DefaultEnhancedGraph();
 
-    protected void nodeRemoved( Object o )
-    {
-        super.nodeRemoved( o );
-        if( o instanceof ResourceIndex )
-            {
-            nodeCache.remove( ((ResourceIndex)o).getKey() );
-            }
+        addGraph( resources, new ResourceCoordinator() );
+        addGraph( errors, new ErrorCoordinator() );
+
     }
 
     /**
@@ -104,29 +102,7 @@ public class ProjectGraph extends DefaultEnhancedGraph
      */
     public ResourceIndex getResourceIndex( ResourceKey key )
     {
-        return( (ResourceIndex)nodeCache.get( key ) );
-    }
-
-    public Iterator nodeIterator( NodeFilter filter )
-    {
-        if( filter instanceof ResourceLocator )
-            {
-            Object o = getNode( filter );
-            if( o == null )
-                return( Collections.EMPTY_LIST.iterator() );
-            return( new SingletonIterator( o ) );
-            }
-        return( super.nodeIterator( filter ) );
-    }
-
-    public Object getNode( NodeFilter filter )
-    {
-        if( filter instanceof ResourceLocator )
-            {
-            ResourceKey key = ((ResourceLocator)filter).getResourceKey();
-            return( getResourceIndex( key ) );
-            }
-        return( super.getNode( filter ) );
+        return( resources.getResourceIndex( key ) );
     }
 
     /**
@@ -135,10 +111,7 @@ public class ProjectGraph extends DefaultEnhancedGraph
      */
     public void setRoot( ProjectRoot root )
     {
-        if( this.root != null )
-            throw new RuntimeException( "Root is already set." );
-        this.root = root;
-        addNode( root );
+        resources.setRoot( root );
     }
 
     /**
@@ -146,7 +119,7 @@ public class ProjectGraph extends DefaultEnhancedGraph
      */
     public ProjectRoot getRoot()
     {
-        return( root );
+        return( resources.getRoot() );
     }
 
     /**
@@ -154,18 +127,7 @@ public class ProjectGraph extends DefaultEnhancedGraph
      */
     public void addDirectory( FileIndex directory )
     {
-        if( containsNode( directory ) )
-            return;
-
-        // We go ahead and use recursion because it's just so easy
-        Object p = directory.getParent();
-        if( p == null )
-            p = root;
-        else
-            addDirectory( (FileIndex)p );
-
-        addNode( directory );
-        addEdge( EDGE_FILE, p, directory, true );
+        resources.addDirectory( directory );
     }
 
     /**
@@ -193,6 +155,9 @@ public class ProjectGraph extends DefaultEnhancedGraph
                 t.remove();
                 }
             }
+
+        // Then remove the resource index from the error graph
+        errors.removeNode( ri );
     }
 
     /**
@@ -200,8 +165,76 @@ public class ProjectGraph extends DefaultEnhancedGraph
      */
     public boolean hasErrors( ResourceIndex ri )
     {
-        TraverserFilter filter = new DefaultTraverserFilter( GraphUtils.TRUE, EDGE_ERROR,
-                                                             GraphUtils.DIRECTED_OUT_MASK );
-        return( traverser( ri, filter ).hasNext() );
+        // If it's in the error graph then it has errors...
+        // easy enough check
+        return( errors.containsNode( ri ) );
+    }
+
+    private class ErrorCoordinator extends GraphCoordinator
+    {
+        public boolean acceptsNode( Object node, Graph graph )
+        {
+            // Only accepts ErrorInfo as a direct add.
+            if( node instanceof ErrorInfo )
+                return( true );
+            return( false );
+        }
+
+        public boolean acceptsConnectedNode( Object node, Graph graph )
+        {
+            // Accepts any nodes that can normally be added to the graph
+            // plus ResourceIndex objects in case they are being copied
+            // into the error graph.
+            if( acceptsNode( node, graph ) )
+                return( true );
+            if( node instanceof ResourceIndex )
+                return( true );
+            return( false );
+        }
+
+        public boolean acceptsEdge( Object edge, Object tail, Object head, boolean directed, Graph graph )
+        {
+            // Only accept error edges
+            if( EDGE_ERROR == edge || EDGE_ERROR.equals( edge ) )
+                return( true );
+            return( false );
+        }
+
+        public boolean hasPotentialNodes( NodeFilter filter )
+        {
+            // The error coordinator rejects the ResourceLocator filter
+            // not because it can't handle it but because the other graphs
+            // can potentially handle it better... and it will only ever
+            // have duplicate resources.
+            if( filter instanceof ResourceLocator )
+                return( false );
+            return( true );
+        }
+
+    }
+
+    private class ResourceCoordinator extends GraphCoordinator
+    {
+        public boolean acceptsNode( Object node, Graph graph )
+        {
+            // Only accepts FileIndex, ResourceIndex, and ProjectRoot
+            if( node instanceof FileIndex )
+                return( true );
+            if( node instanceof ResourceIndex )
+                return( true );
+            if( node instanceof ProjectRoot )
+                return( true );
+            return( false );
+        }
+
+        public boolean acceptsEdge( Object edge, Object tail, Object head, boolean directed, Graph graph )
+        {
+            // Accepts file and aggregate edges
+            if( EDGE_FILE == edge || EDGE_FILE.equals( edge ) )
+                return( true );
+            if( EDGE_AGGREGATE == edge || EDGE_AGGREGATE.equals( edge ) )
+                return( true );
+            return( false );
+        }
     }
 }
