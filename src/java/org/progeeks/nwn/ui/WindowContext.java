@@ -42,6 +42,7 @@ import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
 import org.progeeks.meta.swing.*;
 import org.progeeks.util.*;
+import org.progeeks.util.beans.*;
 import org.progeeks.util.swing.*;
 
 import org.progeeks.nwn.model.*;
@@ -70,6 +71,12 @@ public class WindowContext extends DefaultViewContext
      *  The window's current list of selected objects.
      */
     public static final String PROP_SELECTED_OBJECTS = "selectedObjects";
+
+    /**
+     *  The window's current list of consoles.
+     */
+    public static final String PROP_CONSOLES = "consoles";
+
 
     /**
      *  Constant associated with the file menu action list.
@@ -126,13 +133,13 @@ public class WindowContext extends DefaultViewContext
     /**
      *  The current list of selected objects within this window.
      */
-    private ObservableList selectedObjects = new ObservableList( new ArrayList() );
+    private ObservableList selectedObjects = new ObservableList( PROP_SELECTED_OBJECTS, new ArrayList() );
 
     /**
-     *  Listens to the lists to adapt their change events to the window context
-     *  listeners.
+     *  The current list of console contexts that this window should be
+     *  displaying in its console tab.
      */
-    private ListListener listListener = new ListListener();
+    private ObservableList consoles = new ObservableList( PROP_CONSOLES, new ArrayList() );
 
     /**
      *  Creates a new WindowContext as a child of the specified global
@@ -147,7 +154,10 @@ public class WindowContext extends DefaultViewContext
 
         fileTreeModel = new FileTreeModel();
 
-        selectedObjects.addPropertyChangeListener( listListener );
+        // Register a listener to dispatch window list changes to
+        // reguler GlobalContext listeners.
+        selectedObjects.addPropertyChangeListener( new BeanChangeDelegate(this) );
+        consoles.addPropertyChangeListener( new BeanChangeDelegate(this) );
     }
 
     /**
@@ -224,6 +234,15 @@ public class WindowContext extends DefaultViewContext
         if( size == 0 || size > 1 )
             return( null );
         return( getSelectedObjects().get( 0 ) );
+    }
+
+    /**
+     *  Returns the current set of console context objects as an observable
+     *  list.
+     */
+    public ObservableList getConsoles()
+    {
+        return( consoles );
     }
 
     /**
@@ -393,18 +412,4 @@ public class WindowContext extends DefaultViewContext
         return( list );
     }
 
-    private class ListListener implements PropertyChangeListener
-    {
-        public void propertyChange( PropertyChangeEvent event )
-        {
-            Object source = event.getSource();
-            if( source == selectedObjects )
-                {
-                ListPropertyChangeEvent lce = new ListPropertyChangeEvent( WindowContext.this,
-                                                                           PROP_SELECTED_OBJECTS,
-                                                                           (ListPropertyChangeEvent)event );
-                firePropertyChange( lce );
-                }
-        }
-    }
 }
