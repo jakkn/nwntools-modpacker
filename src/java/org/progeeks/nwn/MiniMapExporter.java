@@ -464,13 +464,18 @@ public class MiniMapExporter
     private static class TilesetImages
     {
         ResourceManager resMgr;
+        String tileset;
+        String location;
         List tiles;
         List images = new ArrayList();
 
         public TilesetImages( String tileset, ResourceManager resMgr ) throws IOException
         {
             this.resMgr = resMgr;
-            tiles = (List)resMgr.getResource( new ResourceKey( tileset, ResourceTypes.TYPE_SET ) );
+            this.tileset = tileset;
+            ResourceKey key = new ResourceKey( tileset, ResourceTypes.TYPE_SET );
+            this.location = resMgr.getResourceLocationInfo( key );
+            tiles = (List)resMgr.getResource( key );
             if( tiles == null )
                 throw new RuntimeException( "Tileset not found:" + tileset );
             int size = tiles.size();
@@ -480,6 +485,13 @@ public class MiniMapExporter
 
         public Image getTileImage( int index ) throws IOException
         {
+            if( index >= tiles.size() )
+                {
+                throw new RuntimeException( "Invalid tile index:" + index + "  There are only "
+                                            + tiles.size() + " in the loaded tileset.  "
+                                            + "Tileset:" + tileset + "  loaded from:" + location );
+                }
+
             Image img = (Image)images.get( index );
             if( img != null )
                 return( img );
@@ -537,7 +549,10 @@ public class MiniMapExporter
                         continue;
                         }
                     if( type == ResourceTypes.TYPE_ARE )
+                        {
+                        System.out.println( "    area:" + name );
                         areaCount++;
+                        }
                     }
                 }
             finally
@@ -560,6 +575,8 @@ public class MiniMapExporter
                 Struct s = (Struct)i.next();
                 String hak = s.getValue( "Mod_Hak" ).getStringValue();
                 File f = new File( nwnDir, "hak/" + hak + ".hak" );
+
+                System.out.println( "   depends on HAK:" + hak );
                 haks.add( f );
                 }
         }
@@ -594,6 +611,7 @@ public class MiniMapExporter
                 for( Iterator i = haks.iterator(); i.hasNext(); )
                     {
                     File f = (File)i.next();
+                    System.out.println( "Loading:" + f );
                     resMgr.addEncapsulatedResourceFile( f );
                     }
                 }
