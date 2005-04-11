@@ -86,6 +86,16 @@ public class ResourceStreamer implements Cloneable
     }
 
     /**
+     *  Returns a string indicator for the resource location.  Useful in
+     *  debugging look-up failures for overrides, etc..
+     */
+    public String getResourceLocationInfo( ResourceKey key )
+    {
+        ResourceIndex index = (ResourceIndex)resources.get( key );
+        return( index.getLocationInfo() );
+    }
+
+    /**
      *  Adds the specified key file to this resource streamer's
      *  resource index.
      */
@@ -344,6 +354,11 @@ public class ResourceStreamer implements Cloneable
          *  Returns the input stream for this resouce's data.
          */
         public abstract InputStream getResourceStream() throws IOException;
+
+        /**
+         *  Returns a String location indicator for the resource.
+         */
+        public abstract String getLocationInfo();
     }
 
     /**
@@ -364,6 +379,14 @@ public class ResourceStreamer implements Cloneable
         public InputStream getResourceStream() throws IOException
         {
             return( new FileInputStream( file ) );
+        }
+
+        /**
+         *  Returns a String location indicator for the resource.
+         */
+        public String getLocationInfo()
+        {
+            return( String.valueOf(file) );
         }
     }
 
@@ -392,6 +415,14 @@ public class ResourceStreamer implements Cloneable
             InputStream resIn = reader.getResource( id );
 
             return( new ParentClosingStream( resIn, fIn ) );
+        }
+
+        /**
+         *  Returns a String location indicator for the resource.
+         */
+        public String getLocationInfo()
+        {
+            return( "BIF: " + file + " index:" + id );
         }
     }
 
@@ -434,6 +465,14 @@ public class ResourceStreamer implements Cloneable
                 }
 
             return( null );
+        }
+
+        /**
+         *  Returns a String location indicator for the resource.
+         */
+        public String getLocationInfo()
+        {
+            return( "ERF: " + file + (fromHak?"from HAK file":"") );
         }
     }
 

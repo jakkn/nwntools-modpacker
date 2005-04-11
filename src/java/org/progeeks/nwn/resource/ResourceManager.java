@@ -100,6 +100,15 @@ public class ResourceManager implements Cloneable
     }
 
     /**
+     *  Returns a string indicator for the resource location.  Useful in
+     *  debugging look-up failures for overrides, etc..
+     */
+    public String getResourceLocationInfo( ResourceKey key )
+    {
+        return( streamer.getResourceLocationInfo( key ) );
+    }
+
+    /**
      *  Returns a type-specific object for the specified resource key.
      */
     public Object getResource( ResourceKey key )
