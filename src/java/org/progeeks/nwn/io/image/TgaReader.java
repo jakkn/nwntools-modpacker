@@ -84,8 +84,8 @@ public class TgaReader
         int height = in.readUnsignedShort();
 
         int pixelSize = in.readUnsignedByte();
-        if( pixelSize != 24 )
-            throw new RuntimeException( "Currently only support 24 bit images.  Read bit size:" + pixelSize );
+        if( pixelSize != 24 && pixelSize != 32 )
+            throw new RuntimeException( "Currently only support 24 and 32 bit images.  Read bit size:" + pixelSize );
         int descriptor = in.readUnsignedByte();
 
         byte[] idField = new byte[idLen];
@@ -95,11 +95,27 @@ public class TgaReader
         int skip = (entrySize >> 3) * cmapLength;
         in.skip( skip );
 
-        image = new BufferedImage( width, height, BufferedImage.TYPE_3BYTE_BGR );
+        switch( pixelSize )
+            {
+            case 24:
+                {
+                image = new BufferedImage( width, height, BufferedImage.TYPE_3BYTE_BGR );
 
-        byte[] pixels = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+                byte[] pixels = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
 
-        readImageData( width, height, type, pixels );
+                readImageData( width, height, type, pixels );
+                }
+                break;
+            case 32:
+                {
+                image = new BufferedImage( width, height, BufferedImage.TYPE_4BYTE_ABGR );
+
+                byte[] pixels = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+
+                readImageData32( width, height, type, pixels );
+                }
+                break;
+            }
 
         /*System.out.println( "Position:"+ in.getFilePosition() );
 
@@ -125,6 +141,22 @@ public class TgaReader
                 break;
             case 10:
                 readCompressedImage( width, height, type, pixels );
+                break;
+            default:
+                throw new UnsupportedOperationException( "Only type 2 and type 10 targa files"
+                                                         + " are supported, read type:" + type );
+            }
+    }
+
+    protected void readImageData32( int width, int height, int type, byte[] pixels ) throws IOException
+    {
+        switch( type )
+            {
+            case 2:
+                in.readFully( pixels );
+                break;
+            case 10:
+                readCompressedImage32( width, height, type, pixels );
                 break;
             default:
                 throw new UnsupportedOperationException( "Only type 2 and type 10 targa files"
@@ -229,6 +261,46 @@ public class TgaReader
         */
 
     }
+
+    protected void readCompressedImage32( int width, int height, int type, byte[] pixels ) throws IOException
+    {
+        // This is for 32 bit imagery
+        byte[] color = new byte[4];
+
+        int bPos = 0;
+        while( bPos < pixels.length )
+            {
+            int b = in.readByte();
+            int packetType = b & 0x80; // high order bit
+            int count = (b & 0x7f) + 1;
+
+            if( packetType > 0 )
+                {
+                // Run-length encoded packet
+                in.readFully( color );
+                for( int i = 0; i < count; i++ )
+                    {
+                    pixels[bPos++] = color[3];
+                    pixels[bPos++] = color[0];
+                    pixels[bPos++] = color[1];
+                    pixels[bPos++] = color[2];
+                    }
+                }
+            else
+                {
+                // Raw unencoded packet
+                for( int i = 0; i < count; i++ )
+                    {
+                    in.readFully( color );
+                    pixels[bPos++] = color[3];
+                    pixels[bPos++] = color[0];
+                    pixels[bPos++] = color[1];
+                    pixels[bPos++] = color[2];
+                    }
+                }
+            }
+    }
+
 
     public static void main( String[] args ) throws IOException
     {
