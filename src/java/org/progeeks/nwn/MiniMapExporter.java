@@ -506,7 +506,18 @@ public class MiniMapExporter
             res = res.toLowerCase();
             if( res.trim().length() == 0 || "mi_temp01".equals( res ) )
                 return( null );
-            img = (Image)resMgr.getResource( new ResourceKey( res, ResourceTypes.TYPE_TGA ) );
+
+            try
+                {
+                img = (Image)resMgr.getResource( new ResourceKey( res, ResourceTypes.TYPE_TGA ) );
+                }
+            catch( RuntimeException e )
+                {
+                System.out.println( "Error loading image for tileset:" + tileset + "  index:" + index
+                                    + "  " + e.getMessage() );
+                img = new BufferedImage( 16, 16, BufferedImage.TYPE_INT_ARGB );
+                }
+
             images.set( index, img );
 
             if( img == null )
