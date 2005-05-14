@@ -58,7 +58,10 @@ public class PathTool
             String part = args[i].replace( '\\', '/' );
             part = part.replaceAll( "@cwd@", cwd );
             part = part.replace( '/', File.separatorChar );
-            System.out.print( part );
+            if( part.indexOf( ' ' ) >= 0 )
+                System.out.print( "\"" + part + "\"" );
+            else
+                System.out.print( part );
             }
         System.out.println();
     }
