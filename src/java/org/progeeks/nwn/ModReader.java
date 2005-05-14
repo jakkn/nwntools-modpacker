@@ -354,7 +354,7 @@ public class ModReader
             return;
             }
 
-        System.out.println( "--- Module Unpacker version 0.6 ---" );
+        System.out.println( "--- Module Unpacker version 1.0.0 ---" );
 
         long start = System.currentTimeMillis();
 

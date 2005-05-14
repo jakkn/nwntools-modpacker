@@ -226,7 +226,7 @@ public class GffToGff
             return;
             }
 
-        System.out.println( "--- Gff To Gff version 0.6 ---" );
+        System.out.println( "--- Gff To Gff version 1.0.0 ---" );
 
         long start = System.currentTimeMillis();
 
