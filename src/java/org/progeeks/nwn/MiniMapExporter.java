@@ -248,7 +248,7 @@ public class MiniMapExporter
                     }
                 g2.translate( tileX, tileY );
                 g2.rotate( rads );
-                g2.drawImage( img, -8, -8, null );
+                g2.drawImage( img, -8, -8, 16, 16, null );
                 g2.rotate( -rads );
                 g2.translate( -tileX, -tileY );
                 }
