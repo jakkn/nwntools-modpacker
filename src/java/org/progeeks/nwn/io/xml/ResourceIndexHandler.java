@@ -34,6 +34,7 @@ package org.progeeks.nwn.io.xml;
 
 import java.util.*;
 
+import org.xml.sax.*;
 import org.xml.sax.AttributeList;
 
 import com.phoenixst.plexus.*;
@@ -69,7 +70,7 @@ public class ResourceIndexHandler extends DefaultObjectHandler
     /**
      *  Creates and returns an object based on the specified parameters.
      */
-    public Object createObject( String tag, AttributeList atts, ObjectXmlReader reader )
+    public Object createObject( String tag, Attributes atts, ObjectXmlReader reader )
     {
         String keyFile = atts.getValue( "key" );
         String name = atts.getValue( "name" );

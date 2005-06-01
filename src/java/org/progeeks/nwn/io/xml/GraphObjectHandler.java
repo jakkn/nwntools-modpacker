@@ -34,6 +34,7 @@ package org.progeeks.nwn.io.xml;
 
 import java.util.*;
 
+import org.xml.sax.*;
 import org.xml.sax.AttributeList;
 
 import com.phoenixst.plexus.*;
@@ -146,7 +147,7 @@ public class GraphObjectHandler extends DefaultObjectHandler
     /**
      *  Creates and returns an object based on the specified parameters.
      */
-    public Object createObject( String tag, AttributeList atts, ObjectXmlReader reader )
+    public Object createObject( String tag, Attributes atts, ObjectXmlReader reader )
     {
         if( !"edge".equals( tag ) && !"e".equals( tag ) )
             return( super.createObject( tag, atts, reader ) );
