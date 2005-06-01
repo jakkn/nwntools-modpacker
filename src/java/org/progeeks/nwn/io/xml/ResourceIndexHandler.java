@@ -32,14 +32,8 @@
 
 package org.progeeks.nwn.io.xml;
 
-import java.util.*;
-
 import org.xml.sax.*;
-import org.xml.sax.AttributeList;
 
-import com.phoenixst.plexus.*;
-
-import org.progeeks.meta.xml.*;
 import org.progeeks.util.xml.*;
 
 import org.progeeks.nwn.model.*;

@@ -32,7 +32,6 @@
 
 package org.progeeks.nwn.model;
 
-import java.io.File;
 import java.util.regex.*;
 
 import org.progeeks.nwn.resource.ResourceKey;

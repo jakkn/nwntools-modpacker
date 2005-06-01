@@ -32,10 +32,8 @@
 
 package org.progeeks.nwn.ui;
 
-import java.beans.*;
 import java.util.*;
 import javax.swing.Action;
-import javax.swing.tree.TreeModel;
 
 import org.progeeks.cmd.swing.SwingCommandProcessor;
 import org.progeeks.meta.*;

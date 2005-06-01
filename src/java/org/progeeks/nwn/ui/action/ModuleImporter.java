@@ -34,7 +34,6 @@ package org.progeeks.nwn.ui.action;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 
 import org.progeeks.util.*;
 import org.progeeks.util.log.*;
@@ -44,7 +43,6 @@ import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
-import org.progeeks.nwn.ui.*;
 
 /**
  *  Performs the nuts and bolts work of importing a module

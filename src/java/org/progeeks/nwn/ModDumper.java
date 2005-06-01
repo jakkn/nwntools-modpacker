@@ -36,11 +36,8 @@ import java.io.*;
 import java.util.*;
 
 import org.progeeks.nwn.gff.*;
-import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.gff.*;
 import org.progeeks.nwn.resource.*;
-import org.progeeks.util.thread.*;
-
 
 /**
  *  Quick and dirty util to dump all module GFF resources as a bunch of
@@ -99,7 +96,7 @@ public class ModDumper
                     for( Iterator it = root.getValues().iterator(); it.hasNext(); )
                         {
                         Element e = (Element)it.next();
-                        reader.printElement( e, "" );
+                        GffReader.printElement( e, "" );
                         }
                     }
                 finally

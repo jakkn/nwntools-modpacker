@@ -38,7 +38,6 @@ import java.util.*;
 import org.progeeks.meta.xml.*;
 
 import org.progeeks.nwn.gff.*;
-import org.progeeks.nwn.io.gff.*;
 
 /**
  *  This writes Gff elements as XML tags.  This is not a

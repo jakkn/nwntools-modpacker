@@ -32,9 +32,6 @@
 
 package org.progeeks.nwn.io.nss;
 
-import java.io.*;
-import java.util.*;
-
 /**
  *  Defines an operation that can modify or replace existing script
  *  blocks.

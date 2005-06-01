@@ -35,7 +35,6 @@ package org.progeeks.nwn.io.bif;
 import java.io.*;
 import java.util.*;
 
-import org.progeeks.nwn.*;
 import org.progeeks.nwn.io.*;
 
 

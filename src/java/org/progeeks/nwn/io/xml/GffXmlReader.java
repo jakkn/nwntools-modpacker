@@ -151,7 +151,7 @@ public class GffXmlReader extends XmlReader
     // <gff name="_reserved.git" type="GIT " version="V3.2" >
     private class GffTagReader extends TagReader
     {
-        public Object tagStart( String tag, AttributeList atts,
+        public Object tagStart( String tag, Attributes atts,
                                 Object parent ) throws XmlException
         {
             // Just in case
@@ -168,7 +168,7 @@ public class GffXmlReader extends XmlReader
     // <struct id="-1" >
     private class StructTagReader extends TagReader
     {
-        public Object tagStart( String tag, AttributeList atts,
+        public Object tagStart( String tag, Attributes atts,
                                 Object parent ) throws XmlException
         {
             int id = Integer.parseInt( atts.getValue( "id" ) );
@@ -200,7 +200,7 @@ public class GffXmlReader extends XmlReader
     // <element name="AmbientSndDay" type="5" value="51" />
     private class ElementTagReader extends TagReader
     {
-        public Object tagStart( String tag, AttributeList atts,
+        public Object tagStart( String tag, Attributes atts,
                                 Object parent ) throws XmlException
         {
             String label = atts.getValue( "name" );
@@ -315,7 +315,7 @@ public class GffXmlReader extends XmlReader
     // <localString languageId="0" value=" @`€ Ààÿ" />
     private class LocalStringTagReader extends TagReader
     {
-        public Object tagStart( String tag, AttributeList atts,
+        public Object tagStart( String tag, Attributes atts,
                                 Object parent ) throws XmlException
         {
             if( parent instanceof LocalizedStringElement )
@@ -344,7 +344,7 @@ public class GffXmlReader extends XmlReader
 
     private class TestTagReader extends TagReader
     {
-        public Object tagStart( String tag, AttributeList atts,
+        public Object tagStart( String tag, Attributes atts,
                                 Object parent ) throws XmlException
         {
             System.out.println( "tagStart(" + tag + ", " + parent + ")" );

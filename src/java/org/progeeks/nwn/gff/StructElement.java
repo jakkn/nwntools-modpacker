@@ -32,8 +32,6 @@
 
 package org.progeeks.nwn.gff;
 
-import java.util.*;
-
 /**
  *  An element that contains a list of other elements accessible
  *  by name.

@@ -32,14 +32,7 @@
 
 package org.progeeks.nwn.ui;
 
-import java.util.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
-
-import com.phoenixst.plexus.*;
-
 import org.progeeks.graph.swing.*;
-import org.progeeks.util.swing.*;
 
 import org.progeeks.nwn.model.*;
 

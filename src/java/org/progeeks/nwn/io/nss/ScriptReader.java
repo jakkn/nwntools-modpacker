@@ -35,8 +35,6 @@ package org.progeeks.nwn.io.nss;
 import java.io.*;
 import java.util.*;
 
-import org.progeeks.nwn.resource.*;
-
 /**
  *  Parses a script... just sort of a test for now.
  *

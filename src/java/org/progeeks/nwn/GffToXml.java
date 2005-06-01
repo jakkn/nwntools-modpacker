@@ -33,17 +33,11 @@
 package org.progeeks.nwn;
 
 import java.io.*;
-import java.util.*;
 
-import org.progeeks.meta.xml.*;
-
-import org.progeeks.nwn.gff.*;
-import org.progeeks.nwn.io.*;
 import org.progeeks.nwn.io.gff.*;
 import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.resource.*;
 import org.progeeks.util.StringUtils;
-import org.progeeks.util.thread.*;
 
 
 /**

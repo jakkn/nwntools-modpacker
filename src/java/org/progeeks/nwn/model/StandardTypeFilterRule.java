@@ -32,8 +32,6 @@
 
 package org.progeeks.nwn.model;
 
-import java.io.File;
-
 import org.progeeks.nwn.resource.*;
 
 /**

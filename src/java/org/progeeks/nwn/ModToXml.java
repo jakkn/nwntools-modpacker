@@ -33,7 +33,6 @@
 package org.progeeks.nwn;
 
 import java.io.*;
-import java.util.*;
 
 /**
  *  Converts the files from a module into

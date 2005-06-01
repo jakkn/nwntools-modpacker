@@ -32,7 +32,6 @@
 
 package org.progeeks.nwn.ui;
 
-import java.awt.BorderLayout;
 import java.beans.*;
 import java.util.*;
 import javax.swing.*;
@@ -42,7 +41,6 @@ import org.progeeks.meta.swing.*;
 import org.progeeks.util.*;
 
 import org.progeeks.nwn.model.*;
-import org.progeeks.nwn.resource.*;
 
 /**
  *  The main viewer panel that will show the views of

@@ -37,11 +37,6 @@ import java.util.*;
 
 import org.progeeks.util.log.*;
 
-import org.progeeks.nwn.*;
-import org.progeeks.nwn.gff.*;
-import org.progeeks.nwn.resource.*;
-
-
 /**
  *  NWN Area tileset reader.
  *  NOT a standard Java reader implementation.

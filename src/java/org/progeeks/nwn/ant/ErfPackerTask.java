@@ -37,7 +37,6 @@ import java.util.*;
 
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
-import org.apache.tools.ant.util.*;
 
 import org.progeeks.util.DefaultProgressReporter;
 

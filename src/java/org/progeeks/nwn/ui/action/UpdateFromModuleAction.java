@@ -35,22 +35,14 @@ package org.progeeks.nwn.ui.action;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 import javax.swing.*;
 
 import org.progeeks.cmd.*;
 import org.progeeks.cmd.swing.*;
-import org.progeeks.meta.*;
-import org.progeeks.meta.beans.*;
-import org.progeeks.meta.swing.*;
-import org.progeeks.meta.swing.wizard.*;
 import org.progeeks.util.*;
 import org.progeeks.util.log.*;
 
 import org.progeeks.nwn.*;
-import org.progeeks.nwn.gff.*;
-import org.progeeks.nwn.io.gff.*;
-import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
 import org.progeeks.nwn.ui.*;

@@ -32,12 +32,8 @@
 
 package org.progeeks.nwn.model;
 
-import java.io.File;
-import java.util.*;
-
 import org.apache.commons.collections.Predicate;
 
-import com.phoenixst.collections.TruePredicate;
 import com.phoenixst.plexus.*;
 
 import org.progeeks.graph.*;

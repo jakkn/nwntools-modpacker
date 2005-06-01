@@ -400,7 +400,7 @@ public class GffReader
                 for( Iterator it = root.getValues().iterator(); it.hasNext(); )
                     {
                     Element e = (Element)it.next();
-                    reader.printElement( e, "    " );
+                    GffReader.printElement( e, "    " );
                     }
 
                 }

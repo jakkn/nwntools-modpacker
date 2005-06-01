@@ -32,8 +32,6 @@
 
 package org.progeeks.nwn.model;
 
-import org.apache.commons.collections.Predicate;
-import com.phoenixst.collections.TruePredicate;
 import com.phoenixst.plexus.*;
 
 /**

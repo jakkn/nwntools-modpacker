@@ -39,12 +39,9 @@ import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 import javax.imageio.*;
-import javax.swing.*;
 
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.gff.*;
-import org.progeeks.nwn.io.image.*;
-import org.progeeks.nwn.io.set.*;
 import org.progeeks.nwn.resource.*;
 import org.progeeks.util.log.*;
 

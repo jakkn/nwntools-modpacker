@@ -36,12 +36,8 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import javax.swing.AbstractAction;
 
-import org.progeeks.cmd.*;
-import org.progeeks.cmd.swing.*;
 import org.progeeks.util.log.*;
-import org.progeeks.util.*;
 
-import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.ui.*;
 
 /**

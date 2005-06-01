@@ -50,7 +50,6 @@ import org.progeeks.nwn.io.xml.*;
 import org.progeeks.nwn.model.*;
 import org.progeeks.nwn.resource.*;
 import org.progeeks.util.*;
-import org.progeeks.util.swing.*;
 
 /**
  *  The model object for the application.  This is the root of the model

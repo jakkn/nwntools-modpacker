@@ -33,7 +33,6 @@
 package org.progeeks.nwn.ui.action;
 
 import java.awt.event.ActionEvent;
-import java.beans.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.AbstractAction;

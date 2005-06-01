@@ -33,7 +33,6 @@
 package org.progeeks.nwn.ant;
 
 import java.io.*;
-import java.util.*;
 
 import org.apache.tools.ant.*;
 import org.apache.tools.ant.taskdefs.*;
