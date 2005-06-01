@@ -35,14 +35,12 @@ package org.progeeks.nwn.ui.action;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 import javax.swing.*;
 
 import org.progeeks.cmd.*;
 import org.progeeks.cmd.swing.*;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
-import org.progeeks.meta.swing.*;
 import org.progeeks.meta.swing.wizard.*;
 import org.progeeks.util.*;
 import org.progeeks.util.log.*;
@@ -257,7 +255,7 @@ public class ImportModuleAction extends AbstractAction
             dlg.addPage( page );
 
             dlg.setLocationRelativeTo( null );
-            dlg.show();
+            dlg.setVisible( true );
 
             System.out.println( "Canceled:" + dlg.isCanceled() );
             if( dlg.isCanceled() )
