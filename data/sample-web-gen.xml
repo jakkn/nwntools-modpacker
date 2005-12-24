@@ -1,12 +1,87 @@
 
 <!-- Basic configuration for the web status generator
-     utility. -->
+     utility.  logFile="/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt"-->
 
-<webStatusGenerator logFile="/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt"
+<webStatusGenerator logFile="testlog.txt"
                     outputFile="temp.html"
                     generationInterval="5000"
                     readInterval="1000" >
 
+    <!-- We could include this from a separate XML file but
+         it's easy enough to configure here.
+         This is the "grammar" used to parse the log file as we
+         go.  Currently, the generator will call the find() method
+         to parse it which operates like Java's regex Pattern.find()
+         and will therefore skip parts of the input that it doesn't
+         understand.  This is easier than trying to define a fully
+         inclusive grammar or having to build .* in directly. -->
 
+    <rootPattern>
+        <orPattern>
+            <children>
+
+                <!-- Capture any lines starting with a date. -->
+                <sequence name="datedLine" >
+                    <children>
+
+                        <!-- The date part.  "[Sat Dec 24 01:54:42]" for example-->
+                        <sequence name="date" >
+                            <children>
+                                <regexPattern regex="\[" />
+                                <regexPattern name="dayOfWeek" regex="Sun|Mon|Tue|Wed|Thu|Fri|Sat" />
+                                <regexPattern regex=" " />
+                                <regexPattern name="month" regex="Jan|Fed|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec" />
+                                <regexPattern regex=" " />
+                                <regexPattern name="day" regex="\d+" />
+                                <regexPattern regex=" " />
+                                <regexPattern name="hour" regex="\d+" />
+                                <regexPattern regex=":" />
+                                <regexPattern name="minutes" regex="\d+" />
+                                <regexPattern regex=":" />
+                                <regexPattern name="seconds" regex="\d+" />
+                                <regexPattern regex="\] " />
+                            </children>
+                        </sequence> <!-- date -->
+
+                        <orPattern>
+                            <children>
+                                <!-- Pattern for player joining messages. -->
+                                <sequence2 name="playerJoined" >
+                                    <children>
+                                        <!-- We need the lookahead so that we skip spaces
+                                             embedded in the player part.  Sequence2 is smart
+                                             but not that smart.  It only looks ahead one pattern
+                                             and since I wanted to add the " " swallowing I needed
+                                             the look-ahead. -->
+                                        <regexPattern name="player" regex=".*(?= \(\w+\))" />
+                                        <regexPattern regex=" " />
+                                        <regexPattern name="key" regex="\(\w+\)" />
+                                        <regexPattern regex=" Joined as Player " />
+                                        <regexPattern name="slot" regex="\d+" />
+                                    </children>
+                                </sequence2>
+
+                                <!-- Pattern for player left messages." -->
+                                <sequence2 name="playerLeft" >
+                                    <children>
+                                        <regexPattern name="player" regex=".*" />
+                                        <regexPattern regex="Left as a Player \(\d+ players left\)" />
+                                    </children>
+                                </sequence2>
+
+                                <!-- Creature death message. -->
+                                <sequence2 name="creatureDeath" >
+                                    <children>
+                                        <regexPattern name="creature" regex=".*" />
+                                        <regexPattern regex=" Died" />
+                                    </children>
+                                </sequence2>
+                            </children>
+                        </orPattern>
+                    </children>
+                </sequence>
+            </children>
+        </orPattern>
+    </rootPattern>
 
 </webStatusGenerator>

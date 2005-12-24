@@ -35,6 +35,7 @@ package org.progeeks.nwn.status;
 import java.io.*;
 import java.util.*;
 
+import org.progeeks.parser.regex.*;
 import org.progeeks.util.xml.*;
 
 /**
@@ -72,6 +73,13 @@ public class WebStatusGenerator extends Thread
      */
     private long changeCount = 0;
 
+    /**
+     *  The root pattern through which we'll pass all incoming
+     *  data using the find() method.  We might want to make this
+     *  configurable but it's the easiest way to skip large chunks
+     *  of data that we don't care about.
+     */
+    private CompositePattern rootPattern;
 
     public WebStatusGenerator()
     {
@@ -112,6 +120,15 @@ public class WebStatusGenerator extends Thread
         this.readInterval = millis;
     }
 
+    /**
+     *  Sets the root CompositePattern to use for parsing
+     *  the log file data.
+     */
+    public void setRootPattern( CompositePattern rootPattern )
+    {
+        this.rootPattern = rootPattern;
+    }
+
     public static WebStatusGenerator loadGenerator( File xmlConfig ) throws IOException
     {
         Reader in = new BufferedReader( new FileReader( xmlConfig ) );
@@ -126,9 +143,46 @@ public class WebStatusGenerator extends Thread
             }
     }
 
-    protected void processLine( String line )
+    protected StringBuffer processInput( StringBuffer sb )
     {
-        System.out.println( "Line:" + line );
+        // Process the parts that we're interested in and
+        // return the left-overs.  This lets our parser
+        // do much fancier things with the input than if we had
+        // already broken out by line.
+
+        if( rootPattern == null )
+            {
+            System.out.println( "No parser configured.  Input[" + sb + "]" );
+            // For now, just empty the buffer
+            return( new StringBuffer() );
+            }
+
+        System.out.println( "Processing[" + sb + "]" );
+
+        CompositeMatcher matcher = rootPattern.matcher( sb );
+
+        // Try to keep finding parts until we can't anymore
+        int end = -1;
+        while( matcher.find() )
+            {
+            Object value = matcher.getValue();
+            System.out.println( "Found:" + value );
+            end = matcher.end();
+            }
+
+        // Figure out what's left
+        if( end > -1 )
+            {
+            // Then we can chop it
+            sb = new StringBuffer( sb.substring( end ) );
+            }
+        else
+            {
+            // We do nothing because we need to keep appending until
+            // we find something.
+            }
+
+        return( sb );
     }
 
     protected void generateFile()
@@ -138,7 +192,7 @@ public class WebStatusGenerator extends Thread
 
     public void run()
     {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[16384];
         StringBuffer sBuff = new StringBuffer();
 
         long lastWriteTime = 0;
@@ -156,26 +210,14 @@ public class WebStatusGenerator extends Thread
                     int bytes = in.read( buffer );
                     bytesRead += bytes;
 
+                    // Put the new data into the buffer
                     for( int i = 0; i < bytes; i++ )
                         {
-                        if( newLine && buffer[i] == '.' )
-                            continue;
-
-                        if( buffer[i] == '\r' )
-                            continue;
-
-                        if( buffer[i] == '\n' )
-                            {
-                            processLine( sBuff.toString() );
-                            sBuff = new StringBuffer();
-                            newLine = true;
-                            continue;
-                            }
-
-                        newLine = false;
                         sBuff.append( (char)buffer[i] );
-                        //System.out.print( (char)buffer[i] );
                         }
+
+                    // Process the data read so far
+                    sBuff = processInput( sBuff );
 
                     // just for testing.
                     changeCount = 1;
