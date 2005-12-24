@@ -75,6 +75,16 @@
                 </sequence2>
 
                 <!-- Creature death message. -->
+                <sequence2 name="pcDeath" >
+                    <children>
+                        <xml.ref oid="date.pattern" />
+
+                        <regexPattern name="creature" regex=".*" />
+                        <regexPattern regex="\(PC\) Died" />
+                    </children>
+                </sequence2>
+
+                <!-- Creature death message. -->
                 <sequence2 name="creatureDeath" >
                     <children>
                         <xml.ref oid="date.pattern" />
