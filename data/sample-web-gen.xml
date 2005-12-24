@@ -1,0 +1,12 @@
+
+<!-- Basic configuration for the web status generator
+     utility. -->
+
+<webStatusGenerator logFile="/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt"
+                    outputFile="temp.html"
+                    generationInterval="5000"
+                    readInterval="1000" >
+
+
+
+</webStatusGenerator>
