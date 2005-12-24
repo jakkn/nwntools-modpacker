@@ -2,10 +2,12 @@
 <!-- Basic configuration for the web status generator
      utility.  -->
 
-<webStatusGenerator logFile="/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt"
-                    outputFile="temp.html"
+<webStatusGenerator outputFile="temp.html"
                     generationInterval="5000"
                     readInterval="1000" >
+
+    <logFile>/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt</logFile>
+    <!-- <logFile>testlog.txt</logFile> -->
 
     <!-- We could include this from a separate XML file but
          it's easy enough to configure here.
@@ -20,66 +22,69 @@
         <orPattern>
             <children>
 
-                <!-- Capture any lines starting with a date. -->
-                <sequence name="datedLine" >
+                <xml.preload>
+                    <!-- A date that we can reference in other sequences. -->
+                    <!-- "[Sat Dec 24 01:54:42]" for example -->
+                    <sequence name="date" xml.oid="date.pattern" >
+                        <children>
+                            <regexPattern regex="\[" />
+                            <regexPattern name="dayOfWeek" regex="Sun|Mon|Tue|Wed|Thu|Fri|Sat" />
+                            <regexPattern regex=" " />
+                            <regexPattern name="month" regex="Jan|Fed|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec" />
+                            <regexPattern regex=" " />
+                            <regexPattern name="day" regex="\d+" />
+                            <regexPattern regex=" " />
+                            <regexPattern name="hour" regex="\d+" />
+                            <regexPattern regex=":" />
+                            <regexPattern name="minutes" regex="\d+" />
+                            <regexPattern regex=":" />
+                            <regexPattern name="seconds" regex="\d+" />
+                            <regexPattern regex="\] " />
+                        </children>
+                    </sequence> <!-- date -->
+                </xml.preload>
+
+                <!-- Look for the lines we're interested in. -->
+
+                <!-- Pattern for player joining messages. -->
+                <sequence2 name="playerJoined" >
                     <children>
+                        <xml.ref oid="date.pattern" />
 
-                        <!-- The date part.  "[Sat Dec 24 01:54:42]" for example-->
-                        <sequence name="date" >
-                            <children>
-                                <regexPattern regex="\[" />
-                                <regexPattern name="dayOfWeek" regex="Sun|Mon|Tue|Wed|Thu|Fri|Sat" />
-                                <regexPattern regex=" " />
-                                <regexPattern name="month" regex="Jan|Fed|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec" />
-                                <regexPattern regex=" " />
-                                <regexPattern name="day" regex="\d+" />
-                                <regexPattern regex=" " />
-                                <regexPattern name="hour" regex="\d+" />
-                                <regexPattern regex=":" />
-                                <regexPattern name="minutes" regex="\d+" />
-                                <regexPattern regex=":" />
-                                <regexPattern name="seconds" regex="\d+" />
-                                <regexPattern regex="\] " />
-                            </children>
-                        </sequence> <!-- date -->
-
-                        <orPattern>
-                            <children>
-                                <!-- Pattern for player joining messages. -->
-                                <sequence2 name="playerJoined" >
-                                    <children>
-                                        <!-- We need the lookahead so that we skip spaces
-                                             embedded in the player part.  Sequence2 is smart
-                                             but not that smart.  It only looks ahead one pattern
-                                             and since I wanted to add the " " swallowing I needed
-                                             the look-ahead. -->
-                                        <regexPattern name="player" regex=".*(?= \(\w+\))" />
-                                        <regexPattern regex=" " />
-                                        <regexPattern name="key" regex="\(\w+\)" />
-                                        <regexPattern regex=" Joined as Player " />
-                                        <regexPattern name="slot" regex="\d+" />
-                                    </children>
-                                </sequence2>
-
-                                <!-- Pattern for player left messages." -->
-                                <sequence2 name="playerLeft" >
-                                    <children>
-                                        <regexPattern name="player" regex=".*" />
-                                        <regexPattern regex="Left as a Player \(\d+ players left\)" />
-                                    </children>
-                                </sequence2>
-
-                                <!-- Creature death message. -->
-                                <sequence2 name="creatureDeath" >
-                                    <children>
-                                        <regexPattern name="creature" regex=".*" />
-                                        <regexPattern regex=" Died" />
-                                    </children>
-                                </sequence2>
-                            </children>
-                        </orPattern>
+                        <!-- We need the lookahead so that we skip spaces
+                            embedded in the player part.  Sequence2 is smart
+                            but not that smart.  It only looks ahead one pattern
+                            and since I wanted to add the " " swallowing I needed
+                            the look-ahead. -->
+                        <regexPattern name="player" regex=".*(?= \(\w+\))" />
+                        <regexPattern regex=" " />
+                        <regexPattern name="key" regex="\(\w+\)" />
+                        <regexPattern regex=" Joined as Player " />
+                        <regexPattern name="slot" regex="\d+" />
                     </children>
-                </sequence>
+                </sequence2>
+
+                <!-- Pattern for player left messages." -->
+                <sequence2 name="playerLeft" >
+                    <children>
+                        <xml.ref oid="date.pattern" />
+
+                        <regexPattern name="player" regex=".*" />
+                        <regexPattern regex="Left as a Player \(\d+ players left\)" />
+                    </children>
+                </sequence2>
+
+                <!-- Creature death message. -->
+                <sequence2 name="creatureDeath" >
+                    <children>
+                        <xml.ref oid="date.pattern" />
+
+                        <regexPattern name="creature" regex=".*" />
+                        <regexPattern regex=" Died" />
+                    </children>
+                </sequence2>
+
+
             </children>
         </orPattern>
     </rootPattern>
