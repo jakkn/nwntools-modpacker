@@ -2,9 +2,8 @@
 <!-- Basic configuration for the web status generator
      utility.  -->
 
-<webStatusGenerator outputFile="temp.html"
-                    generationInterval="5000"
-                    readInterval="1000" >
+<logFileProcessor commitInterval="5000"
+                  readInterval="1000" >
 
     <logFile>/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt</logFile>
     <!-- <logFile>testlog.txt</logFile> -->
@@ -99,4 +98,15 @@
         </orPattern>
     </rootPattern>
 
-</webStatusGenerator>
+    <!-- Configure the processor that will write the HTML page. -->
+    <eventProcessor>
+        <htmlGeneratingProcessor outputFile="temp.html" >
+
+            <!-- Nested to make it easier to comment out and such. -->
+            <serverVault>/Games/NWNDedicatedServer/servervault</serverVault>
+
+        </htmlGeneratingProcessor>
+    </eventProcessor>
+
+
+</logFileProcessor>

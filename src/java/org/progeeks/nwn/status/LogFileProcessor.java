@@ -39,13 +39,13 @@ import org.progeeks.parser.regex.*;
 import org.progeeks.util.xml.*;
 
 /**
- *  Entry point for a utility that generates a server status
- *  web page from an NWN log file and some regex parsing rules.
+ *  Processes a log file through a parser and sends events to
+ *  a separate event processor.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class WebStatusGenerator extends Thread
+public class LogFileProcessor extends Thread
 {
     private static ObjectXmlReader xmlReader = new ObjectXmlReader();
     static
@@ -60,8 +60,7 @@ public class WebStatusGenerator extends Thread
     private boolean go = true;
     private File logFile;
     private Reader in;
-    private File outputFile;
-    private long writeInterval = 15000;  // Every 15 seconds at most.
+    private long commitInterval = 15000;  // Every 15 seconds at most.
 
     /**
      *  Read the log every second by default.
@@ -82,7 +81,13 @@ public class WebStatusGenerator extends Thread
      */
     private CompositePattern rootPattern;
 
-    public WebStatusGenerator()
+    /**
+     *  The object that receives new objects that we've parsed
+     *  from the log file.
+     */
+    private EventProcessor eventProcessor;
+
+    public LogFileProcessor()
     {
     }
 
@@ -97,20 +102,13 @@ public class WebStatusGenerator extends Thread
     }
 
     /**
-     *  Sets the file to use for web page generation.
-     */
-    public void setOutputFile( File file )
-    {
-        this.outputFile = file;
-    }
-
-    /**
      *  Sets the minimum number of milliseconds to wait between
-     *  web page generations.
+     *  calling commit on the EventProcessor after new data has
+     *  been sent.
      */
-    public void setGenerationInterval( long millis )
+    public void setCommitInterval( long millis )
     {
-        this.writeInterval = millis;
+        this.commitInterval = millis;
     }
 
     /**
@@ -131,12 +129,21 @@ public class WebStatusGenerator extends Thread
         this.rootPattern = rootPattern;
     }
 
-    public static WebStatusGenerator loadGenerator( File xmlConfig ) throws IOException
+    /**
+     *  Sets the event processor to which all parsed objects will
+     *  be passed.
+     */
+    public void setEventProcessor( EventProcessor eventProcessor )
+    {
+        this.eventProcessor = eventProcessor;
+    }
+
+    public static LogFileProcessor loadProcessor( File xmlConfig ) throws IOException
     {
         Reader in = new BufferedReader( new FileReader( xmlConfig ) );
         try
             {
-            WebStatusGenerator generator = (WebStatusGenerator)xmlReader.readObject( in );
+            LogFileProcessor generator = (LogFileProcessor)xmlReader.readObject( in );
             return( generator );
             }
         finally
@@ -168,7 +175,15 @@ public class WebStatusGenerator extends Thread
         while( matcher.find() )
             {
             Object value = matcher.getValue();
-            System.out.println( "Found:" + value );
+
+            if( eventProcessor == null )
+                {
+                System.out.println( "Found:" + value );
+                }
+            else
+                {
+                eventProcessor.processObject( value );
+                }
             end = matcher.end();
             }
 
@@ -189,7 +204,11 @@ public class WebStatusGenerator extends Thread
 
     protected void generateFile()
     {
-        System.out.println( "Generate file.  Running time:" + (System.currentTimeMillis() - startTime) );
+        System.out.println( "Commit.  Running time:" + (System.currentTimeMillis() - startTime) );
+        if( eventProcessor != null )
+            {
+            eventProcessor.commit();
+            }
     }
 
     public void run()
@@ -227,7 +246,7 @@ public class WebStatusGenerator extends Thread
                     {
                     long time = System.currentTimeMillis();
 
-                    if( changeCount > 0 && time > lastWriteTime + writeInterval )
+                    if( changeCount > 0 && time > lastWriteTime + commitInterval )
                         {
                         generateFile();
                         changeCount = 0;
@@ -256,13 +275,13 @@ public class WebStatusGenerator extends Thread
     {
         if( args.length == 0 )
             {
-            System.out.println( "Usage: WebStatus <config>" );
+            System.out.println( "Usage: LogFileProcessor <config>" );
             System.out.println( "Where: <config> is an XML configuration file." );
             return;
             }
 
         // Load the config from XML
-        WebStatusGenerator generator = WebStatusGenerator.loadGenerator( new File(args[0]) );
+        LogFileProcessor generator = LogFileProcessor.loadProcessor( new File(args[0]) );
         generator.start();
 
         // Wait for console commands and such
