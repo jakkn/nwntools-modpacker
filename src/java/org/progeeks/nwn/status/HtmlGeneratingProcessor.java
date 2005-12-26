@@ -33,6 +33,11 @@
 package org.progeeks.nwn.status;
 
 import java.io.*;
+import java.util.*;
+
+import org.progeeks.nwn.gff.*;
+import org.progeeks.nwn.io.gff.*;
+import org.progeeks.util.ExtensionFileFilter;
 
 /**
  *  Keeps track of NWN server state and writes it to HTML when
@@ -45,6 +50,11 @@ public class HtmlGeneratingProcessor implements EventProcessor
 {
     private File outputFile;
     private File serverVault;
+
+    /**
+     *  Maps player names to a map of their character names and character files.
+     */
+    private Map players = new HashMap();
 
     public HtmlGeneratingProcessor()
     {
@@ -65,7 +75,7 @@ public class HtmlGeneratingProcessor implements EventProcessor
     {
         this.serverVault = file;
 
-        // Load the players and characters from the vault
+        loadPlayerData();
     }
 
     /**
@@ -83,5 +93,84 @@ public class HtmlGeneratingProcessor implements EventProcessor
      */
     public void commit()
     {
+    }
+
+
+    /**
+     *  Reads the character file to determine name and other information.
+     */
+    protected void readCharacter( File character ) throws IOException
+    {
+        FileInputStream in = new FileInputStream( character );
+        try
+            {
+            GffReader reader = new GffReader( in );
+            Struct root = reader.readRootStruct();
+
+            // For testing
+            //GffReader.printElement( root, "    " );
+            //System.out.println( root );
+            System.out.println( "First name:" + root.getString( "FirstName" ) );
+            System.out.println( "Last name:" + root.getString( "LastName" ) );
+            System.out.println( "Is DM:" + root.getInt( "IsDM" ) );
+            System.out.println( "Age:" + root.getInt( "Age" ) );
+            System.out.println( "Gender:" + root.getInt( "Gender" ) );
+            System.out.println( "Race:" + root.getInt( "Race" ) );
+            System.out.println( "Subrace:" + root.getString( "Subrace" ) );
+            System.out.println( "Deity:" + root.getString( "Deity" ) );
+            System.out.println( "Gold:" + root.getInt( "Gold" ) );
+            System.out.println( "AC:" + root.getInt( "ArmorClass" ) );
+            System.out.println( "Natural AC:" + root.getInt( "NaturalAC" ) );
+            System.out.println( "Str:" + root.getInt( "Str" ) );
+            System.out.println( "Dex:" + root.getInt( "Dex" ) );
+            System.out.println( "Int:" + root.getInt( "Int" ) );
+            System.out.println( "Wis:" + root.getInt( "Wis" ) );
+            System.out.println( "Con:" + root.getInt( "Con" ) );
+            System.out.println( "Cha:" + root.getInt( "Cha" ) );
+            System.out.println( "Hit points:" + root.getInt( "HitPoints" ) );
+            System.out.println( "Max hit points" + root.getInt( "MaxHitPoints" ) );
+            System.out.println( "XP:" + root.getInt( "Experience" ) );
+            }
+        finally
+            {
+            in.close();
+            }
+    }
+
+    /**
+     *  Adds a new player and loads (or reloads) their list of active characters.
+     */
+    protected void addPlayer( File player )
+    {
+        System.out.println( "Player:" + player );
+        File[] chars = player.listFiles( new ExtensionFileFilter( "bic" ) );
+        for( int i = 0; i < chars.length; i++ )
+            {
+            System.out.println( "    character:" + chars[i] );
+            try
+                {
+                readCharacter( chars[i] );
+                }
+            catch( IOException e )
+                {
+                System.out.println( "Error reading character file:" + chars[i] );
+                e.printStackTrace();
+                }
+            }
+    }
+
+    /**
+     *  Loads player data from the configured server vault directory.
+     */
+    protected void loadPlayerData()
+    {
+        File[] players = serverVault.listFiles();
+        for( int i = 0; i < players.length; i++ )
+            {
+            if( !players[i].isDirectory() )
+                continue;
+            addPlayer( players[i] );
+            }
+//System.exit(0);
     }
 }
