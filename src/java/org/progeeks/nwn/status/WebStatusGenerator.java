@@ -192,7 +192,7 @@ public class WebStatusGenerator extends Thread
 
     public void run()
     {
-        byte[] buffer = new byte[16384];
+        byte[] buffer = new byte[1024]; //new byte[16384];
         StringBuffer sBuff = new StringBuffer();
 
         long lastWriteTime = 0;
