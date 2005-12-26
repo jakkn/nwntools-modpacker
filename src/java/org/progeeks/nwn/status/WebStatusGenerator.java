@@ -56,9 +56,10 @@ public class WebStatusGenerator extends Thread
         xmlReader.addObjectHandler( beanHandler );
     }
 
+    private long startTime;
     private boolean go = true;
     private File logFile;
-    private FileInputStream in;
+    private Reader in;
     private File outputFile;
     private long writeInterval = 15000;  // Every 15 seconds at most.
 
@@ -91,7 +92,8 @@ public class WebStatusGenerator extends Thread
     public void setLogFile( File file ) throws IOException
     {
         this.logFile = file;
-        this.in = new FileInputStream( file );
+        this.in = new FileReader( file );
+        //this.in = new BufferedReader( new FileReader( file ), 16384 );
     }
 
     /**
@@ -187,16 +189,18 @@ public class WebStatusGenerator extends Thread
 
     protected void generateFile()
     {
-        System.out.println( "Generate file." );
+        System.out.println( "Generate file.  Running time:" + (System.currentTimeMillis() - startTime) );
     }
 
     public void run()
     {
-        byte[] buffer = new byte[1024]; //new byte[16384];
+        this.startTime = System.currentTimeMillis();
+
+        char[] buffer = new char[64];
         StringBuffer sBuff = new StringBuffer();
 
         long lastWriteTime = 0;
-        long bytesRead = 0;
+        long charsRead = 0;
         long changeCount = 0;
         boolean newLine = true;
 
@@ -205,16 +209,13 @@ public class WebStatusGenerator extends Thread
             try
                 {
                 long length = logFile.length();
-                if( length > bytesRead )
+                if( length > charsRead )
                     {
-                    int bytes = in.read( buffer );
-                    bytesRead += bytes;
+                    int chars = in.read( buffer );
+                    charsRead += chars;
 
                     // Put the new data into the buffer
-                    for( int i = 0; i < bytes; i++ )
-                        {
-                        sBuff.append( (char)buffer[i] );
-                        }
+                    sBuff.append( buffer, 0, chars );
 
                     // Process the data read so far
                     sBuff = processInput( sBuff );
