@@ -24,6 +24,7 @@
 
                 <xml.preload>
                     <mapProduction xml.oid="mapProduction" />
+                    <serverEventProduction xml.oid="eventProduction" />
 
                     <!-- A date that we can reference in other sequences. -->
                     <!-- "[Sat Dec 24 01:54:42]" for example -->
@@ -51,7 +52,7 @@
 
                 <!-- Pattern for player joining messages. -->
                 <sequence2 name="playerJoined" >
-                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <productionFactory><xml.ref oid="eventProduction"/></productionFactory>
                     <children>
                         <xml.ref oid="date.pattern" />
 
@@ -70,7 +71,7 @@
 
                 <!-- Pattern for player left messages." -->
                 <sequence2 name="playerLeft" >
-                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <productionFactory><xml.ref oid="eventProduction"/></productionFactory>
                     <children>
                         <xml.ref oid="date.pattern" />
 
@@ -81,7 +82,7 @@
 
                 <!-- Creature death message. -->
                 <sequence2 name="pcDeath" >
-                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <productionFactory><xml.ref oid="eventProduction"/></productionFactory>
                     <children>
                         <xml.ref oid="date.pattern" />
 
@@ -92,7 +93,7 @@
 
                 <!-- Creature death message. -->
                 <sequence2 name="creatureDeath" >
-                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <productionFactory><xml.ref oid="eventProduction"/></productionFactory>
                     <children>
                         <xml.ref oid="date.pattern" />
 
@@ -104,7 +105,7 @@
 
                 <!-- Look for the server startup and shutdown information. -->
                 <sequence name="shutdown" >
-                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <productionFactory><xml.ref oid="eventProduction"/></productionFactory>
                     <children>
                         <xml.ref oid="date.pattern" />
                         <regexPattern regex="Server Shutting Down" />
@@ -112,7 +113,7 @@
                 </sequence>
 
                 <sequence name="startup" >
-                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <productionFactory><xml.ref oid="eventProduction"/></productionFactory>
                     <children>
                         <xml.ref oid="date.pattern" />
                         <regexPattern regex="---- Server Options ----\r?\n" />
@@ -264,7 +265,7 @@
                 </sequence>
 
                 <sequence name="moduleLoaded" >
-                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <productionFactory><xml.ref oid="eventProduction"/></productionFactory>
                     <children>
                         <xml.ref oid="date.pattern" />
 

@@ -13,7 +13,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) Neither the names "Progeeks", "Meta-JB", nor the names of its contributors
+ * 3) Neither the names "Progeeks", "NWN Tools", nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -32,70 +32,25 @@
 
 package org.progeeks.nwn.status;
 
-import java.io.*;
 import java.util.*;
 
-import org.progeeks.parser.regex.NameValuePair;
+import org.progeeks.parser.regex.*;
 
 /**
- *  Keeps track of NWN server state and writes it to HTML when
- *  committed.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class HtmlGeneratingProcessor implements EventProcessor
+public class ServerEventProduction extends MapProduction
 {
-    private File outputFile;
-
-    private ServerState server;
-
-    public HtmlGeneratingProcessor()
+    public Object createProduction( CompositeMatcher matcher, String name, Object value )
     {
-    }
-
-    /**
-     *  Sets the file to use for web page generation.
-     */
-    public void setOutputFile( File file )
-    {
-        this.outputFile = file;
-    }
-
-    /**
-     *  Sets the server state object that will keep track of
-     *  the events that have been processed.
-     */
-    public void setServerStateModel( ServerState state )
-    {
-        this.server = state;
-    }
-
-    /**
-     *  Processes the parsed object to update the server state.
-     */
-    public boolean processObject( Object obj )
-    {
-        if( obj == null )
-            return( false );
-        if( obj instanceof NameValuePair )
+        if( value instanceof List )
             {
-            // We'll go ahead and peel out the value if it's
-            // just an event since it will already have the name
-            // embedded
-            Object val = ((NameValuePair)obj).getValue();
-            if( val instanceof ServerEvent )
-                return( server.processObject( val ) );
+            Map m = new HashMap();
+            applyList( m, (List)value );
+            value = new ServerEvent( name, m );
             }
-        return( server.processObject( obj ) );
+        return( super.createProduction( matcher, name, value ) );
     }
-
-    /**
-     *  Writes the HTML status file from accumulated state changes.
-     */
-    public void commit()
-    {
-    }
-
-
 }

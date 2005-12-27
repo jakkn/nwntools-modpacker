@@ -13,7 +13,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) Neither the names "Progeeks", "Meta-JB", nor the names of its contributors
+ * 3) Neither the names "Progeeks", "NWN Tools", nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -32,70 +32,43 @@
 
 package org.progeeks.nwn.status;
 
-import java.io.*;
 import java.util.*;
 
-import org.progeeks.parser.regex.NameValuePair;
-
 /**
- *  Keeps track of NWN server state and writes it to HTML when
- *  committed.
+ *  Represents a timestamped parsed event from the server.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class HtmlGeneratingProcessor implements EventProcessor
+public class ServerEvent extends HashMap
 {
-    private File outputFile;
+    private String name;
+    private Date time;
 
-    private ServerState server;
-
-    public HtmlGeneratingProcessor()
+    public ServerEvent( String name, Map original )
     {
+        this.name = name;
+
+        Object t = original.remove( "date" );
+        while( t instanceof List )
+            t = ((List)t).get(0);
+
+        time = (Date)t;
+        putAll( original );
     }
 
-    /**
-     *  Sets the file to use for web page generation.
-     */
-    public void setOutputFile( File file )
+    public String getName()
     {
-        this.outputFile = file;
+        return( name );
     }
 
-    /**
-     *  Sets the server state object that will keep track of
-     *  the events that have been processed.
-     */
-    public void setServerStateModel( ServerState state )
+    public Date getEventTime()
     {
-        this.server = state;
+        return( time );
     }
 
-    /**
-     *  Processes the parsed object to update the server state.
-     */
-    public boolean processObject( Object obj )
+    public String toString()
     {
-        if( obj == null )
-            return( false );
-        if( obj instanceof NameValuePair )
-            {
-            // We'll go ahead and peel out the value if it's
-            // just an event since it will already have the name
-            // embedded
-            Object val = ((NameValuePair)obj).getValue();
-            if( val instanceof ServerEvent )
-                return( server.processObject( val ) );
-            }
-        return( server.processObject( obj ) );
+        return( name + " @ " + time + " " + super.toString() );
     }
-
-    /**
-     *  Writes the HTML status file from accumulated state changes.
-     */
-    public void commit()
-    {
-    }
-
-
 }
