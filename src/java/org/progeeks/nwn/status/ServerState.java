@@ -13,7 +13,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) Neither the names "Progeeks", "Meta-JB", nor the names of its contributors
+ * 3) Neither the names "Progeeks", "NWN Tools", nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -35,38 +35,40 @@ package org.progeeks.nwn.status;
 import java.io.*;
 import java.util.*;
 
+import org.progeeks.nwn.gff.*;
+import org.progeeks.nwn.io.gff.*;
+import org.progeeks.util.ExtensionFileFilter;
+
+
+
 /**
- *  Keeps track of NWN server state and writes it to HTML when
- *  committed.
+ *  Keeps the server information and processes new events
+ *  to adjust the state.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class HtmlGeneratingProcessor implements EventProcessor
+public class ServerState
 {
-    private File outputFile;
+    private File serverVault;
 
-    private ServerState server;
+    /**
+     *  Maps player names to a map of their character names and character files.
+     */
+    private Map playerMap = new HashMap();
 
-    public HtmlGeneratingProcessor()
+    public ServerState()
     {
     }
 
     /**
-     *  Sets the file to use for web page generation.
+     *  Sets the location of the NWN server vault.
      */
-    public void setOutputFile( File file )
+    public void setServerVault( File file )
     {
-        this.outputFile = file;
-    }
+        this.serverVault = file;
 
-    /**
-     *  Sets the server state object that will keep track of
-     *  the events that have been processed.
-     */
-    public void setServerStateModel( ServerState state )
-    {
-        this.server = state;
+        loadPlayerData();
     }
 
     /**
@@ -74,15 +76,26 @@ public class HtmlGeneratingProcessor implements EventProcessor
      */
     public boolean processObject( Object obj )
     {
-        return( server.processObject( obj ) );
+        System.out.println( "event[" + obj + "]" );
+
+        return( true );
     }
 
     /**
-     *  Writes the HTML status file from accumulated state changes.
+     *  Loads player data from the configured server vault directory.
      */
-    public void commit()
+    protected void loadPlayerData()
     {
+        File[] players = serverVault.listFiles();
+        for( int i = 0; i < players.length; i++ )
+            {
+            if( !players[i].isDirectory() )
+                continue;
+            System.out.println( "Player:" + players[i] );
+
+            Player p = new Player( players[i] );
+            playerMap.put( p.getName(), p );
+            }
+//System.exit(0);
     }
-
-
 }
