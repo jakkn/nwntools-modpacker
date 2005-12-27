@@ -5,9 +5,9 @@
 <logFileProcessor commitInterval="5000"
                   readInterval="1000" >
 
-    <!--<logFile>/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt</logFile>-->
-    <logFile>nwserverlog1.txt</logFile>
-    <!-- <logFile>testlog2.txt</logFile> -->
+    <logFile>/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt</logFile>
+    <!-- <logFile>nwserverlog1.txt</logFile>
+    <logFile>testlog2.txt</logFile> -->
 
     <!-- We could include this from a separate XML file but
          it's easy enough to configure here.
@@ -26,19 +26,17 @@
                     <!-- A date that we can reference in other sequences. -->
                     <!-- "[Sat Dec 24 01:54:42]" for example -->
                     <sequence name="date" xml.oid="date.pattern" >
+
                         <children>
+                            <!-- We could parse out the separate date components
+                                 but it's easier to get Java to create a Date object
+                                 for us from a full string. -->
                             <regexPattern regex="\[" />
-                            <regexPattern name="dayOfWeek" regex="Sun|Mon|Tue|Wed|Thu|Fri|Sat" />
-                            <regexPattern regex=" " />
-                            <regexPattern name="month" regex="Jan|Fed|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec" />
-                            <regexPattern regex=" " />
-                            <regexPattern name="day" regex="\d+" />
-                            <regexPattern regex=" " />
-                            <regexPattern name="hour" regex="\d+" />
-                            <regexPattern regex=":" />
-                            <regexPattern name="minutes" regex="\d+" />
-                            <regexPattern regex=":" />
-                            <regexPattern name="seconds" regex="\d+" />
+                            <regexPattern regex="(Sun|Mon|Tue|Wed|Thu|Fri|Sat) (Jan|Fed|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+ \d{2}:\d{2}:\d{2}" >
+                                <productionFactory>
+                                    <dateProduction />
+                                </productionFactory>
+                            </regexPattern>
                             <regexPattern regex="\] ?" />
                         </children>
                     </sequence> <!-- date -->
