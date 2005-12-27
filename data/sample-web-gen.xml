@@ -6,8 +6,8 @@
                   readInterval="1000" >
 
     <logFile>/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt</logFile>
-    <!--<logFile>nwserverlog1.txt</logFile>
-    <logFile>testlog2.txt</logFile>-->
+    <!-- <logFile>nwserverlog1.txt</logFile>
+    <logFile>testlog2.txt</logFile> -->
 
     <!-- We could include this from a separate XML file but
          it's easy enough to configure here.
@@ -263,24 +263,15 @@
                     </children>
                 </sequence>
 
-<!--
-Max Players: 20
-Char Levels: (1-30)
-Player Password: YES
-DM Login Enabled: NO
-Server Admin Login Enabled: YES
-Post Game To Internet: NO
-Game Type: Action
-Difficulty: 3
-PVP Setting: PARTY
-Vault: SERVER
-Only One Party: NO
-Enforce Legal Characters: NO
-Item Level Restrictions: NO
-Player pausing: DISABLED
-Auto Save: Enabled
-Saving Characters in Saved Game
--->
+                <sequence name="moduleLoaded" >
+                    <productionFactory><xml.ref oid="mapProduction"/></productionFactory>
+                    <children>
+                        <xml.ref oid="date.pattern" />
+
+                        <regexPattern regex="Loading Module: " />
+                        <regexPattern name="module" regex=".*" />
+                    </children>
+                </sequence>
 
             </children>
         </orPattern>
