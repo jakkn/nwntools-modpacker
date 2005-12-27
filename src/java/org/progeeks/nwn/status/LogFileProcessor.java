@@ -174,7 +174,7 @@ public class LogFileProcessor extends Thread
         int end = -1;
         while( matcher.find() )
             {
-            Object value = matcher.getValue();
+            Object value = matcher.getProduction();
 
             if( eventProcessor == null )
                 {
