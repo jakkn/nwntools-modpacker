@@ -50,12 +50,28 @@ import org.progeeks.util.ExtensionFileFilter;
  */
 public class ServerState
 {
+    public static final String EVENT_STARTUP = "startup";
+    public static final String EVENT_SHUTDOWN = "shutdown";
+    public static final String EVENT_LOAD_MODULE = "moduleLoaded";
+
     private File serverVault;
 
     /**
      *  Maps player names to a map of their character names and character files.
      */
     private Map playerMap = new HashMap();
+
+    /**
+     *  The current module being run.
+     */
+    private String module;
+
+    /**
+     *  The current server options.
+     */
+    private Map options;
+
+    private boolean online = false;
 
     public ServerState()
     {
@@ -74,11 +90,68 @@ public class ServerState
     /**
      *  Processes the parsed object to update the server state.
      */
-    public boolean processObject( Object obj )
+    public boolean processObject( ServerEvent event )
     {
-        System.out.println( "event[" + obj + "]" );
+        String name = event.getName();
 
-        return( true );
+        if( EVENT_STARTUP.equals( name ) )
+            {
+            online = true;
+            options = new HashMap();
+            options.putAll( event );
+            return( true );
+            }
+        else if( EVENT_SHUTDOWN.equals( name ) )
+            {
+            online = false;
+            module = null;
+            options = null;
+            return( true );
+            }
+        else if( EVENT_LOAD_MODULE.equals( name ) )
+            {
+            module = String.valueOf(event.get( "module" ));
+            return( true );
+            }
+
+        System.out.println( "event[" + event + "]" );
+
+        return( false );
+    }
+
+    /**
+     *  Returns the collection of all players known to this server.
+     */
+    public Collection getPlayers()
+    {
+        return( playerMap.values() );
+    }
+
+    /**
+     *  Returns the name of the module being run currently or null
+     *  if the server is offline or does not have a module loaded.
+     */
+    public String getModuleName()
+    {
+        return( module );
+    }
+
+    /**
+     *  Returns a map containing all of the server options or null
+     *  if the server is currently offline.
+     */
+    public Map getServerOptions()
+    {
+        return( options );
+    }
+
+    /**
+     *  Returns true if the server is currently online according
+     *  to the latest log events.
+     */
+    public boolean isOnline()
+    {
+        return( online );
     }
 
     /**

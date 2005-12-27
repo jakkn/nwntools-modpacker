@@ -85,9 +85,11 @@ public class HtmlGeneratingProcessor implements EventProcessor
             // embedded
             Object val = ((NameValuePair)obj).getValue();
             if( val instanceof ServerEvent )
-                return( server.processObject( val ) );
+                return( server.processObject( (ServerEvent)val ) );
             }
-        return( server.processObject( obj ) );
+        //return( server.processObject( obj ) );
+        System.out.println( "Unknown event type:" + obj );
+        return( false );
     }
 
     /**
@@ -95,7 +97,36 @@ public class HtmlGeneratingProcessor implements EventProcessor
      */
     public void commit()
     {
+        try
+            {
+            writeServerState();
+            }
+        catch( IOException e )
+            {
+            throw new RuntimeException( "Error writing server state to:" + outputFile, e );
+            }
     }
 
-
+    protected void writeServerState() throws IOException
+    {
+        // Just for testing, just dump some stuff
+        FileWriter fOut = new FileWriter( outputFile );
+        PrintWriter out = new PrintWriter( fOut );
+        try
+            {
+            out.println( "Server options:" + server.getServerOptions() );
+            out.println( "Module:" + server.getModuleName() );
+            out.println( "Online:" + server.isOnline() );
+            out.println( "Players:" );
+            for( Iterator i = server.getPlayers().iterator(); i.hasNext(); )
+                {
+                Player p = (Player)i.next();
+                out.println( "    " + p.getName() );
+                }
+            }
+        finally
+            {
+            out.close();
+            }
+    }
 }
