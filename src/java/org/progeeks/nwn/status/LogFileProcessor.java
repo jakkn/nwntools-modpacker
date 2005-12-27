@@ -87,6 +87,11 @@ public class LogFileProcessor extends Thread
      */
     private EventProcessor eventProcessor;
 
+    /**
+     *  Set to true for all processed text to be displayed.
+     */
+    private boolean fullOutput = false;
+
     public LogFileProcessor()
     {
     }
@@ -166,7 +171,8 @@ public class LogFileProcessor extends Thread
             return( new StringBuffer() );
             }
 
-        System.out.println( "Processing[" + sb + "]" );
+        if( fullOutput )
+            System.out.println( "Processing[" + sb + "]" );
 
         CompositeMatcher matcher = rootPattern.matcher( sb );
 
@@ -174,6 +180,20 @@ public class LogFileProcessor extends Thread
         int end = -1;
         while( matcher.find() )
             {
+            if( !fullOutput )
+                {
+                // Display the text the was skipped
+                int start = matcher.start();
+                String skipped;
+                if( end == -1 )
+                    skipped = sb.substring( 0, start );
+                else
+                    skipped = sb.substring( end, start );
+                skipped = skipped.trim();
+                if( skipped.length() > 0 )
+                    System.out.println( "Skipped[" + skipped + "]" );
+                }
+
             Object value = matcher.getProduction();
 
             if( eventProcessor == null )
