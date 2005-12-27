@@ -215,7 +215,7 @@ public class LogFileProcessor extends Thread
     {
         this.startTime = System.currentTimeMillis();
 
-        char[] buffer = new char[64];
+        char[] buffer = new char[264];
         StringBuffer sBuff = new StringBuffer();
 
         long lastWriteTime = 0;

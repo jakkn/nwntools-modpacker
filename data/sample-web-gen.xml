@@ -6,7 +6,8 @@
                   readInterval="1000" >
 
     <logFile>/Games/NWNDedicatedServer/logs.0/nwserverlog1.txt</logFile>
-    <!-- <logFile>testlog.txt</logFile> -->
+    <logFile>nwserverlog1.txt</logFile>
+    <logFile>testlog2.txt</logFile>
 
     <!-- We could include this from a separate XML file but
          it's easy enough to configure here.
@@ -38,7 +39,7 @@
                             <regexPattern name="minutes" regex="\d+" />
                             <regexPattern regex=":" />
                             <regexPattern name="seconds" regex="\d+" />
-                            <regexPattern regex="\] " />
+                            <regexPattern regex="\] ?" />
                         </children>
                     </sequence> <!-- date -->
                 </xml.preload>
@@ -93,6 +94,180 @@
                     </children>
                 </sequence2>
 
+
+                <!-- Look for the server startup and shutdown information. -->
+                <sequence name="shutdown" >
+                    <children>
+                        <xml.ref oid="date.pattern" />
+                        <regexPattern regex="Server Shutting Down" />
+                    </children>
+                </sequence>
+
+                <sequence name="startup" >
+                    <children>
+                        <xml.ref oid="date.pattern" />
+                        <regexPattern regex="---- Server Options ----\r?\n" />
+
+                        <repeatPattern >
+                            <childPattern>
+                                <orPattern>
+                                    <children>
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Max Players: " />
+                                                <regexPattern name="maxPlayers" regex="\d+" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence name="allowedLevels" >
+                                            <children>
+                                                <regexPattern regex="Char Levels: \(" />
+                                                <regexPattern name="minimum" regex="\d+" />
+                                                <regexPattern regex="-" />
+                                                <regexPattern name="maximum" regex="\d+" />
+                                                <regexPattern regex="\)\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Player Password: " />
+                                                <regexPattern name="hasPassword" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="DM Login Enabled: " />
+                                                <regexPattern name="dmLoginEnabled" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Server Admin Login Enabled: " />
+                                                <regexPattern name="adminLoginEnabled" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Post Game To Internet: " />
+                                                <regexPattern name="isPublic" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Game Type: " />
+                                                <regexPattern name="gameType" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Difficulty: " />
+                                                <regexPattern name="difficulty" regex="\d+" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="PVP Setting: " />
+                                                <regexPattern name="pvpSetting" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Vault: " />
+                                                <regexPattern name="vaultType" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Only One Party: " />
+                                                <regexPattern name="onlyOneParty" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Enforce Legal Characters: " />
+                                                <regexPattern name="elc" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Item Level Restrictions: " />
+                                                <regexPattern name="levelRestrictions" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Player Pausing: " />
+                                                <regexPattern name="playerPausing" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Auto Save: " />
+                                                <regexPattern name="autosave" regex=".*" />
+                                                <regexPattern regex="\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <sequence>
+                                            <children>
+                                                <regexPattern regex="Saving Characters in Saved Game\r?\n" />
+                                            </children>
+                                        </sequence>
+
+                                        <regexPattern name="unknownOption" regex=".*\r?\n" />
+                                    </children>
+                                </orPattern>
+                            </childPattern>
+                        </repeatPattern>
+
+                        <regexPattern regex="---- End Server Options ----" />
+                    </children>
+                </sequence>
+
+<!--
+Max Players: 20
+Char Levels: (1-30)
+Player Password: YES
+DM Login Enabled: NO
+Server Admin Login Enabled: YES
+Post Game To Internet: NO
+Game Type: Action
+Difficulty: 3
+PVP Setting: PARTY
+Vault: SERVER
+Only One Party: NO
+Enforce Legal Characters: NO
+Item Level Restrictions: NO
+Player pausing: DISABLED
+Auto Save: Enabled
+Saving Characters in Saved Game
+-->
 
             </children>
         </orPattern>
