@@ -121,7 +121,7 @@ public class HtmlGeneratingProcessor implements EventProcessor
             for( Iterator i = server.getPlayers().iterator(); i.hasNext(); )
                 {
                 Player p = (Player)i.next();
-                out.println( "    " + p.getName() );
+                out.println( "    " + p.getName() + "  Online:" + p.isOnline() );
                 }
             }
         finally

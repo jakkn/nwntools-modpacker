@@ -54,6 +54,14 @@ public class ServerState
     public static final String EVENT_SHUTDOWN = "shutdown";
     public static final String EVENT_LOAD_MODULE = "moduleLoaded";
 
+    private static Set playerEvents = new HashSet();
+    static
+    {
+        playerEvents.add( "pcDeath" );
+        playerEvents.add( "playerJoined" );
+        playerEvents.add( "playerLeft" );
+    }
+
     private File serverVault;
 
     /**
@@ -113,10 +121,60 @@ public class ServerState
             module = String.valueOf(event.get( "module" ));
             return( true );
             }
+        else if( playerEvents.contains( name ) )
+            {
+            // Find the player
+            String playerName = (String)event.get( "player" );
+            Player p = null;
+            if( playerName == null )
+                {
+                // See if it's a character event
+                String charName = (String)event.get( "playerCharacter" );
+                if( charName == null )
+                    {
+                    System.out.println( "Bad player event:" + event );
+                    return( false );
+                    }
+
+                // Try to find an online player with that character
+                p = findPlayerForChar( charName );
+                if( p == null )
+                    {
+                    System.out.println( "Bad character name:" + charName );
+                    return( false );
+                    }
+                }
+            else
+                {
+                // Look up the player
+                p = (Player)playerMap.get( playerName );
+                }
+            if( p == null )
+                {
+                System.out.println( "No player found for event:" + event );
+                return( false );
+                }
+
+            return( p.processEvent( event ) );
+            }
+
 
         System.out.println( "event[" + event + "]" );
 
         return( false );
+    }
+
+    protected Player findPlayerForChar( String charName )
+    {
+        for( Iterator i = getPlayers().iterator(); i.hasNext(); )
+            {
+            Player p = (Player)i.next();
+            if( !p.isOnline() )
+                continue;
+            if( p.hasCharacter( charName ) )
+                return( p );
+            }
+        return( null );
     }
 
     /**

@@ -48,8 +48,13 @@ import org.progeeks.util.ExtensionFileFilter;
  */
 public class Player
 {
+    public static final String EVENT_JOINED = "playerJoined";
+    public static final String EVENT_LEFT = "playerLeft";
+
     private String name;
     private File playerDirectory;
+    private boolean online = false;
+    private Map charMap = new HashMap();
 
     public Player( File playerDirectory )
     {
@@ -62,6 +67,36 @@ public class Player
     {
         return( name );
     }
+
+    public boolean isOnline()
+    {
+        return( online );
+    }
+
+    public boolean processEvent( ServerEvent event )
+    {
+        String name = event.getName();
+
+        if( EVENT_JOINED.equals( name ) )
+            {
+            // Need to record the time too
+            online = true;
+            }
+        else if( EVENT_LEFT.equals( name ) )
+            {
+            // Need to record the time too
+            online = false;
+            }
+
+        System.out.println( "Player event:" + event );
+        return( false );
+    }
+
+    public boolean hasCharacter( String charName )
+    {
+        return( charMap.containsKey( charName ) );
+    }
+
 
     /**
      *  Reads the character file to determine name and other information.
@@ -97,6 +132,10 @@ public class Player
             System.out.println( "Hit points:" + root.getInt( "HitPoints" ) );
             System.out.println( "Max hit points" + root.getInt( "MaxHitPoints" ) );
             System.out.println( "XP:" + root.getInt( "Experience" ) );
+
+            String fullName = root.getString( "FirstName" ) + " " + root.getString( "LastName" );
+
+            charMap.put( fullName, character ); // for now
             }
         finally
             {
