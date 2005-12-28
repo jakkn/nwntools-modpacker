@@ -64,13 +64,28 @@
         <tstamp/>
         <!-- Create the build directory structure used by compile -->
         <mkdir dir="${build.classes}"/>
+
+        <!-- Some checks for conditional external libs. -->
+        <available classname="freemarker.template.Configuration" classpathref="build.classpath"
+                   property="freemarker.present" />
     </target>
 
     <target name="compile" depends="init">
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src}/java" destdir="${build.classes}" deprecation="${javac.deprecation}"
                                     debug="${javac.debug}" optimize="${javac.optimize}"
-                                    excludes="${javac.excludes}" classpathref="build.classpath" />
+                                    excludes="${javac.excludes}" classpathref="build.classpath" >
+            <exclude name="org/progeeks/nwn/status/fm/**" />
+        </javac>
+    </target>
+
+    <target name="compile.freemarker" depends="init" if="freemarker.present" >
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}/java" destdir="${build.classes}" deprecation="${javac.deprecation}"
+                                    debug="${javac.debug}" optimize="${javac.optimize}"
+                                    excludes="${javac.excludes}" classpathref="build.classpath" >
+            <include name="org/progeeks/nwn/status/fm/**" />
+        </javac>
     </target>
 
     <target name="rmic" depends="init">
@@ -122,7 +137,7 @@
         </copy>
     </target>
 
-    <target name="build" depends="compile,rmic,java.resources">
+    <target name="build" depends="compile,compile.freemarker,rmic,java.resources">
     </target>
 
     <target name="dist" depends="build">
