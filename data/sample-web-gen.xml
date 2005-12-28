@@ -76,7 +76,7 @@
                         <xml.ref oid="date.pattern" />
 
                         <regexPattern name="player" regex=".*" />
-                        <regexPattern regex="Left as a Player \(\d+ players left\)" />
+                        <regexPattern regex=" Left as a Player \(\d+ players left\)" />
                     </children>
                 </sequence2>
 
@@ -86,7 +86,7 @@
                     <children>
                         <xml.ref oid="date.pattern" />
 
-                        <regexPattern name="creature" regex=".*" />
+                        <regexPattern name="playerCharacter" regex=".*" />
                         <regexPattern regex="\(PC\) Died" />
                     </children>
                 </sequence2>
