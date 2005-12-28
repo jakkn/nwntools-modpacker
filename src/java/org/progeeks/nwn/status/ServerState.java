@@ -37,6 +37,7 @@ import java.util.*;
 
 import org.progeeks.nwn.gff.*;
 import org.progeeks.nwn.io.gff.*;
+import org.progeeks.parser.regex.NameValuePair;
 import org.progeeks.util.ExtensionFileFilter;
 
 
@@ -96,9 +97,31 @@ public class ServerState
     }
 
     /**
-     *  Processes the parsed object to update the server state.
+     *  Processes the parsed object to update the server state by
+     *  converting it to a ServerEvent if possible and passing it
+     *  on to the processEvent() method.
      */
-    public boolean processObject( ServerEvent event )
+    public boolean processObject( Object obj )
+    {
+        if( obj == null )
+            return( false );
+        if( obj instanceof NameValuePair )
+            {
+            // We'll go ahead and peel out the value if it's
+            // just an event since it will already have the name
+            // embedded
+            Object val = ((NameValuePair)obj).getValue();
+            if( val instanceof ServerEvent )
+                return( processEvent( (ServerEvent)val ) );
+            }
+        System.out.println( "Unknown event type:" + obj );
+        return( false );
+    }
+
+    /**
+     *  Processes the parsed event to update the server state.
+     */
+    public boolean processEvent( ServerEvent event )
     {
         String name = event.getName();
 

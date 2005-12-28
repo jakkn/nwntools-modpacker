@@ -35,7 +35,6 @@ package org.progeeks.nwn.status;
 import java.io.*;
 import java.util.*;
 
-import org.progeeks.parser.regex.NameValuePair;
 
 /**
  *  Keeps track of NWN server state and writes it to HTML when
@@ -76,20 +75,7 @@ public class HtmlGeneratingProcessor implements EventProcessor
      */
     public boolean processObject( Object obj )
     {
-        if( obj == null )
-            return( false );
-        if( obj instanceof NameValuePair )
-            {
-            // We'll go ahead and peel out the value if it's
-            // just an event since it will already have the name
-            // embedded
-            Object val = ((NameValuePair)obj).getValue();
-            if( val instanceof ServerEvent )
-                return( server.processObject( (ServerEvent)val ) );
-            }
-        //return( server.processObject( obj ) );
-        System.out.println( "Unknown event type:" + obj );
-        return( false );
+        return( server.processObject( obj ) );
     }
 
     /**
