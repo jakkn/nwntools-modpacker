@@ -82,6 +82,9 @@ public class ServerState
 
     private boolean online = false;
 
+    private Date startupTime;
+    private Date shutdownTime;
+
     public ServerState()
     {
     }
@@ -94,6 +97,20 @@ public class ServerState
         this.serverVault = file;
 
         loadPlayerData();
+    }
+
+    public Date getStartupTime()
+    {
+        if( online )
+            return( startupTime );
+        return( null );
+    }
+
+    public Date getShutdownTime()
+    {
+        if( !online )
+            return( shutdownTime );
+        return( null );
     }
 
     /**
@@ -130,6 +147,7 @@ public class ServerState
             online = true;
             options = new HashMap();
             options.putAll( event );
+            startupTime = event.getEventTime();
             return( true );
             }
         else if( EVENT_SHUTDOWN.equals( name ) )
@@ -137,6 +155,7 @@ public class ServerState
             online = false;
             module = null;
             options = null;
+            shutdownTime = event.getEventTime();
             return( true );
             }
         else if( EVENT_LOAD_MODULE.equals( name ) )

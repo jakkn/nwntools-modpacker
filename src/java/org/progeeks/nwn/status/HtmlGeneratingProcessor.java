@@ -95,20 +95,53 @@ public class HtmlGeneratingProcessor implements EventProcessor
 
     protected void writeServerState() throws IOException
     {
-        // Just for testing, just dump some stuff
         FileWriter fOut = new FileWriter( outputFile );
         PrintWriter out = new PrintWriter( fOut );
         try
             {
-            out.println( "Server options:" + server.getServerOptions() );
-            out.println( "Module:" + server.getModuleName() );
-            out.println( "Online:" + server.isOnline() );
-            out.println( "Players:" );
+            // Just generate some raw HTML.
+            out.println( "<html><title>Server Status Page</title>" );
+            out.println( "<body>" );
+            if( server.isOnline() )
+                {
+                out.println( "<h2>Module:" + server.getModuleName() + "</h2>" );
+                out.println( "Online since:" + server.getStartupTime() );
+                }
+            else
+                {
+                out.println( "<h2>Server Offline</h2>" );
+                out.println( "Offline since:" + server.getShutdownTime() );
+                }
+
+            out.println( "<h2>Online Players:</h2>" );
+            out.println( "<table border='1'>" );
             for( Iterator i = server.getPlayers().iterator(); i.hasNext(); )
                 {
                 Player p = (Player)i.next();
-                out.println( "    " + p.getName() + "  Online:" + p.isOnline() );
+                if( p.isOnline() )
+                    {
+                    out.print( "<tr><td>" + p.getName() + "</td>" );
+                    out.println( "</tr>" );
+                    }
                 }
+            out.println( "</table>" );
+
+            out.println( "<h2>Offline Players:</h2>" );
+            out.println( "<table border='1'>" );
+            for( Iterator i = server.getPlayers().iterator(); i.hasNext(); )
+                {
+                Player p = (Player)i.next();
+                if( !p.isOnline() )
+                    {
+                    out.print( "<tr><td>" + p.getName() + "</td>" );
+                    out.println( "</tr>" );
+                    }
+                }
+            out.println( "</table>" );
+
+            out.println( "Page last updated:" + new Date() );
+
+            out.println( "</body></html>" );
             }
         finally
             {
