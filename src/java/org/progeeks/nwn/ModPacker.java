@@ -38,6 +38,7 @@ import java.util.*;
 import org.progeeks.util.*;
 
 import org.progeeks.nwn.io.*;
+import org.progeeks.nwn.io.BinaryDataOutputStream;
 import org.progeeks.nwn.io.itp.*;
 import org.progeeks.nwn.itp.*;
 import org.progeeks.nwn.resource.*;
