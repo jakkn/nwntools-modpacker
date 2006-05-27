@@ -37,6 +37,7 @@ import java.io.*;
 import java.util.*;
 
 import org.progeeks.cmd.swing.SwingCommandProcessor;
+import org.progeeks.graph.xml.*;
 import org.progeeks.meta.*;
 import org.progeeks.meta.beans.*;
 import org.progeeks.meta.format.*;
