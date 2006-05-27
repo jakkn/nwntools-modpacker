@@ -107,8 +107,7 @@ public class GffXmlReader extends XmlReader
             }
         catch( XmlException e )
             {
-            log.error( "Error reading XML", e );
-            throw new IOException( e.getMessage() );
+            throw new RuntimeException( "Error reading XML", e );
             }
     }
 
