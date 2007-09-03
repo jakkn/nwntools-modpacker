@@ -36,6 +36,7 @@ import java.io.*;
 import java.util.*;
 
 import org.progeeks.meta.xml.*;
+import org.progeeks.util.xml.*;
 
 import org.progeeks.nwn.gff.*;
 
