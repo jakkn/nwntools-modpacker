@@ -47,6 +47,8 @@ import org.progeeks.nwn.gff.*;
  */
 public class GffWriter
 {
+    private static String nwnEncoding = System.getProperty( "nwn.write.encoding", "windows-1252" );
+
     public static final String GFF_VERSION = "V3.2";
 
     private byte[] type = new byte[4];
@@ -402,13 +404,13 @@ public class GffWriter
                     break;
                 case Element.TYPE_STRING:
                     s = (String)((StringElement)el).getValue();
-                    sb = s.getBytes();
+                    sb = s.getBytes( nwnEncoding );
                     out.writeInt( sb.length );
                     out.write( sb );
                     break;
                 case Element.TYPE_RESREF:
                     s = (String)((StringElement)el).getValue();
-                    sb = s.getBytes();
+                    sb = s.getBytes( nwnEncoding );
                     out.writeByte( sb.length );
                     out.write( sb, 0, Math.min( 256, sb.length ) );
                     break;
@@ -432,7 +434,7 @@ public class GffWriter
                         out.writeInt( ((Integer)e.getKey()).intValue() );
 
                         String val = (String)e.getValue();
-                        sb = val.getBytes();
+                        sb = val.getBytes( nwnEncoding );
 //System.out.println( "Write: Strref element size:" + sb.length );
                         out.writeInt( sb.length );
 //System.out.print( "Write: Strref element data:" );

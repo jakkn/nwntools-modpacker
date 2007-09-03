@@ -47,6 +47,8 @@ import org.progeeks.nwn.gff.*;
  */
 public class GffReader
 {
+    private static String nwnEncoding = System.getProperty( "nwn.read.encoding", "windows-1252" );
+
     private BinaryDataInputStream in;
     private Header header;
     private List structs;
@@ -224,14 +226,14 @@ public class GffReader
                     len = in.readInt();
                     buff = new byte[len];
                     in.readFully( buff );
-                    el = new StringElement( name, stub.type, new String(buff) );
+                    el = new StringElement( name, stub.type, new String(buff, nwnEncoding) );
                     break;
                 case Element.TYPE_RESREF:
                     in.gotoPosition( dataOffset + stub.data );
                     len = in.readUnsignedByte();
                     buff = new byte[len];
                     in.readFully( buff );
-                    el = new StringElement( name, stub.type, new String(buff) );
+                    el = new StringElement( name, stub.type, new String(buff, nwnEncoding) );
                     break;
                 case Element.TYPE_STRREF:
                     in.gotoPosition( dataOffset + stub.data );
@@ -258,7 +260,29 @@ public class GffReader
 //for( int j = 0; j < buff.length; j++ )
     //System.out.print( (char)buff[j] );
 //System.out.println();
-                        ((LocalizedStringElement)el).addLocalString( l, new String( buff ) );
+                        ((LocalizedStringElement)el).addLocalString( l, new String( buff, nwnEncoding ) );
+
+/*
+System.out.println( "read local string:" + ((LocalizedStringElement)el).getLocalString( l ) );
+System.out.println( "bytes:" );
+for( int j = 0; j < buff.length; j++ )
+    System.out.print( "[" + (buff[j] & 0xff) + "(" + (char)buff[j] +")]" );
+System.out.println();
+Map charsets = java.nio.charset.Charset.availableCharsets();
+for( Iterator it = charsets.keySet().iterator(); it.hasNext(); )
+    {
+    String key = (String)it.next();
+    try
+        {
+        System.out.println( "trying:" + key + "  = " + new String( buff, key ) );
+        }
+    catch( Exception e )
+        {
+        System.out.println( "Failed to encode with:" + key );
+        e.printStackTrace();
+        }
+    }
+*/
                         }
 
 //System.out.println( "Ending position:" + in.getFilePosition() + "   should be at:" + (dataOffset + stub.data + fullLength + 4) );
